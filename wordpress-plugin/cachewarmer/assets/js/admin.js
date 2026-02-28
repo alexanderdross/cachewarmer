@@ -354,6 +354,121 @@
     });
 
     // ──────────────────────────────────────────────
+    // Bulk Import
+    // ──────────────────────────────────────────────
+
+    $(document).on('submit', '#cw-bulk-import-form', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $spinner = $form.find('#cw-bulk-spinner');
+        var $msg = $form.find('#cw-bulk-message');
+        var urls = $form.find('#cw-bulk-urls').val();
+
+        $spinner.addClass('is-active');
+        $msg.hide();
+
+        $.ajax({
+            url: CW.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'cachewarmer_bulk_add_sitemaps',
+                nonce: CW.nonce,
+                urls: urls
+            },
+            success: function (response) {
+                if (response.success) {
+                    var count = response.data.added.length;
+                    var errCount = response.data.errors.length;
+                    var msg = count + ' sitemap(s) added.';
+                    if (errCount > 0) msg += ' ' + errCount + ' invalid URL(s) skipped.';
+                    $msg.removeClass('error').addClass('success').text(msg).show();
+                    $form.find('#cw-bulk-urls').val('');
+                    if (count > 0) location.reload();
+                } else {
+                    $msg.removeClass('success').addClass('error')
+                        .text(response.data ? response.data.message : CW.i18n.error).show();
+                }
+            },
+            error: function () {
+                $msg.removeClass('success').addClass('error').text(CW.i18n.error).show();
+            },
+            complete: function () {
+                $spinner.removeClass('is-active');
+            }
+        });
+    });
+
+    // ──────────────────────────────────────────────
+    // Auto-Detect Sitemaps
+    // ──────────────────────────────────────────────
+
+    $(document).on('click', '#cw-detect-sitemaps', function () {
+        var $btn = $(this);
+        var $textarea = $('#cw-bulk-urls');
+
+        $btn.prop('disabled', true).text('Detecting...');
+
+        $.ajax({
+            url: CW.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'cachewarmer_detect_sitemaps',
+                nonce: CW.nonce
+            },
+            success: function (response) {
+                if (response.success && response.data.sitemaps.length > 0) {
+                    var existing = $textarea.val().trim();
+                    var newUrls = response.data.sitemaps.join('\n');
+                    $textarea.val(existing ? existing + '\n' + newUrls : newUrls);
+                    $btn.text('Found ' + response.data.sitemaps.length + '!');
+                } else {
+                    $btn.text('None found');
+                }
+            },
+            error: function () {
+                $btn.text('Error');
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $btn.prop('disabled', false).text('Auto-Detect Local Sitemaps');
+                }, 2000);
+            }
+        });
+    });
+
+    // ──────────────────────────────────────────────
+    // Export Results
+    // ──────────────────────────────────────────────
+
+    $(document).on('click', '.cw-export-results', function () {
+        var jobId = $(this).data('job-id');
+        var format = $(this).data('format') || 'csv';
+
+        $.ajax({
+            url: CW.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'cachewarmer_export_results',
+                nonce: CW.nonce,
+                jobId: jobId,
+                format: format
+            },
+            success: function (response) {
+                if (!response.success) {
+                    alert(response.data ? response.data.message : 'Export failed');
+                    return;
+                }
+                var content = format === 'csv' ? response.data.content : JSON.stringify(response.data.content, null, 2);
+                var blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = response.data.filename;
+                link.click();
+            }
+        });
+    });
+
+    // ──────────────────────────────────────────────
     // Utility functions
     // ──────────────────────────────────────────────
 

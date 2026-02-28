@@ -268,6 +268,102 @@
     });
   });
 
+  // --- Bulk Import ---
+
+  // Bulk Import handler
+  $(document).on('click', '#cachewarmer-bulk-import', function () {
+    var $btn = $(this);
+    var $status = $('#cachewarmer-bulk-status');
+    var bulkUrls = $('#cachewarmer-bulk-urls').val();
+
+    if (!bulkUrls || !bulkUrls.trim()) {
+      $status.text(Drupal.t('Please enter at least one URL.'));
+      return;
+    }
+
+    $btn.prop('disabled', true);
+    $status.text(Drupal.t('Importing...'));
+
+    $.ajax({
+      url: urls.bulkAddSitemapsUrl,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ urls: bulkUrls }),
+      success: function (data) {
+        var msg = data.added.length + ' ' + Drupal.t('sitemap(s) added.');
+        if (data.errors.length > 0) {
+          msg += ' ' + data.errors.length + ' ' + Drupal.t('invalid URL(s) skipped.');
+        }
+        $status.text(msg);
+        if (data.added.length > 0) {
+          location.reload();
+        }
+      },
+      error: function () {
+        $status.text(Drupal.t('Import failed.'));
+      },
+      complete: function () {
+        $btn.prop('disabled', false);
+      }
+    });
+  });
+
+  // Auto-Detect
+  $(document).on('click', '#cachewarmer-detect-sitemaps', function () {
+    var $btn = $(this);
+    var $textarea = $('#cachewarmer-bulk-urls');
+
+    $btn.prop('disabled', true).text(Drupal.t('Detecting...'));
+
+    $.ajax({
+      url: urls.detectSitemapsUrl,
+      method: 'POST',
+      contentType: 'application/json',
+      data: '{}',
+      success: function (data) {
+        if (data.sitemaps && data.sitemaps.length > 0) {
+          var existing = $textarea.val().trim();
+          var newUrls = data.sitemaps.join('\n');
+          $textarea.val(existing ? existing + '\n' + newUrls : newUrls);
+          $btn.text(Drupal.t('Found') + ' ' + data.sitemaps.length + '!');
+        } else {
+          $btn.text(Drupal.t('None found'));
+        }
+      },
+      error: function () {
+        $btn.text(Drupal.t('Error'));
+      },
+      complete: function () {
+        setTimeout(function () {
+          $btn.prop('disabled', false).text(Drupal.t('Auto-Detect Local Sitemaps'));
+        }, 2000);
+      }
+    });
+  });
+
+  // --- Export ---
+
+  // Export handler
+  $(document).on('click', '.cachewarmer-btn-export', function () {
+    var jobId = $(this).data('job-id');
+    var format = $(this).data('format') || 'csv';
+
+    $.ajax({
+      url: urls.exportResultsUrl,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ job_id: jobId, format: format }),
+      success: function (data) {
+        var content = format === 'csv' ? data.content : JSON.stringify(data.content, null, 2);
+        var blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = data.filename;
+        link.click();
+      }
+    });
+  });
+
   // Auto-refresh on dashboard
   if ($('.cachewarmer-dashboard').length) {
     setInterval(function () {

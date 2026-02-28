@@ -26,6 +26,20 @@
     </div>
   </fieldset>
 
+  {# Bulk Import #}
+  <fieldset class="cachewarmer-add-sitemap-form" style="margin-top: 24px;">
+    <legend>{{ 'Bulk Import Sitemaps'|t }}</legend>
+    <div class="cachewarmer-form-row">
+      <label for="cachewarmer-bulk-urls">{{ 'Sitemap URLs (one per line)'|t }}</label>
+      <textarea id="cachewarmer-bulk-urls" rows="5" class="form-textarea" placeholder="https://example.com/sitemap.xml&#10;https://another-site.com/sitemap.xml"></textarea>
+    </div>
+    <div class="cachewarmer-form-row">
+      <button type="button" id="cachewarmer-bulk-import" class="button button--primary">{{ 'Import All'|t }}</button>
+      <button type="button" id="cachewarmer-detect-sitemaps" class="button">{{ 'Auto-Detect Local Sitemaps'|t }}</button>
+      <span id="cachewarmer-bulk-status" class="cachewarmer-inline-status"></span>
+    </div>
+  </fieldset>
+
   {# Sitemaps Table #}
   <h3>{{ 'Registered Sitemaps'|t }}</h3>
   <table class="cachewarmer-sitemaps-table">

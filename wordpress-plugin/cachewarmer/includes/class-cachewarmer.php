@@ -113,6 +113,14 @@ class CacheWarmer {
             'cachewarmer_scheduler_enabled'        => '0',
             'cachewarmer_scheduler_cron'           => 'daily',
             'cachewarmer_log_level'                => 'info',
+            'cachewarmer_license_key'              => '',
+            'cachewarmer_license_tier'             => 'free',
+            'cachewarmer_auto_warm_on_publish'     => '0',
+            'cachewarmer_auto_warm_targets'        => array( 'cdn', 'facebook', 'linkedin', 'twitter' ),
+            'cachewarmer_exclude_patterns'         => '',
+            'cachewarmer_email_notifications'      => '0',
+            'cachewarmer_notification_email'       => '',
+            'cachewarmer_webhook_url'              => '',
         );
     }
 

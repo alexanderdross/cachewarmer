@@ -431,6 +431,29 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
     $config->set('scheduler.enabled', (bool) $form_state->getValue('scheduler_enabled'));
     $config->set('scheduler.frequency', $form_state->getValue('scheduler_frequency'));
 
+    // License.
+    $licenseKey = $form_state->getValue('license_key');
+    if (!empty($licenseKey)) {
+      /** @var \Drupal\cachewarmer\Service\CacheWarmerLicense $license */
+      $license = \Drupal::service('cachewarmer.license');
+      $license->activate($licenseKey);
+    }
+
+    // Auto-warm.
+    $config->set('auto_warm_on_publish', (bool) $form_state->getValue('auto_warm_on_publish'));
+    $autoWarmTargets = array_values(array_filter($form_state->getValue('auto_warm_targets') ?: []));
+    $config->set('auto_warm_targets', $autoWarmTargets);
+
+    // Filtering.
+    $config->set('exclude_patterns', $form_state->getValue('exclude_patterns'));
+
+    // Email notifications.
+    $config->set('email_notifications', (bool) $form_state->getValue('email_notifications'));
+    $config->set('notification_email', $form_state->getValue('notification_email'));
+
+    // Webhooks.
+    $config->set('webhook_url', $form_state->getValue('webhook_url'));
+
     $config->set('log_level', $form_state->getValue('log_level'));
 
     $config->save();
