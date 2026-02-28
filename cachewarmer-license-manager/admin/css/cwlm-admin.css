@@ -1,0 +1,140 @@
+/**
+ * CacheWarmer License Manager – Admin Styles
+ */
+
+/* KPI Cards */
+.cwlm-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.cwlm-kpi-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.cwlm-kpi-card .cwlm-kpi-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1.2;
+}
+
+.cwlm-kpi-card .cwlm-kpi-label {
+    font-size: 13px;
+    color: #646970;
+    margin-top: 4px;
+}
+
+.cwlm-kpi-card.cwlm-kpi-warning .cwlm-kpi-value {
+    color: #dba617;
+}
+
+/* Status Badges */
+.cwlm-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cwlm-badge-active { background: #d4edda; color: #155724; }
+.cwlm-badge-inactive { background: #e2e3e5; color: #383d41; }
+.cwlm-badge-grace_period { background: #fff3cd; color: #856404; }
+.cwlm-badge-expired { background: #f8d7da; color: #721c24; }
+.cwlm-badge-revoked { background: #721c24; color: #fff; }
+
+/* Tier Badges */
+.cwlm-tier-free { background: #e2e3e5; color: #383d41; }
+.cwlm-tier-professional { background: #cce5ff; color: #004085; }
+.cwlm-tier-enterprise { background: #d4edda; color: #155724; }
+.cwlm-tier-development { background: #e2d5f1; color: #4a1f8e; }
+
+/* Platform Icons */
+.cwlm-platform-nodejs::before { content: "⬢ "; }
+.cwlm-platform-docker::before { content: "🐳 "; }
+.cwlm-platform-wordpress::before { content: "W "; font-weight: bold; }
+.cwlm-platform-drupal::before { content: "💧 "; }
+
+/* Charts */
+.cwlm-chart-container {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.cwlm-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+/* Tables */
+.cwlm-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cwlm-table th,
+.cwlm-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e4e7;
+}
+
+.cwlm-table th {
+    background: #f0f0f1;
+    font-weight: 600;
+}
+
+.cwlm-table tr:hover td {
+    background: #f6f7f7;
+}
+
+/* License Key Display */
+.cwlm-license-key {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #1d2327;
+}
+
+/* Filter Bar */
+.cwlm-filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: #f0f0f1;
+    border-radius: 4px;
+}
+
+.cwlm-filter-bar select,
+.cwlm-filter-bar input {
+    padding: 4px 8px;
+}
+
+/* Detail View */
+.cwlm-detail-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 8px 16px;
+    margin: 15px 0;
+}
+
+.cwlm-detail-label {
+    font-weight: 600;
+    color: #646970;
+}
