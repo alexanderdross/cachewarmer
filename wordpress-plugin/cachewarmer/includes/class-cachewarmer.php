@@ -12,6 +12,11 @@ require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-job-manager.ph
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-sitemap-parser.php';
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-rest-api.php';
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-scheduler.php';
+require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-license.php';
+require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-publish-hook.php';
+require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-sitemap-detector.php';
+require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-webhooks.php';
+require_once CACHEWARMER_PLUGIN_DIR . 'includes/class-cachewarmer-email.php';
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/services/class-cachewarmer-cdn-warmer.php';
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/services/class-cachewarmer-facebook-warmer.php';
 require_once CACHEWARMER_PLUGIN_DIR . 'includes/services/class-cachewarmer-linkedin-warmer.php';
@@ -32,6 +37,7 @@ class CacheWarmer {
     private CacheWarmer_Job_Manager $job_manager;
     private CacheWarmer_REST_API $rest_api;
     private CacheWarmer_Scheduler $scheduler;
+    private CacheWarmer_Publish_Hook $publish_hook;
 
     public static function get_instance(): self {
         if ( null === self::$instance ) {
@@ -41,10 +47,11 @@ class CacheWarmer {
     }
 
     private function __construct() {
-        $this->database    = new CacheWarmer_Database();
-        $this->job_manager = new CacheWarmer_Job_Manager( $this->database );
-        $this->rest_api    = new CacheWarmer_REST_API( $this->job_manager, $this->database );
-        $this->scheduler   = new CacheWarmer_Scheduler( $this->job_manager, $this->database );
+        $this->database     = new CacheWarmer_Database();
+        $this->job_manager  = new CacheWarmer_Job_Manager( $this->database );
+        $this->rest_api     = new CacheWarmer_REST_API( $this->job_manager, $this->database );
+        $this->scheduler    = new CacheWarmer_Scheduler( $this->job_manager, $this->database );
+        $this->publish_hook = new CacheWarmer_Publish_Hook( $this->job_manager );
 
         if ( is_admin() ) {
             new CacheWarmer_Admin( $this->job_manager, $this->database );

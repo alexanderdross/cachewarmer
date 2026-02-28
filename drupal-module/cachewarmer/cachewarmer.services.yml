@@ -35,6 +35,22 @@ services:
     class: Drupal\cachewarmer\Service\IndexNow
     arguments: ['@http_client', '@config.factory']
 
+  cachewarmer.license:
+    class: Drupal\cachewarmer\Service\CacheWarmerLicense
+    arguments: ['@config.factory']
+
+  cachewarmer.sitemap_detector:
+    class: Drupal\cachewarmer\Service\CacheWarmerSitemapDetector
+    arguments: ['@http_client']
+
+  cachewarmer.webhooks:
+    class: Drupal\cachewarmer\Service\CacheWarmerWebhooks
+    arguments: ['@config.factory', '@http_client', '@logger.channel.cachewarmer', '@cachewarmer.license']
+
+  cachewarmer.email:
+    class: Drupal\cachewarmer\Service\CacheWarmerEmail
+    arguments: ['@config.factory', '@plugin.manager.mail', '@cachewarmer.license']
+
   cachewarmer.job_manager:
     class: Drupal\cachewarmer\Service\CacheWarmerJobManager
     arguments:
