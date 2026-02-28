@@ -1,0 +1,211 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the CacheWarmer module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function cachewarmer_schema() {
+  $schema['cachewarmer_sitemaps'] = [
+    'description' => 'Registered sitemaps for cache warming.',
+    'fields' => [
+      'id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+        'description' => 'UUID primary key.',
+      ],
+      'url' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'description' => 'Sitemap URL.',
+      ],
+      'domain' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Extracted domain.',
+      ],
+      'cron_expression' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => FALSE,
+        'description' => 'Optional cron expression for scheduled warming.',
+      ],
+      'created_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => 'Creation timestamp (ISO 8601).',
+      ],
+      'last_warmed_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'description' => 'Last warming timestamp (ISO 8601).',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'domain' => ['domain'],
+    ],
+  ];
+
+  $schema['cachewarmer_jobs'] = [
+    'description' => 'Warming jobs.',
+    'fields' => [
+      'id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+        'description' => 'UUID primary key.',
+      ],
+      'sitemap_id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => FALSE,
+        'description' => 'Foreign key to sitemaps table.',
+      ],
+      'sitemap_url' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'description' => 'Sitemap URL for this job.',
+      ],
+      'status' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'queued',
+        'description' => 'Job status: queued, running, completed, failed.',
+      ],
+      'total_urls' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Total number of URLs to process.',
+      ],
+      'processed_urls' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Number of processed URLs.',
+      ],
+      'targets' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'description' => 'JSON-encoded array of warming targets.',
+      ],
+      'started_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'description' => 'Processing start timestamp.',
+      ],
+      'completed_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'description' => 'Processing completion timestamp.',
+      ],
+      'error' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => 'Error message if job failed.',
+      ],
+      'created_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => 'Job creation timestamp.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'status' => ['status'],
+      'sitemap_id' => ['sitemap_id'],
+      'created_at' => ['created_at'],
+    ],
+  ];
+
+  $schema['cachewarmer_url_results'] = [
+    'description' => 'Individual URL warming results.',
+    'fields' => [
+      'id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+        'description' => 'UUID primary key.',
+      ],
+      'job_id' => [
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+        'description' => 'Foreign key to jobs table.',
+      ],
+      'url' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'description' => 'The warmed URL.',
+      ],
+      'target' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => 'Warming target: cdn, facebook, linkedin, twitter, google, bing, indexnow.',
+      ],
+      'status' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'pending',
+        'description' => 'Result status: success, failed, skipped, pending.',
+      ],
+      'http_status' => [
+        'type' => 'int',
+        'not null' => FALSE,
+        'description' => 'HTTP response status code.',
+      ],
+      'duration_ms' => [
+        'type' => 'int',
+        'not null' => FALSE,
+        'description' => 'Duration in milliseconds.',
+      ],
+      'error' => [
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => 'Error message if failed.',
+      ],
+      'created_at' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => 'Result creation timestamp.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'job_id' => ['job_id'],
+      'target' => ['target'],
+      'status' => ['status'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cachewarmer_uninstall() {
+  \Drupal::configFactory()->getEditable('cachewarmer.settings')->delete();
+}

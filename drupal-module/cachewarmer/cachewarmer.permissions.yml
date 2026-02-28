@@ -1,0 +1,4 @@
+administer cachewarmer:
+  title: 'Administer CacheWarmer'
+  description: 'Manage CacheWarmer settings, sitemaps, and warming jobs.'
+  restrict access: true
