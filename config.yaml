@@ -64,6 +64,18 @@ scheduler:
   enabled: false
   defaultCron: "0 3 * * *"
 
+notifications:
+  webhookUrl: ""
+  emailEnabled: false
+  emailTo: ""
+  emailFrom: "cachewarmer@localhost"
+  smtpHost: ""
+  smtpPort: 587
+  smtpUser: ""
+  smtpPass: ""
+
+excludePatterns: ""
+
 logging:
   level: "info"
   file: "./data/cachewarmer.log"

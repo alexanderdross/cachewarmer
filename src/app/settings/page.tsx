@@ -13,6 +13,17 @@ interface Config {
   indexNow: { enabled: boolean; key: string; keyLocation: string };
   cdnWarming: { enabled: boolean; concurrency: number; timeout: number };
   server: { apiKey: string; port: number };
+  notifications: {
+    webhookUrl: string;
+    emailEnabled: boolean;
+    emailTo: string;
+    emailFrom: string;
+    smtpHost: string;
+    smtpPort: number;
+    smtpUser: string;
+    smtpPass: string;
+  };
+  excludePatterns: string;
 }
 
 export default function SettingsPage() {
@@ -33,10 +44,14 @@ export default function SettingsPage() {
 
   const updateConfig = (section: keyof Config, field: string, value: string | number | boolean) => {
     if (!config) return;
-    setConfig({
-      ...config,
-      [section]: { ...config[section], [field]: value },
-    });
+    if (section === "excludePatterns") {
+      setConfig({ ...config, excludePatterns: value as string });
+    } else {
+      setConfig({
+        ...config,
+        [section]: { ...(config[section] as Record<string, unknown>), [field]: value },
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -288,6 +303,101 @@ export default function SettingsPage() {
           />
         </div>
       </SettingsSection>
+
+      {/* Notifications */}
+      <SettingsSection
+        title="Benachrichtigungen"
+        description="Webhook- und E-Mail-Benachrichtigungen bei Job-Abschluss oder Fehlern."
+        enabled={config.notifications?.emailEnabled || !!config.notifications?.webhookUrl}
+        onToggle={() => {}}
+      >
+        <div className="space-y-4">
+          <h4 className="text-sm font-medium text-gray-300">Webhook</h4>
+          <InputField
+            label="Webhook URL"
+            value={config.notifications?.webhookUrl || ""}
+            onChange={(v) => updateConfig("notifications", "webhookUrl", v)}
+            placeholder="https://hooks.example.com/cachewarmer"
+            helpText="HTTP POST wird bei Job-Events gesendet (JSON Payload)"
+          />
+
+          <h4 className="text-sm font-medium text-gray-300 pt-2">E-Mail</h4>
+          <div className="flex items-center gap-3 mb-2">
+            <label className="text-sm text-gray-400">E-Mail-Benachrichtigungen aktiv</label>
+            <button
+              onClick={() => updateConfig("notifications", "emailEnabled", !config.notifications?.emailEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                config.notifications?.emailEnabled ? "bg-orange-500" : "bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  config.notifications?.emailEnabled ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Empfaenger (To)"
+              value={config.notifications?.emailTo || ""}
+              onChange={(v) => updateConfig("notifications", "emailTo", v)}
+              placeholder="admin@example.com"
+              helpText="E-Mail-Adresse fuer Benachrichtigungen"
+            />
+            <InputField
+              label="Absender (From)"
+              value={config.notifications?.emailFrom || "cachewarmer@localhost"}
+              onChange={(v) => updateConfig("notifications", "emailFrom", v)}
+              placeholder="cachewarmer@localhost"
+            />
+            <InputField
+              label="SMTP Host"
+              value={config.notifications?.smtpHost || ""}
+              onChange={(v) => updateConfig("notifications", "smtpHost", v)}
+              placeholder="smtp.example.com"
+              helpText="SMTP-Server fuer den E-Mail-Versand"
+            />
+            <InputField
+              label="SMTP Port"
+              value={String(config.notifications?.smtpPort || 587)}
+              onChange={(v) => updateConfig("notifications", "smtpPort", parseInt(v) || 587)}
+              type="number"
+              helpText="587 (STARTTLS) oder 465 (SSL)"
+            />
+            <InputField
+              label="SMTP Benutzer"
+              value={config.notifications?.smtpUser || ""}
+              onChange={(v) => updateConfig("notifications", "smtpUser", v)}
+              placeholder="user@example.com"
+            />
+            <InputField
+              label="SMTP Passwort"
+              value={config.notifications?.smtpPass || ""}
+              onChange={(v) => updateConfig("notifications", "smtpPass", v)}
+              type="password"
+              placeholder="***"
+            />
+          </div>
+        </div>
+      </SettingsSection>
+
+      {/* Exclude Patterns */}
+      <div className="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white">URL-Ausschlussmuster</h3>
+          <p className="text-xs text-gray-400 mt-1">
+            URLs die eines dieser Muster enthalten, werden beim Warming uebersprungen. Ein Muster pro Zeile.
+          </p>
+        </div>
+        <textarea
+          value={config.excludePatterns || ""}
+          onChange={(e) => setConfig({ ...config, excludePatterns: e.target.value })}
+          placeholder={"/admin\n/wp-json\n/feed\n?preview=true"}
+          rows={5}
+          className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
+        />
+      </div>
 
       {/* Save Button (bottom) */}
       <div className="flex justify-end pt-4">

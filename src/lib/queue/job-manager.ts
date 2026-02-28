@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { getDb } from "@/lib/db/database";
+import { loadConfig } from "@/lib/config";
 import { parseSitemap } from "@/lib/services/sitemap-parser";
 import { warmUrls, closeBrowser } from "@/lib/services/cdn-warmer";
 import { warmFacebook } from "@/lib/services/facebook-warmer";
@@ -8,6 +9,8 @@ import { warmTwitter } from "@/lib/services/twitter-warmer";
 import { submitIndexNow } from "@/lib/services/indexnow";
 import { submitToGoogle } from "@/lib/services/google-indexer";
 import { submitToBing } from "@/lib/services/bing-indexer";
+import { sendWebhook } from "@/lib/services/webhooks";
+import { sendJobCompletedEmail } from "@/lib/services/email-notifications";
 import logger from "@/lib/logger";
 
 export type WarmTarget = "cdn" | "facebook" | "linkedin" | "twitter" | "google" | "bing" | "indexnow";
@@ -104,10 +107,13 @@ export async function processJob(jobId: string): Promise<void> {
   runningJobs.add(jobId);
 
   const db = getDb();
+  const job = getJob(jobId);
+  if (!job || job.status !== "queued") {
+    runningJobs.delete(jobId);
+    return;
+  }
 
   try {
-    const job = getJob(jobId);
-    if (!job || job.status !== "queued") return;
 
     updateJobStatus(jobId, "running");
     const targets: WarmTarget[] = JSON.parse(job.targets);
@@ -115,9 +121,23 @@ export async function processJob(jobId: string): Promise<void> {
     // Parse sitemap
     logger.info({ jobId, sitemapUrl: job.sitemap_url }, "Parsing sitemap");
     const sitemapUrls = await parseSitemap(job.sitemap_url);
-    const urls = sitemapUrls.map((u) => u.loc);
+    let urls = sitemapUrls.map((u) => u.loc);
+
+    // Apply exclude patterns
+    const config = loadConfig();
+    const excludeRaw = config.excludePatterns || "";
+    if (excludeRaw.trim()) {
+      const patterns = excludeRaw.split("\n").map((p) => p.trim()).filter((p) => p.length > 0);
+      const beforeCount = urls.length;
+      urls = urls.filter((url) => !patterns.some((pattern) => url.includes(pattern)));
+      if (urls.length < beforeCount) {
+        logger.info({ jobId, excluded: beforeCount - urls.length }, "URLs excluded by patterns");
+      }
+    }
 
     db.prepare("UPDATE jobs SET total_urls = ? WHERE id = ?").run(urls.length, jobId);
+
+    sendWebhook("job.started", { jobId, sitemapUrl: job.sitemap_url, urlCount: urls.length, targets }).catch(() => {});
 
     let processed = 0;
 
@@ -196,10 +216,19 @@ export async function processJob(jobId: string): Promise<void> {
 
     updateJobStatus(jobId, "completed");
     logger.info({ jobId, processed }, "Job completed");
+
+    // Send notifications
+    const notifData = { jobId, status: "completed", sitemapUrl: job.sitemap_url, totalUrls: urls.length, processedUrls: processed };
+    sendWebhook("job.completed", notifData).catch(() => {});
+    sendJobCompletedEmail(notifData).catch(() => {});
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     logger.error({ jobId, error }, "Job failed");
     updateJobStatus(jobId, "failed", error);
+
+    // Send failure notifications
+    sendWebhook("job.failed", { jobId, error }).catch(() => {});
+    sendJobCompletedEmail({ jobId, status: "failed", sitemapUrl: job.sitemap_url, totalUrls: 0, processedUrls: 0 }).catch(() => {});
   } finally {
     runningJobs.delete(jobId);
   }

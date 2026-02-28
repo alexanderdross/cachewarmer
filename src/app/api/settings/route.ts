@@ -52,6 +52,18 @@ export async function GET(request: NextRequest) {
         key: config.indexNow?.key || "",
         keyLocation: config.indexNow?.keyLocation || "",
       },
+      notifications: {
+        ...config.notifications,
+        webhookUrl: config.notifications?.webhookUrl || "",
+        emailEnabled: config.notifications?.emailEnabled || false,
+        emailTo: config.notifications?.emailTo || "",
+        emailFrom: config.notifications?.emailFrom || "cachewarmer@localhost",
+        smtpHost: config.notifications?.smtpHost || "",
+        smtpPort: config.notifications?.smtpPort || 587,
+        smtpUser: config.notifications?.smtpUser || "",
+        smtpPass: config.notifications?.smtpPass ? "***configured***" : "",
+      },
+      excludePatterns: config.excludePatterns || "",
     };
 
     return NextResponse.json(masked);
@@ -128,6 +140,24 @@ export async function PUT(request: NextRequest) {
       if (updates.server.apiKey && updates.server.apiKey !== "***configured***") {
         config.server.apiKey = updates.server.apiKey;
       }
+    }
+
+    if (updates.notifications) {
+      if (!config.notifications) config.notifications = {};
+      if (updates.notifications.webhookUrl !== undefined) config.notifications.webhookUrl = updates.notifications.webhookUrl;
+      if (updates.notifications.emailEnabled !== undefined) config.notifications.emailEnabled = updates.notifications.emailEnabled;
+      if (updates.notifications.emailTo !== undefined) config.notifications.emailTo = updates.notifications.emailTo;
+      if (updates.notifications.emailFrom !== undefined) config.notifications.emailFrom = updates.notifications.emailFrom;
+      if (updates.notifications.smtpHost !== undefined) config.notifications.smtpHost = updates.notifications.smtpHost;
+      if (updates.notifications.smtpPort !== undefined) config.notifications.smtpPort = updates.notifications.smtpPort;
+      if (updates.notifications.smtpUser !== undefined) config.notifications.smtpUser = updates.notifications.smtpUser;
+      if (updates.notifications.smtpPass && updates.notifications.smtpPass !== "***configured***") {
+        config.notifications.smtpPass = updates.notifications.smtpPass;
+      }
+    }
+
+    if (updates.excludePatterns !== undefined) {
+      config.excludePatterns = updates.excludePatterns;
     }
 
     // Write to config.local.yaml

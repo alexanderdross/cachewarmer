@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface Stat {
   target: string;
   status: string;
@@ -26,17 +28,62 @@ interface JobDetailProps {
 }
 
 export default function JobDetail({ job, onBack }: JobDetailProps) {
+  const [exporting, setExporting] = useState(false);
   const statsByTarget: Record<string, Record<string, number>> = {};
   for (const stat of job.stats) {
     if (!statsByTarget[stat.target]) statsByTarget[stat.target] = {};
     statsByTarget[stat.target][stat.status] = stat.count;
   }
 
+  const handleExport = async (format: "csv" | "json") => {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: job.id, format }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const blob = new Blob(
+          [typeof data.content === "string" ? data.content : JSON.stringify(data.content, null, 2)],
+          { type: format === "csv" ? "text/csv" : "application/json" }
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <button onClick={onBack} className="text-orange-500 hover:text-orange-400 text-sm">
-        &larr; Zurueck zur Uebersicht
-      </button>
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="text-orange-500 hover:text-orange-400 text-sm">
+          &larr; Zurueck zur Uebersicht
+        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleExport("csv")}
+            disabled={exporting}
+            className="bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-gray-300 text-xs font-medium py-1.5 px-3 rounded-md transition-colors border border-gray-700"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={() => handleExport("json")}
+            disabled={exporting}
+            className="bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-gray-300 text-xs font-medium py-1.5 px-3 rounded-md transition-colors border border-gray-700"
+          >
+            Export JSON
+          </button>
+        </div>
+      </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 space-y-4">
         <div className="flex items-center justify-between">

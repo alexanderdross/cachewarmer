@@ -67,6 +67,17 @@ export interface AppConfig {
     enabled: boolean;
     defaultCron: string;
   };
+  notifications: {
+    webhookUrl: string;
+    emailEnabled: boolean;
+    emailTo: string;
+    emailFrom: string;
+    smtpHost: string;
+    smtpPort: number;
+    smtpUser: string;
+    smtpPass: string;
+  };
+  excludePatterns: string;
   logging: {
     level: string;
     file: string;
