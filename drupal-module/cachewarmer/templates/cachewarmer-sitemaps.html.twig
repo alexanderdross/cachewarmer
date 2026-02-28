@@ -1,0 +1,70 @@
+{#
+/**
+ * @file
+ * CacheWarmer sitemaps management template.
+ *
+ * Variables:
+ * - sitemaps: array of sitemap objects.
+ */
+#}
+<div class="cachewarmer-sitemaps">
+
+  {# Add Sitemap Form #}
+  <fieldset class="cachewarmer-add-sitemap-form">
+    <legend>{{ 'Register Sitemap'|t }}</legend>
+    <div class="cachewarmer-form-row">
+      <label for="cachewarmer-new-sitemap-url">{{ 'Sitemap URL'|t }}</label>
+      <input type="url" id="cachewarmer-new-sitemap-url" name="url" placeholder="https://example.com/sitemap.xml" required class="form-url" />
+    </div>
+    <div class="cachewarmer-form-row">
+      <label for="cachewarmer-new-sitemap-cron">{{ 'Cron Expression (optional)'|t }}</label>
+      <input type="text" id="cachewarmer-new-sitemap-cron" name="cron_expression" placeholder="0 3 * * *" class="form-text" />
+    </div>
+    <div class="cachewarmer-form-row">
+      <button type="button" id="cachewarmer-add-sitemap" class="button button--primary">{{ 'Add Sitemap'|t }}</button>
+      <span id="cachewarmer-sitemap-status" class="cachewarmer-inline-status"></span>
+    </div>
+  </fieldset>
+
+  {# Bulk Import #}
+  <fieldset class="cachewarmer-add-sitemap-form" style="margin-top: 24px;">
+    <legend>{{ 'Bulk Import Sitemaps'|t }}</legend>
+    <div class="cachewarmer-form-row">
+      <label for="cachewarmer-bulk-urls">{{ 'Sitemap URLs (one per line)'|t }}</label>
+      <textarea id="cachewarmer-bulk-urls" rows="5" class="form-textarea" placeholder="https://example.com/sitemap.xml&#10;https://another-site.com/sitemap.xml"></textarea>
+    </div>
+    <div class="cachewarmer-form-row">
+      <button type="button" id="cachewarmer-bulk-import" class="button button--primary">{{ 'Import All'|t }}</button>
+      <button type="button" id="cachewarmer-detect-sitemaps" class="button">{{ 'Auto-Detect Local Sitemaps'|t }}</button>
+      <span id="cachewarmer-bulk-status" class="cachewarmer-inline-status"></span>
+    </div>
+  </fieldset>
+
+  {# Sitemaps Table #}
+  <h3>{{ 'Registered Sitemaps'|t }}</h3>
+  <table class="cachewarmer-sitemaps-table">
+    <thead>
+      <tr>
+        <th>{{ 'Domain'|t }}</th>
+        <th>{{ 'URL'|t }}</th>
+        <th>{{ 'Cron'|t }}</th>
+        <th>{{ 'Last Warmed'|t }}</th>
+        <th>{{ 'Actions'|t }}</th>
+      </tr>
+    </thead>
+    <tbody id="cachewarmer-sitemaps-tbody">
+      {% for sitemap in sitemaps %}
+      <tr data-sitemap-id="{{ sitemap.id }}">
+        <td>{{ sitemap.domain }}</td>
+        <td><a href="{{ sitemap.url }}" target="_blank" rel="noopener">{{ sitemap.url }}</a></td>
+        <td>{{ sitemap.cron_expression ?: 'None'|t }}</td>
+        <td>{{ sitemap.last_warmed_at ?: 'Never'|t }}</td>
+        <td>
+          <button class="button button--small button--primary cachewarmer-btn-warm-sitemap" data-sitemap-id="{{ sitemap.id }}">{{ 'Warm Now'|t }}</button>
+          <button class="button button--small button--danger cachewarmer-btn-delete-sitemap" data-sitemap-id="{{ sitemap.id }}">{{ 'Delete'|t }}</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

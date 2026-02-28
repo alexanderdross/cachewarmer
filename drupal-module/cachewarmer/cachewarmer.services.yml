@@ -1,0 +1,69 @@
+services:
+  cachewarmer.database:
+    class: Drupal\cachewarmer\Service\CacheWarmerDatabase
+    arguments: ['@database']
+
+  cachewarmer.sitemap_parser:
+    class: Drupal\cachewarmer\Service\CacheWarmerSitemapParser
+    arguments: ['@http_client']
+
+  cachewarmer.cdn_warmer:
+    class: Drupal\cachewarmer\Service\CdnWarmer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.facebook_warmer:
+    class: Drupal\cachewarmer\Service\FacebookWarmer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.linkedin_warmer:
+    class: Drupal\cachewarmer\Service\LinkedinWarmer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.twitter_warmer:
+    class: Drupal\cachewarmer\Service\TwitterWarmer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.google_indexer:
+    class: Drupal\cachewarmer\Service\GoogleIndexer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.bing_indexer:
+    class: Drupal\cachewarmer\Service\BingIndexer
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.indexnow:
+    class: Drupal\cachewarmer\Service\IndexNow
+    arguments: ['@http_client', '@config.factory']
+
+  cachewarmer.license:
+    class: Drupal\cachewarmer\Service\CacheWarmerLicense
+    arguments: ['@config.factory']
+
+  cachewarmer.sitemap_detector:
+    class: Drupal\cachewarmer\Service\CacheWarmerSitemapDetector
+    arguments: ['@http_client']
+
+  cachewarmer.webhooks:
+    class: Drupal\cachewarmer\Service\CacheWarmerWebhooks
+    arguments: ['@config.factory', '@http_client', '@logger.channel.cachewarmer', '@cachewarmer.license']
+
+  cachewarmer.email:
+    class: Drupal\cachewarmer\Service\CacheWarmerEmail
+    arguments: ['@config.factory', '@plugin.manager.mail', '@cachewarmer.license']
+
+  cachewarmer.job_manager:
+    class: Drupal\cachewarmer\Service\CacheWarmerJobManager
+    arguments:
+      - '@cachewarmer.database'
+      - '@cachewarmer.sitemap_parser'
+      - '@cachewarmer.cdn_warmer'
+      - '@cachewarmer.facebook_warmer'
+      - '@cachewarmer.linkedin_warmer'
+      - '@cachewarmer.twitter_warmer'
+      - '@cachewarmer.google_indexer'
+      - '@cachewarmer.bing_indexer'
+      - '@cachewarmer.indexnow'
+      - '@config.factory'
+      - '@logger.factory'
+      - '@cachewarmer.webhooks'
+      - '@cachewarmer.email'

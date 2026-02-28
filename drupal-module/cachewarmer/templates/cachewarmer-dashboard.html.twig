@@ -1,0 +1,111 @@
+{#
+/**
+ * @file
+ * CacheWarmer dashboard template.
+ *
+ * Variables:
+ * - status: array with queued, running, completed, failed, total_processed counts.
+ * - jobs: array of job objects.
+ */
+#}
+<div class="cachewarmer-dashboard">
+
+  {# Status Cards #}
+  <div class="cachewarmer-status-cards">
+    <div class="cachewarmer-card cachewarmer-card--queued">
+      <div class="cachewarmer-card__label">{{ 'Queued'|t }}</div>
+      <div class="cachewarmer-card__value" id="cachewarmer-status-queued">{{ status.queued|default(0) }}</div>
+    </div>
+    <div class="cachewarmer-card cachewarmer-card--running">
+      <div class="cachewarmer-card__label">{{ 'Running'|t }}</div>
+      <div class="cachewarmer-card__value" id="cachewarmer-status-running">{{ status.running|default(0) }}</div>
+    </div>
+    <div class="cachewarmer-card cachewarmer-card--completed">
+      <div class="cachewarmer-card__label">{{ 'Completed'|t }}</div>
+      <div class="cachewarmer-card__value" id="cachewarmer-status-completed">{{ status.completed|default(0) }}</div>
+    </div>
+    <div class="cachewarmer-card cachewarmer-card--failed">
+      <div class="cachewarmer-card__label">{{ 'Failed'|t }}</div>
+      <div class="cachewarmer-card__value" id="cachewarmer-status-failed">{{ status.failed|default(0) }}</div>
+    </div>
+    <div class="cachewarmer-card cachewarmer-card--total">
+      <div class="cachewarmer-card__label">{{ 'Total Processed'|t }}</div>
+      <div class="cachewarmer-card__value" id="cachewarmer-status-total">{{ status.total_processed|default(0) }}</div>
+    </div>
+  </div>
+
+  {# Warm Form #}
+  <fieldset class="cachewarmer-warm-form">
+    <legend>{{ 'Start Cache Warming'|t }}</legend>
+    <div class="cachewarmer-form-row">
+      <label for="cachewarmer-sitemap-url">{{ 'Sitemap URL'|t }}</label>
+      <input type="url" id="cachewarmer-sitemap-url" name="sitemap_url" placeholder="https://example.com/sitemap.xml" required class="form-url" />
+    </div>
+    <div class="cachewarmer-form-row cachewarmer-targets">
+      <label>{{ 'Targets'|t }}</label>
+      <div class="cachewarmer-checkboxes">
+        <label><input type="checkbox" name="targets[]" value="cdn" checked /> {{ 'CDN'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="facebook" checked /> {{ 'Facebook'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="linkedin" checked /> {{ 'LinkedIn'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="twitter" checked /> {{ 'Twitter/X'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="google" checked /> {{ 'Google'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="bing" checked /> {{ 'Bing'|t }}</label>
+        <label><input type="checkbox" name="targets[]" value="indexnow" checked /> {{ 'IndexNow'|t }}</label>
+      </div>
+    </div>
+    <div class="cachewarmer-form-row">
+      <button type="button" id="cachewarmer-start-warm" class="button button--primary">{{ 'Start Warming'|t }}</button>
+      <span id="cachewarmer-warm-status" class="cachewarmer-inline-status"></span>
+    </div>
+  </fieldset>
+
+  {# Jobs Table #}
+  <h3>{{ 'Recent Jobs'|t }}</h3>
+  <table class="cachewarmer-jobs-table">
+    <thead>
+      <tr>
+        <th>{{ 'Status'|t }}</th>
+        <th>{{ 'Domain'|t }}</th>
+        <th>{{ 'Progress'|t }}</th>
+        <th>{{ 'Targets'|t }}</th>
+        <th>{{ 'Created'|t }}</th>
+        <th>{{ 'Actions'|t }}</th>
+      </tr>
+    </thead>
+    <tbody id="cachewarmer-jobs-tbody">
+      {% for job in jobs %}
+      <tr data-job-id="{{ job.id }}">
+        <td><span class="cachewarmer-badge cachewarmer-badge--{{ job.status }}">{{ job.status }}</span></td>
+        <td>{{ job.sitemap_url }}</td>
+        <td>
+          <div class="cachewarmer-progress">
+            <div class="cachewarmer-progress__bar" style="width: {{ job.total_urls > 0 ? ((job.processed_urls / job.total_urls) * 100) : 0 }}%"></div>
+            <span class="cachewarmer-progress__text">{{ job.processed_urls }}/{{ job.total_urls }}</span>
+          </div>
+        </td>
+        <td>
+          {% set targets = job.targets|default('[]') %}
+          {% for target in targets %}
+            <span class="cachewarmer-tag">{{ target }}</span>
+          {% endfor %}
+        </td>
+        <td>{{ job.created_at }}</td>
+        <td>
+          <button class="button button--small cachewarmer-btn-details" data-job-id="{{ job.id }}">{{ 'Details'|t }}</button>
+          <button class="button button--small button--danger cachewarmer-btn-delete" data-job-id="{{ job.id }}">{{ 'Delete'|t }}</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# Job Detail Modal #}
+  <div id="cachewarmer-modal" class="cachewarmer-modal" style="display: none;">
+    <div class="cachewarmer-modal__overlay"></div>
+    <div class="cachewarmer-modal__content">
+      <button class="cachewarmer-modal__close">&times;</button>
+      <h3>{{ 'Job Details'|t }}</h3>
+      <div id="cachewarmer-modal-body"></div>
+    </div>
+  </div>
+</div>

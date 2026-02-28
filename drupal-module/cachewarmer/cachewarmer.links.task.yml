@@ -1,0 +1,16 @@
+cachewarmer.dashboard:
+  route_name: cachewarmer.dashboard
+  title: 'Dashboard'
+  base_route: cachewarmer.dashboard
+
+cachewarmer.sitemaps:
+  route_name: cachewarmer.sitemaps
+  title: 'Sitemaps'
+  base_route: cachewarmer.dashboard
+  weight: 5
+
+cachewarmer.settings:
+  route_name: cachewarmer.settings
+  title: 'Settings'
+  base_route: cachewarmer.dashboard
+  weight: 10
