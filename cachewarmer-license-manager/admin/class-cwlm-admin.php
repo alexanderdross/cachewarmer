@@ -17,6 +17,13 @@ class CWLM_Admin {
     public function init(): void {
         add_action( 'admin_menu', [ $this, 'add_menu_pages' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+
+        // WordPress Dashboard Widget
+        add_action( 'wp_dashboard_setup', [ $this, 'register_dashboard_widget' ] );
+
+        // AJAX-Handler registrieren
+        add_action( 'wp_ajax_cwlm_export_licenses', [ $this, 'ajax_export_licenses' ] );
+        add_action( 'wp_ajax_cwlm_dashboard_stats', [ $this, 'ajax_dashboard_stats' ] );
     }
 
     /**
@@ -200,5 +207,238 @@ class CWLM_Admin {
         } else {
             echo '<div class="wrap"><h1>Einstellungen</h1><p>Einstellungen werden geladen...</p></div>';
         }
+    }
+
+    /**
+     * WordPress Dashboard Widget registrieren.
+     */
+    public function register_dashboard_widget(): void {
+        wp_add_dashboard_widget(
+            'cwlm_quick_links',
+            __( 'CacheWarmer License Manager', 'cwlm' ),
+            [ $this, 'render_dashboard_widget' ]
+        );
+    }
+
+    /**
+     * Dashboard Widget: Quick Links + Mini-KPIs.
+     */
+    public function render_dashboard_widget(): void {
+        global $wpdb;
+        $prefix = $wpdb->prefix . CWLM_DB_PREFIX;
+
+        // Mini-KPIs
+        $active   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$prefix}licenses WHERE status = %s", 'active' ) );
+        $installs = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}installations WHERE is_active = 1" );
+        $expiring = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$prefix}licenses WHERE status = 'active' AND expires_at BETWEEN %s AND %s",
+            gmdate( 'Y-m-d H:i:s' ),
+            gmdate( 'Y-m-d H:i:s', strtotime( '+7 days' ) )
+        ) );
+
+        $links = [
+            [
+                'slug'    => 'cwlm-dashboard',
+                'label'   => __( 'Dashboard', 'cwlm' ),
+                'icon'    => 'dashicons-chart-area',
+                'desc'    => __( 'KPIs & Charts', 'cwlm' ),
+            ],
+            [
+                'slug'    => 'cwlm-licenses',
+                'label'   => __( 'Lizenzen', 'cwlm' ),
+                'icon'    => 'dashicons-admin-network',
+                'desc'    => sprintf( __( '%d aktiv', 'cwlm' ), $active ),
+                'badge'   => $active,
+            ],
+            [
+                'slug'    => 'cwlm-installations',
+                'label'   => __( 'Installationen', 'cwlm' ),
+                'icon'    => 'dashicons-desktop',
+                'desc'    => sprintf( __( '%d aktiv', 'cwlm' ), $installs ),
+                'badge'   => $installs,
+            ],
+            [
+                'slug'    => 'cwlm-audit',
+                'label'   => __( 'Audit Log', 'cwlm' ),
+                'icon'    => 'dashicons-list-view',
+                'desc'    => __( 'Aktivitäten', 'cwlm' ),
+            ],
+            [
+                'slug'    => 'cwlm-stripe',
+                'label'   => __( 'Stripe Events', 'cwlm' ),
+                'icon'    => 'dashicons-money-alt',
+                'desc'    => __( 'Webhooks', 'cwlm' ),
+            ],
+            [
+                'slug'    => 'cwlm-products',
+                'label'   => __( 'Produkte', 'cwlm' ),
+                'icon'    => 'dashicons-tag',
+                'desc'    => __( 'Stripe Mapping', 'cwlm' ),
+            ],
+            [
+                'slug'    => 'cwlm-settings',
+                'label'   => __( 'Einstellungen', 'cwlm' ),
+                'icon'    => 'dashicons-admin-generic',
+                'desc'    => __( 'Konfiguration', 'cwlm' ),
+            ],
+        ];
+        ?>
+        <style>
+            .cwlm-widget-kpis {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 14px;
+                padding-bottom: 14px;
+                border-bottom: 1px solid #e2e4e7;
+            }
+            .cwlm-widget-kpi {
+                flex: 1;
+                text-align: center;
+                padding: 8px 4px;
+                background: #f6f7f7;
+                border-radius: 4px;
+            }
+            .cwlm-widget-kpi .cwlm-wk-value {
+                font-size: 22px;
+                font-weight: 700;
+                line-height: 1.2;
+                color: #1d2327;
+            }
+            .cwlm-widget-kpi .cwlm-wk-label {
+                font-size: 11px;
+                color: #646970;
+            }
+            .cwlm-widget-kpi.cwlm-wk-warn .cwlm-wk-value {
+                color: #dba617;
+            }
+            .cwlm-widget-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .cwlm-widget-link {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 10px;
+                background: #f6f7f7;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #1d2327;
+                transition: background 0.15s;
+            }
+            .cwlm-widget-link:hover {
+                background: #e2e4e7;
+                color: #0073aa;
+            }
+            .cwlm-widget-link .dashicons {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+                color: #646970;
+            }
+            .cwlm-widget-link:hover .dashicons {
+                color: #0073aa;
+            }
+            .cwlm-widget-link-text {
+                flex: 1;
+                line-height: 1.3;
+            }
+            .cwlm-widget-link-label {
+                font-weight: 600;
+                font-size: 13px;
+            }
+            .cwlm-widget-link-desc {
+                font-size: 11px;
+                color: #646970;
+            }
+        </style>
+
+        <div class="cwlm-widget-kpis">
+            <div class="cwlm-widget-kpi">
+                <div class="cwlm-wk-value"><?php echo esc_html( $active ); ?></div>
+                <div class="cwlm-wk-label"><?php esc_html_e( 'Lizenzen', 'cwlm' ); ?></div>
+            </div>
+            <div class="cwlm-widget-kpi">
+                <div class="cwlm-wk-value"><?php echo esc_html( $installs ); ?></div>
+                <div class="cwlm-wk-label"><?php esc_html_e( 'Installs', 'cwlm' ); ?></div>
+            </div>
+            <div class="cwlm-widget-kpi <?php echo $expiring > 0 ? 'cwlm-wk-warn' : ''; ?>">
+                <div class="cwlm-wk-value"><?php echo esc_html( $expiring ); ?></div>
+                <div class="cwlm-wk-label"><?php esc_html_e( 'Ablaufend', 'cwlm' ); ?></div>
+            </div>
+        </div>
+
+        <div class="cwlm-widget-links">
+            <?php foreach ( $links as $link ) : ?>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $link['slug'] ) ); ?>" class="cwlm-widget-link">
+                    <span class="dashicons <?php echo esc_attr( $link['icon'] ); ?>"></span>
+                    <span class="cwlm-widget-link-text">
+                        <span class="cwlm-widget-link-label"><?php echo esc_html( $link['label'] ); ?></span>
+                        <br><span class="cwlm-widget-link-desc"><?php echo esc_html( $link['desc'] ); ?></span>
+                    </span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * AJAX: Lizenzen als CSV exportieren.
+     */
+    public function ajax_export_licenses(): void {
+        check_ajax_referer( 'cwlm_admin', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( -1 );
+        }
+
+        global $wpdb;
+        $prefix = $wpdb->prefix . CWLM_DB_PREFIX;
+
+        $licenses = $wpdb->get_results(
+            "SELECT license_key, customer_email, customer_name, tier, plan, status,
+                    max_sites, active_sites, expires_at, created_at
+             FROM {$prefix}licenses ORDER BY created_at DESC"
+        );
+
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename=cwlm-licenses-' . gmdate( 'Y-m-d' ) . '.csv' );
+
+        $output = fopen( 'php://output', 'w' );
+        fputcsv( $output, [ 'License Key', 'Email', 'Name', 'Tier', 'Plan', 'Status', 'Max Sites', 'Active Sites', 'Expires', 'Created' ] );
+
+        foreach ( $licenses as $license ) {
+            fputcsv( $output, (array) $license );
+        }
+
+        fclose( $output );
+        wp_die();
+    }
+
+    /**
+     * AJAX: Dashboard-Statistiken als JSON.
+     */
+    public function ajax_dashboard_stats(): void {
+        check_ajax_referer( 'cwlm_admin', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Unauthorized', 403 );
+        }
+
+        global $wpdb;
+        $prefix = $wpdb->prefix . CWLM_DB_PREFIX;
+
+        $stats = [
+            'total_licenses'  => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}licenses" ),
+            'active_licenses' => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$prefix}licenses WHERE status = %s", 'active' ) ),
+            'active_installs' => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}installations WHERE is_active = 1" ),
+            'revenue_tiers'   => $wpdb->get_results(
+                "SELECT tier, COUNT(*) as count FROM {$prefix}licenses WHERE status IN ('active','grace_period') GROUP BY tier",
+                OBJECT_K
+            ),
+        ];
+
+        wp_send_json_success( $stats );
     }
 }
