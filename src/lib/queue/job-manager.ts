@@ -4,8 +4,8 @@ import { loadConfig } from "@/lib/config";
 import { parseSitemap } from "@/lib/services/sitemap-parser";
 import { warmUrls, closeBrowser, type CacheHeaders } from "@/lib/services/cdn-warmer";
 import { warmFacebook } from "@/lib/services/facebook-warmer";
-import { warmLinkedIn } from "@/lib/services/linkedin-warmer";
-import { warmTwitter } from "@/lib/services/twitter-warmer";
+import { warmLinkedIn, closeBrowser as closeLinkedInBrowser } from "@/lib/services/linkedin-warmer";
+import { warmTwitter, closeBrowser as closeTwitterBrowser } from "@/lib/services/twitter-warmer";
 import { submitIndexNow } from "@/lib/services/indexnow";
 import { submitToGoogle } from "@/lib/services/google-indexer";
 import { submitToBing } from "@/lib/services/bing-indexer";
@@ -143,7 +143,7 @@ export async function processJob(jobId: string): Promise<void> {
 
     db.prepare("UPDATE jobs SET total_urls = ? WHERE id = ?").run(urls.length, jobId);
 
-    sendWebhook("job.started", { jobId, sitemapUrl: job.sitemap_url, urlCount: urls.length, targets }).catch(() => {});
+    sendWebhook("job.started", { jobId, sitemapUrl: job.sitemap_url, urlCount: urls.length, targets }).catch((err) => logger.warn({ err }, "notification failed"));
 
     let processed = 0;
 
@@ -179,6 +179,7 @@ export async function processJob(jobId: string): Promise<void> {
         processed++;
         updateJobProgress(jobId, processed);
       });
+      await closeLinkedInBrowser();
     }
 
     // Twitter
@@ -189,6 +190,7 @@ export async function processJob(jobId: string): Promise<void> {
         processed++;
         updateJobProgress(jobId, processed);
       });
+      await closeTwitterBrowser();
     }
 
     // IndexNow
@@ -228,16 +230,16 @@ export async function processJob(jobId: string): Promise<void> {
 
     // Send notifications
     const notifData = { jobId, status: "completed", sitemapUrl: job.sitemap_url, totalUrls: urls.length, processedUrls: processed };
-    sendWebhook("job.completed", notifData).catch(() => {});
-    sendJobCompletedEmail(notifData).catch(() => {});
+    sendWebhook("job.completed", notifData).catch((err) => logger.warn({ err }, "notification failed"));
+    sendJobCompletedEmail(notifData).catch((err) => logger.warn({ err }, "notification failed"));
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     logger.error({ jobId, error }, "Job failed");
     updateJobStatus(jobId, "failed", error);
 
     // Send failure notifications
-    sendWebhook("job.failed", { jobId, error }).catch(() => {});
-    sendJobCompletedEmail({ jobId, status: "failed", sitemapUrl: job.sitemap_url, totalUrls: 0, processedUrls: 0 }).catch(() => {});
+    sendWebhook("job.failed", { jobId, error }).catch((err) => logger.warn({ err }, "notification failed"));
+    sendJobCompletedEmail({ jobId, status: "failed", sitemapUrl: job.sitemap_url, totalUrls: 0, processedUrls: 0 }).catch((err) => logger.warn({ err }, "notification failed"));
   } finally {
     runningJobs.delete(jobId);
   }

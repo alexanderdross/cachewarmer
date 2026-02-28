@@ -16,7 +16,10 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}cachewarmer_sitemaps" );
 
 // Delete all options.
 $options = $wpdb->get_col(
-    "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE 'cachewarmer_%'"
+    $wpdb->prepare(
+        "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+        'cachewarmer_%'
+    )
 );
 foreach ( $options as $option ) {
     delete_option( $option );

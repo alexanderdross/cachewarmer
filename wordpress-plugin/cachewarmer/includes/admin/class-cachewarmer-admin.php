@@ -196,6 +196,43 @@ class CacheWarmer_Admin {
         }
     }
 
+    /**
+     * Validate that a URL is safe to request (SSRF protection).
+     *
+     * Ensures the URL uses HTTPS and does not resolve to a private/internal IP.
+     *
+     * @param string $url The URL to validate.
+     * @return true|\WP_Error True if safe, WP_Error otherwise.
+     */
+    private function validate_safe_url( string $url ) {
+        $parsed = wp_parse_url( $url );
+
+        // Require HTTPS scheme.
+        if ( empty( $parsed['scheme'] ) || 'https' !== strtolower( $parsed['scheme'] ) ) {
+            return new \WP_Error( 'invalid_scheme', 'Only HTTPS URLs are allowed.' );
+        }
+
+        $host = $parsed['host'] ?? '';
+        if ( empty( $host ) ) {
+            return new \WP_Error( 'missing_host', 'URL must contain a valid host.' );
+        }
+
+        // Resolve the hostname to an IP address.
+        $ip = gethostbyname( $host );
+
+        // gethostbyname returns the hostname on failure.
+        if ( $ip === $host ) {
+            return new \WP_Error( 'dns_failure', 'Could not resolve hostname.' );
+        }
+
+        // Check for private/reserved IP ranges.
+        if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+            return new \WP_Error( 'private_ip', 'URLs pointing to private or reserved IP addresses are not allowed.' );
+        }
+
+        return true;
+    }
+
     public function ajax_start_warm(): void {
         $this->verify_ajax();
 
@@ -204,6 +241,11 @@ class CacheWarmer_Admin {
 
         if ( empty( $sitemap_url ) || ! filter_var( $sitemap_url, FILTER_VALIDATE_URL ) ) {
             wp_send_json_error( array( 'message' => 'Invalid sitemap URL' ) );
+        }
+
+        $safe = $this->validate_safe_url( $sitemap_url );
+        if ( is_wp_error( $safe ) ) {
+            wp_send_json_error( array( 'message' => $safe->get_error_message() ) );
         }
 
         $result = $this->job_manager->create_job( $sitemap_url, $targets );
@@ -256,6 +298,11 @@ class CacheWarmer_Admin {
         $url = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : '';
         if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
             wp_send_json_error( array( 'message' => 'Invalid URL' ) );
+        }
+
+        $safe = $this->validate_safe_url( $url );
+        if ( is_wp_error( $safe ) ) {
+            wp_send_json_error( array( 'message' => $safe->get_error_message() ) );
         }
 
         $parsed = wp_parse_url( $url );
@@ -322,6 +369,12 @@ class CacheWarmer_Admin {
         foreach ( $lines as $url ) {
             $url = esc_url_raw( $url );
             if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+                $errors[] = $url;
+                continue;
+            }
+
+            $safe = $this->validate_safe_url( $url );
+            if ( is_wp_error( $safe ) ) {
                 $errors[] = $url;
                 continue;
             }

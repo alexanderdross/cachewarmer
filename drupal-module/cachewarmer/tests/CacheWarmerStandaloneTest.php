@@ -630,7 +630,8 @@ $t->assertContains('Sitemaps: add button', $st, 'cachewarmer-add-sitemap');
 $t->assertContains('Sitemaps: table', $st, 'cachewarmer-sitemaps-table');
 $t->assertContains('Sitemaps: warm now button', $st, 'cachewarmer-btn-warm-sitemap');
 $t->assertContains('Sitemaps: delete button', $st, 'cachewarmer-btn-delete-sitemap');
-$t->assertContains('Sitemaps: cron input', $st, 'cachewarmer-new-sitemap-cron');
+$t->assertContains('Sitemaps: frequency dropdown', $st, 'cachewarmer-new-sitemap-frequency');
+$t->assertContains('Sitemaps: hour dropdown', $st, 'cachewarmer-new-sitemap-hour');
 
 // ============================================================================
 // 6. Accessibility Tests

@@ -79,6 +79,9 @@ class CacheWarmerAjaxController extends ControllerBase {
    * Gets a single job with stats.
    */
   public function getJob(string $job_id): JsonResponse {
+    if (!$this->isValidUuid($job_id)) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Invalid job ID format.'], 400);
+    }
     $job = $this->jobManager->getJobWithStats($job_id);
     if (!$job) {
       return new JsonResponse(['success' => FALSE, 'error' => 'Job not found.'], 404);
@@ -90,6 +93,9 @@ class CacheWarmerAjaxController extends ControllerBase {
    * Deletes a job.
    */
   public function deleteJob(string $job_id): JsonResponse {
+    if (!$this->isValidUuid($job_id)) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Invalid job ID format.'], 400);
+    }
     $deleted = $this->database->deleteJob($job_id);
     if (!$deleted) {
       return new JsonResponse(['success' => FALSE, 'error' => 'Job not found.'], 404);
@@ -141,6 +147,9 @@ class CacheWarmerAjaxController extends ControllerBase {
    * Warms a registered sitemap.
    */
   public function warmSitemap(string $sitemap_id): JsonResponse {
+    if (!$this->isValidUuid($sitemap_id)) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Invalid sitemap ID format.'], 400);
+    }
     $sitemap = $this->database->getSitemap($sitemap_id);
     if (!$sitemap) {
       return new JsonResponse(['success' => FALSE, 'error' => 'Sitemap not found.'], 404);
@@ -166,9 +175,16 @@ class CacheWarmerAjaxController extends ControllerBase {
    * Bulk adds sitemaps from a list of URLs.
    */
   public function bulkAddSitemaps(Request $request): JsonResponse {
-    $content = json_decode($request->getContent(), TRUE);
+    $rawContent = $request->getContent();
+    if (strlen($rawContent) > 51200) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Input too large. Maximum 50KB allowed.'], 400);
+    }
+    $content = json_decode($rawContent, TRUE);
     $urlsRaw = $content['urls'] ?? '';
     $lines = array_filter(array_map('trim', explode("\n", $urlsRaw)));
+    if (count($lines) > 1000) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Too many URLs. Maximum 1000 allowed.'], 400);
+    }
     $added = [];
     $errors = [];
 
@@ -206,6 +222,9 @@ class CacheWarmerAjaxController extends ControllerBase {
   public function exportResults(Request $request): JsonResponse {
     $content = json_decode($request->getContent(), TRUE);
     $jobId = $content['job_id'] ?? '';
+    if (!$this->isValidUuid($jobId)) {
+      return new JsonResponse(['success' => FALSE, 'error' => 'Invalid job ID format.'], 400);
+    }
     $format = $content['format'] ?? 'json';
     $results = $this->database->getJobResults($jobId);
 
@@ -214,13 +233,13 @@ class CacheWarmerAjaxController extends ControllerBase {
       foreach ($results as $r) {
         $csv .= sprintf(
           '"%s","%s","%s",%d,%d,"%s","%s"' . "\n",
-          $r->url,
-          $r->target,
-          $r->status,
+          $this->sanitizeCsvValue($r->url),
+          $this->sanitizeCsvValue($r->target),
+          $this->sanitizeCsvValue($r->status),
           $r->http_status ?? 0,
           $r->duration_ms ?? 0,
-          str_replace('"', '""', $r->error ?? ''),
-          $r->created_at
+          $this->sanitizeCsvValue(str_replace('"', '""', $r->error ?? '')),
+          $this->sanitizeCsvValue($r->created_at)
         );
       }
       return new JsonResponse([
@@ -248,6 +267,38 @@ class CacheWarmerAjaxController extends ControllerBase {
       'content' => $jsonResults,
       'filename' => 'cachewarmer-' . $jobId . '.json',
     ]);
+  }
+
+  /**
+   * Validates that a string is a valid UUID format.
+   *
+   * @param string $id
+   *   The string to validate.
+   *
+   * @return bool
+   *   TRUE if the string matches UUID format, FALSE otherwise.
+   */
+  private function isValidUuid(string $id): bool {
+    return (bool) preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $id);
+  }
+
+  /**
+   * Sanitizes a string value for safe CSV export.
+   *
+   * Prevents CSV injection by prefixing dangerous characters with a
+   * single quote.
+   *
+   * @param string $value
+   *   The value to sanitize.
+   *
+   * @return string
+   *   The sanitized value.
+   */
+  private function sanitizeCsvValue(string $value): string {
+    if (isset($value[0]) && in_array($value[0], ['=', '+', '-', '@'], TRUE)) {
+      return "'" . $value;
+    }
+    return $value;
   }
 
 }

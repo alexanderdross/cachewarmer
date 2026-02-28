@@ -22,6 +22,7 @@ const mockNewPage = vi.fn();
 vi.mock("puppeteer-core", () => ({
   default: {
     launch: vi.fn().mockResolvedValue({
+      connected: true,
       newPage: mockNewPage,
       close: mockBrowserClose,
     }),
@@ -107,12 +108,21 @@ describe("Twitter Warmer", () => {
     expect(results).toHaveLength(3);
   });
 
-  it("should close pages and browser after processing", async () => {
+  it("should close pages after processing (browser is reused)", async () => {
     const { warmTwitter } = await import("@/lib/services/twitter-warmer");
 
     await warmTwitter(["https://example.com/page1"]);
 
+    // Pages should be closed, but browser stays alive for reuse
     expect(mockPageClose).toHaveBeenCalled();
+  });
+
+  it("should close browser via closeBrowser()", async () => {
+    const { warmTwitter, closeBrowser } = await import("@/lib/services/twitter-warmer");
+
+    await warmTwitter(["https://example.com/page1"]);
+    await closeBrowser();
+
     expect(mockBrowserClose).toHaveBeenCalled();
   });
 

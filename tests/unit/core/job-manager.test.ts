@@ -28,12 +28,24 @@ vi.mock("@/lib/services/sitemap-parser", () => ({
 
 vi.mock("@/lib/services/cdn-warmer", () => ({
   warmUrls: vi.fn().mockImplementation(async (urls: string[], onProgress?: (r: unknown) => void) => {
-    const results = urls.map((url: string) => ({
-      url,
-      status: "success" as const,
-      httpStatus: 200,
-      durationMs: 100,
-    }));
+    const results = urls.flatMap((url: string) => [
+      {
+        url,
+        viewport: "desktop" as const,
+        status: "success" as const,
+        httpStatus: 200,
+        durationMs: 100,
+        cacheHeaders: { xCache: "HIT" },
+      },
+      {
+        url,
+        viewport: "mobile" as const,
+        status: "success" as const,
+        httpStatus: 200,
+        durationMs: 80,
+        cacheHeaders: { xCache: "MISS" },
+      },
+    ]);
     results.forEach((r) => onProgress?.(r));
     return results;
   }),

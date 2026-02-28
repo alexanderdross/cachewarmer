@@ -34,7 +34,7 @@ describe("CDN Warmer", () => {
     resetTestConfig();
 
     // Reset specific mock behaviors without clearing the mock factory
-    mockGoto.mockReset().mockResolvedValue({ status: () => 200 });
+    mockGoto.mockReset().mockResolvedValue({ status: () => 200, headers: () => ({}) });
     mockSetUserAgent.mockReset().mockResolvedValue(undefined);
     mockSetViewport.mockReset().mockResolvedValue(undefined);
     mockClose.mockReset().mockResolvedValue(undefined);
@@ -52,21 +52,29 @@ describe("CDN Warmer", () => {
 
     const results = await warmUrls(["https://example.com/page1"]);
 
-    expect(results).toHaveLength(1);
+    // Returns 2 results per URL (desktop + mobile)
+    expect(results).toHaveLength(2);
+    expect(results[0].viewport).toBe("desktop");
     expect(results[0].status).toBe("success");
     expect(results[0].httpStatus).toBe(200);
+    expect(results[1].viewport).toBe("mobile");
+    expect(results[1].status).toBe("success");
     // Should be called twice per URL (desktop + mobile)
     expect(mockSetUserAgent).toHaveBeenCalledTimes(2);
   });
 
   it("should report failed status for HTTP errors", async () => {
-    mockGoto.mockResolvedValue({ status: () => 500 });
+    mockGoto.mockResolvedValue({ status: () => 500, headers: () => ({}) });
 
     const { warmUrls } = await import("@/lib/services/cdn-warmer");
     const results = await warmUrls(["https://example.com/page1"]);
 
+    // Both desktop and mobile should fail
+    expect(results).toHaveLength(2);
     expect(results[0].status).toBe("failed");
     expect(results[0].httpStatus).toBe(500);
+    expect(results[1].status).toBe("failed");
+    expect(results[1].httpStatus).toBe(500);
   });
 
   it("should handle page navigation errors", async () => {
@@ -89,8 +97,9 @@ describe("CDN Warmer", () => {
     ];
     const results = await warmUrls(urls);
 
-    expect(results).toHaveLength(3);
-    // With concurrency=2, should process in 2 batches
+    // 3 URLs * 2 viewports (desktop + mobile) = 6 results
+    expect(results).toHaveLength(6);
+    // With concurrency=2, should process in 2 batches (one page per URL)
     expect(mockNewPage).toHaveBeenCalledTimes(3);
   });
 
@@ -100,10 +109,19 @@ describe("CDN Warmer", () => {
 
     await warmUrls(["https://example.com/page1"], onProgress);
 
-    expect(onProgress).toHaveBeenCalledTimes(1);
+    // Called twice: once for desktop, once for mobile
+    expect(onProgress).toHaveBeenCalledTimes(2);
     expect(onProgress).toHaveBeenCalledWith(
       expect.objectContaining({
         url: "https://example.com/page1",
+        viewport: "desktop",
+        status: "success",
+      })
+    );
+    expect(onProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: "https://example.com/page1",
+        viewport: "mobile",
         status: "success",
       })
     );
@@ -121,8 +139,11 @@ describe("CDN Warmer", () => {
     const { warmUrls } = await import("@/lib/services/cdn-warmer");
     const results = await warmUrls(["https://example.com/page1"]);
 
-    expect(results[0].durationMs).toBeGreaterThanOrEqual(0);
-    expect(typeof results[0].durationMs).toBe("number");
+    // Both desktop and mobile results should have duration
+    for (const result of results) {
+      expect(result.durationMs).toBeGreaterThanOrEqual(0);
+      expect(typeof result.durationMs).toBe("number");
+    }
   });
 
   it("should close browser via closeBrowser()", async () => {

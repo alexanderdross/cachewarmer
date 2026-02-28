@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
 
   const searchParams = request.nextUrl.searchParams;
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-  const offset = parseInt(searchParams.get("offset") || "0");
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50") || 50, 100);
+  const offset = parseInt(searchParams.get("offset") || "0") || 0;
 
   const jobs = listJobs(limit, offset);
 

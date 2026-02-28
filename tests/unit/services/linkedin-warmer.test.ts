@@ -23,6 +23,7 @@ const mockNewPage = vi.fn();
 vi.mock("puppeteer-core", () => ({
   default: {
     launch: vi.fn().mockResolvedValue({
+      connected: true,
       newPage: mockNewPage,
       close: mockBrowserClose,
     }),
@@ -112,10 +113,20 @@ describe("LinkedIn Warmer", () => {
     expect(results[0].error).toBe("Timeout exceeded");
   });
 
-  it("should always close browser after processing", async () => {
+  it("should close page after processing (browser is reused)", async () => {
     const { warmLinkedIn } = await import("@/lib/services/linkedin-warmer");
 
     await warmLinkedIn(["https://example.com/page1"]);
+
+    // Page should be closed, but browser stays alive for reuse
+    expect(mockPageClose).toHaveBeenCalled();
+  });
+
+  it("should close browser via closeBrowser()", async () => {
+    const { warmLinkedIn, closeBrowser } = await import("@/lib/services/linkedin-warmer");
+
+    await warmLinkedIn(["https://example.com/page1"]);
+    await closeBrowser();
 
     expect(mockBrowserClose).toHaveBeenCalled();
   });

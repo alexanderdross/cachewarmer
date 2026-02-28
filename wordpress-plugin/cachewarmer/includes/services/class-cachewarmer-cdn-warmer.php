@@ -65,7 +65,7 @@ class CacheWarmer_CDN_Warmer {
         $response = wp_remote_get( $url, array(
             'timeout'    => $this->timeout,
             'user-agent' => $user_agent,
-            'sslverify'  => false,
+            'sslverify'  => true,
             'headers'    => array(
                 'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => 'en-US,en;q=0.5',

@@ -40,8 +40,8 @@ $sitemaps = $db->get_all_sitemaps();
                     <label for="cw-new-sitemap-hour"><?php esc_html_e( 'Start Time', 'cachewarmer' ); ?></label>
                     <select id="cw-new-sitemap-hour" name="cronHour" class="regular-text">
                         <?php for ( $h = 0; $h < 24; $h++ ) : ?>
-                            <option value="<?php echo $h; ?>" <?php selected( $h, 3 ); ?>>
-                                <?php echo str_pad( $h, 2, '0', STR_PAD_LEFT ) . ':00'; ?>
+                            <option value="<?php echo esc_attr( $h ); ?>" <?php selected( $h, 3 ); ?>>
+                                <?php echo esc_html( str_pad( $h, 2, '0', STR_PAD_LEFT ) . ':00' ); ?>
                             </option>
                         <?php endfor; ?>
                     </select>

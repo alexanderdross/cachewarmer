@@ -52,10 +52,12 @@ export function createTestDb(): Database.Database {
       job_id TEXT NOT NULL REFERENCES jobs(id),
       url TEXT NOT NULL,
       target TEXT NOT NULL,
+      viewport TEXT,
       status TEXT NOT NULL DEFAULT 'pending',
       http_status INTEGER,
       duration_ms INTEGER,
       error TEXT,
+      cache_headers TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
