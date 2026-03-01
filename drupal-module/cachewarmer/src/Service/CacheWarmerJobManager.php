@@ -124,9 +124,11 @@ class CacheWarmerJobManager {
       $entries = $this->sitemapParser->parse($job->sitemap_url);
       $urls = array_map(fn($e) => $e['loc'], $entries);
 
-      // Apply URL exclude patterns.
+      // Apply URL exclude patterns (Enterprise only).
       $config = $this->configFactory->get('cachewarmer.settings');
-      $excludeRaw = $config->get('exclude_patterns') ?? '';
+      /** @var \Drupal\cachewarmer\Service\CacheWarmerLicense $licenseService */
+      $licenseService = \Drupal::service('cachewarmer.license');
+      $excludeRaw = $licenseService->isEnterprise() ? ($config->get('exclude_patterns') ?? '') : '';
       if (!empty(trim($excludeRaw))) {
         $patterns = array_filter(array_map('trim', explode("\n", $excludeRaw)));
         $beforeCount = count($urls);

@@ -350,12 +350,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('auto_warm_targets') ?: ['cdn', 'facebook'],
     ];
 
-    // URL exclude patterns.
+    // URL exclude patterns (Enterprise).
     $form['filtering'] = [
       '#type' => 'details',
       '#title' => $this->t('URL Filtering'),
       '#open' => FALSE,
     ];
+    if ($is_not_ent) {
+      $form['filtering']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['filtering']['#attributes']['class'][] = 'cw-ent-locked';
+      $form['filtering']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Enterprise Feature') . '</strong><p>' . $this->t('Define URL exclude patterns to skip specific pages during cache warming.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Enterprise') . '</a></div></div>';
+    }
     $form['filtering']['exclude_patterns'] = [
       '#type' => 'textarea',
       '#title' => $this->t('URL Exclude Patterns'),
@@ -364,17 +369,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#rows' => 4,
     ];
 
-    // Email notifications (Premium).
+    // Email notifications (Enterprise).
     $form['notifications'] = [
       '#type' => 'details',
       '#title' => $this->t('Email Notifications'),
-      '#description' => $this->t('Email notifications require a Premium or Enterprise license.'),
+      '#description' => $this->t('Email notifications require an Enterprise license.'),
       '#open' => FALSE,
     ];
-    if ($is_free) {
+    if ($is_not_ent) {
       $form['notifications']['#prefix'] = '<div class="cw-locked-wrapper">';
-      $form['notifications']['#attributes']['class'][] = 'cw-pro-locked';
-      $form['notifications']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Get notified by email when warming jobs complete or fail.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+      $form['notifications']['#attributes']['class'][] = 'cw-ent-locked';
+      $form['notifications']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Enterprise Feature') . '</strong><p>' . $this->t('Get notified by email when warming jobs complete or fail.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Enterprise') . '</a></div></div>';
     }
     $form['notifications']['email_notifications'] = [
       '#type' => 'checkbox',

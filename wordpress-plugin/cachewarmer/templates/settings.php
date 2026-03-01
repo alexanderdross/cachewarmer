@@ -598,31 +598,42 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
             <?php endif; ?>
         </div>
 
-        <!-- URL Exclude Patterns -->
-        <div class="cachewarmer-settings-section">
-            <h2><?php esc_html_e( 'URL Exclude Patterns', 'cachewarmer' ); ?></h2>
-            <p class="description"><?php esc_html_e( 'Skip certain pages during warming. Useful for excluding admin pages, tag archives, author pages, or PDF files that don\'t need caching.', 'cachewarmer' ); ?></p>
-            <table class="form-table">
-                <tr>
-                    <th scope="row">
-                        <label for="cachewarmer_exclude_patterns"><?php esc_html_e( 'Exclude Patterns', 'cachewarmer' ); ?></label>
-                    </th>
-                    <td>
-                        <textarea id="cachewarmer_exclude_patterns" name="cachewarmer_exclude_patterns"
-                                  rows="6" class="large-text code"
-                                  placeholder="/tag/*&#10;/author/*&#10;*.pdf&#10;/wp-admin/*"><?php echo esc_textarea( get_option( 'cachewarmer_exclude_patterns', '' ) ); ?></textarea>
-                        <p class="description">
-                            <?php esc_html_e( 'Enter one pattern per line. Any URL containing the pattern will be skipped.', 'cachewarmer' ); ?>
-                            <br>
-                            <?php esc_html_e( 'Examples: /tag/ (skip tag pages), /author/ (skip author pages), .pdf (skip PDF files), /wp-admin/ (skip admin pages).', 'cachewarmer' ); ?>
-                        </p>
-                    </td>
-                </tr>
-            </table>
+        <!-- URL Exclude Patterns (Enterprise) -->
+        <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-ent-locked' : ''; ?>">
+            <div class="cw-locked-content">
+                <h2><?php esc_html_e( 'URL Exclude Patterns', 'cachewarmer' ); ?></h2>
+                <p class="description"><?php esc_html_e( 'Skip certain pages during warming. Useful for excluding admin pages, tag archives, author pages, or PDF files that don\'t need caching.', 'cachewarmer' ); ?></p>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="cachewarmer_exclude_patterns"><?php esc_html_e( 'Exclude Patterns', 'cachewarmer' ); ?></label>
+                        </th>
+                        <td>
+                            <textarea id="cachewarmer_exclude_patterns" name="cachewarmer_exclude_patterns"
+                                      rows="6" class="large-text code"
+                                      placeholder="/tag/*&#10;/author/*&#10;*.pdf&#10;/wp-admin/*"
+                                      <?php echo $cw_is_not_ent ? 'disabled' : ''; ?>><?php echo esc_textarea( get_option( 'cachewarmer_exclude_patterns', '' ) ); ?></textarea>
+                            <p class="description">
+                                <?php esc_html_e( 'Enter one pattern per line. Any URL containing the pattern will be skipped.', 'cachewarmer' ); ?>
+                                <br>
+                                <?php esc_html_e( 'Examples: /tag/ (skip tag pages), /author/ (skip author pages), .pdf (skip PDF files), /wp-admin/ (skip admin pages).', 'cachewarmer' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <?php if ( $cw_is_not_ent ) : ?>
+                <div class="cw-pro-upgrade-overlay">
+                    <span class="dashicons dashicons-lock"></span>
+                    <strong><?php esc_html_e( 'Enterprise Feature', 'cachewarmer' ); ?></strong>
+                    <p><?php esc_html_e( 'Define URL exclude patterns to skip specific pages during cache warming.', 'cachewarmer' ); ?></p>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Enterprise', 'cachewarmer' ); ?></a>
+                </div>
+            <?php endif; ?>
         </div>
 
-        <!-- Email Notifications (Premium) -->
-        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+        <!-- Email Notifications (Enterprise) -->
+        <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-ent-locked' : ''; ?>">
             <div class="cw-locked-content">
                 <h2>
                     <label>
@@ -649,12 +660,12 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
                     </tr>
                 </table>
             </div>
-            <?php if ( $cw_is_free ) : ?>
+            <?php if ( $cw_is_not_ent ) : ?>
                 <div class="cw-pro-upgrade-overlay">
                     <span class="dashicons dashicons-lock"></span>
-                    <strong><?php esc_html_e( 'Premium Feature', 'cachewarmer' ); ?></strong>
+                    <strong><?php esc_html_e( 'Enterprise Feature', 'cachewarmer' ); ?></strong>
                     <p><?php esc_html_e( 'Get notified by email when warming jobs complete or fail.', 'cachewarmer' ); ?></p>
-                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Premium', 'cachewarmer' ); ?></a>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Enterprise', 'cachewarmer' ); ?></a>
                 </div>
             <?php endif; ?>
         </div>

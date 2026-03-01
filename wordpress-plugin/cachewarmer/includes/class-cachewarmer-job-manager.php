@@ -117,8 +117,8 @@ class CacheWarmer_Job_Manager {
                 $url_strings = array_slice( $url_strings, 0, $max_urls );
             }
 
-            // Apply URL exclude patterns.
-            $exclude_raw = get_option( 'cachewarmer_exclude_patterns', '' );
+            // Apply URL exclude patterns (Enterprise only).
+            $exclude_raw = CacheWarmer_License::is_enterprise() ? get_option( 'cachewarmer_exclude_patterns', '' ) : '';
             if ( ! empty( trim( $exclude_raw ) ) ) {
                 $patterns    = array_filter( array_map( 'trim', explode( "\n", $exclude_raw ) ) );
                 $url_strings = array_values( array_filter( $url_strings, function ( $url ) use ( $patterns ) {

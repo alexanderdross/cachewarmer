@@ -37,6 +37,7 @@ class CacheWarmer_License {
             'export_enabled'        => false,
             'webhooks_enabled'      => false,
             'email_notifications'   => false,
+            'exclude_patterns'      => false,
         ),
         'premium' => array(
             'max_urls_per_job'      => 10000,
@@ -50,7 +51,8 @@ class CacheWarmer_License {
             'api_enabled'           => true,
             'export_enabled'        => true,
             'webhooks_enabled'      => false,
-            'email_notifications'   => true,
+            'email_notifications'   => false,
+            'exclude_patterns'      => false,
         ),
         'enterprise' => array(
             'max_urls_per_job'      => PHP_INT_MAX,
@@ -65,6 +67,7 @@ class CacheWarmer_License {
             'export_enabled'        => true,
             'webhooks_enabled'      => true,
             'email_notifications'   => true,
+            'exclude_patterns'      => true,
         ),
     );
 
