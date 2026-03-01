@@ -271,14 +271,21 @@
 
     function formatCronLabel(cron) {
         if (!cron) return '<em>None</em>';
-        if (cron === '0 * * * *') return 'Hourly';
-        var m = cron.match(/^0 (\S+) \* \* \*$/);
-        if (m) {
-            var parts = m[1].split(',');
-            var pad = function (n) { return ('0' + n).slice(-2); };
-            if (parts.length === 1) return 'Daily at ' + pad(parts[0]) + ':00';
-            if (parts.length === 2) return 'Every 12h (from ' + pad(Math.min.apply(null, parts)) + ':00)';
-            if (parts.length === 4) return 'Every 6h (from ' + pad(Math.min.apply(null, parts)) + ':00)';
+        var desc = '';
+        if (cron === '0 * * * *') {
+            desc = 'Every hour, on the hour';
+        } else {
+            var m = cron.match(/^0 (\S+) \* \* \*$/);
+            if (m) {
+                var parts = m[1].split(',');
+                var pad = function (n) { return ('0' + n).slice(-2); };
+                if (parts.length === 1) desc = 'Daily at ' + pad(parts[0]) + ':00';
+                if (parts.length === 2) desc = 'Every 12 h starting ' + pad(Math.min.apply(null, parts)) + ':00';
+                if (parts.length === 4) desc = 'Every 6 h starting ' + pad(Math.min.apply(null, parts)) + ':00';
+            }
+        }
+        if (desc) {
+            return '<span title="' + escAttr(cron) + '">' + escHtml(desc) + '</span> <code class="cachewarmer-cron-raw">' + escHtml(cron) + '</code>';
         }
         return escHtml(cron);
     }

@@ -143,6 +143,16 @@
     border-color: #2271b1;
 }
 
+/* Cron Description */
+.cachewarmer-cron-raw {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #a7aaad;
+    background: none;
+    padding: 0;
+}
+
 /* Help Tip Icon */
 .cachewarmer-help-tip {
     font-size: 16px;
