@@ -144,11 +144,25 @@ class CacheWarmer_Google_Indexer {
 
         $private_key = openssl_pkey_get_private( $sa['private_key'] );
         if ( ! $private_key ) {
+            $openssl_error = openssl_error_string();
+            error_log(
+                sprintf(
+                    '[CacheWarmer] Google Indexer: openssl_pkey_get_private() failed. OpenSSL error: %s',
+                    $openssl_error ? $openssl_error : 'unknown'
+                )
+            );
             return null;
         }
 
         $signature = '';
         if ( ! openssl_sign( $signing_input, $signature, $private_key, OPENSSL_ALGO_SHA256 ) ) {
+            $openssl_error = openssl_error_string();
+            error_log(
+                sprintf(
+                    '[CacheWarmer] Google Indexer: openssl_sign() failed. OpenSSL error: %s',
+                    $openssl_error ? $openssl_error : 'unknown'
+                )
+            );
             return null;
         }
 

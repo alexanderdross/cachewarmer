@@ -79,7 +79,7 @@ class CacheWarmerResource extends ResourceBase {
         return $this->registerSitemap($data);
 
       default:
-        throw new NotFoundHttpException("Unknown action: {$action}");
+        throw new NotFoundHttpException('Unknown action.');
     }
   }
 
@@ -107,7 +107,7 @@ class CacheWarmerResource extends ResourceBase {
         if (preg_match('/^jobs\/(.+)$/', $action, $matches)) {
           return $this->getJob($matches[1]);
         }
-        throw new NotFoundHttpException("Unknown action: {$action}");
+        throw new NotFoundHttpException('Unknown action.');
     }
   }
 
@@ -124,7 +124,7 @@ class CacheWarmerResource extends ResourceBase {
       return $this->deleteSitemap($matches[1]);
     }
 
-    throw new NotFoundHttpException("Unknown action: {$action}");
+    throw new NotFoundHttpException('Unknown action.');
   }
 
   /**
@@ -172,7 +172,7 @@ class CacheWarmerResource extends ResourceBase {
   protected function getJob(string $id): ResourceResponse {
     $job = $this->jobManager->getJobWithStats($id);
     if (!$job) {
-      throw new NotFoundHttpException("Job not found: {$id}");
+      throw new NotFoundHttpException('Job not found.');
     }
     return new ResourceResponse($job);
   }
@@ -183,7 +183,7 @@ class CacheWarmerResource extends ResourceBase {
   protected function deleteJob(string $id): ResourceResponse {
     $deleted = $this->database->deleteJob($id);
     if (!$deleted) {
-      throw new NotFoundHttpException("Job not found: {$id}");
+      throw new NotFoundHttpException('Job not found.');
     }
     return new ResourceResponse(['deleted' => TRUE]);
   }
@@ -219,7 +219,7 @@ class CacheWarmerResource extends ResourceBase {
   protected function deleteSitemap(string $id): ResourceResponse {
     $deleted = $this->database->deleteSitemap($id);
     if (!$deleted) {
-      throw new NotFoundHttpException("Sitemap not found: {$id}");
+      throw new NotFoundHttpException('Sitemap not found.');
     }
     return new ResourceResponse(['deleted' => TRUE]);
   }

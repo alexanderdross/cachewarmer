@@ -35,6 +35,15 @@ class CacheWarmer_Job_Manager {
         }
         $targets = array_intersect( $targets, $all_targets );
 
+        // Enforce license: only allow targets permitted by the current tier.
+        $targets = CacheWarmer_License::filter_allowed_targets( $targets );
+        if ( empty( $targets ) ) {
+            return array(
+                'error'  => 'No warming targets available for your license tier.',
+                'status' => 'rejected',
+            );
+        }
+
         $job_data = array(
             'id'          => $job_id,
             'sitemap_id'  => $sitemap_id,
@@ -102,6 +111,12 @@ class CacheWarmer_Job_Manager {
                 return $entry['loc'];
             }, $parsed );
 
+            // Enforce license: cap URLs to tier limit.
+            $max_urls = CacheWarmer_License::get_limit( 'max_urls_per_job' );
+            if ( $max_urls && count( $url_strings ) > $max_urls ) {
+                $url_strings = array_slice( $url_strings, 0, $max_urls );
+            }
+
             // Apply URL exclude patterns.
             $exclude_raw = get_option( 'cachewarmer_exclude_patterns', '' );
             if ( ! empty( trim( $exclude_raw ) ) ) {
@@ -116,9 +131,32 @@ class CacheWarmer_Job_Manager {
                 } ) );
             }
 
-            $this->db->update_job( $job_id, array( 'total_urls' => count( $url_strings ) ) );
+            $targets = json_decode( $job->targets, true ) ?: array();
 
-            $targets   = json_decode( $job->targets, true ) ?: array();
+            // Enforce license at execution time (in case tier changed since job was queued).
+            $targets = CacheWarmer_License::filter_allowed_targets( $targets );
+
+            // Count how many targets are both requested and enabled so
+            // total_urls reflects the actual work items (urls × active targets).
+            $target_option_map = array(
+                'cdn'      => array( 'cachewarmer_cdn_enabled', '1' ),
+                'facebook' => array( 'cachewarmer_facebook_enabled', '0' ),
+                'linkedin' => array( 'cachewarmer_linkedin_enabled', '0' ),
+                'twitter'  => array( 'cachewarmer_twitter_enabled', '0' ),
+                'google'   => array( 'cachewarmer_google_enabled', '0' ),
+                'bing'     => array( 'cachewarmer_bing_enabled', '0' ),
+                'indexnow' => array( 'cachewarmer_indexnow_enabled', '0' ),
+            );
+            $active_target_count = 0;
+            foreach ( $targets as $t ) {
+                if ( isset( $target_option_map[ $t ] ) && get_option( $target_option_map[ $t ][0], $target_option_map[ $t ][1] ) ) {
+                    ++$active_target_count;
+                }
+            }
+            $active_target_count = max( 1, $active_target_count );
+
+            $this->db->update_job( $job_id, array( 'total_urls' => count( $url_strings ) * $active_target_count ) );
+
             $processed = 0;
 
             // Notify job started.
@@ -241,6 +279,9 @@ class CacheWarmer_Job_Manager {
             $targets = $all_targets;
         }
         $targets = array_intersect( $targets, $all_targets );
+
+        // Enforce license: only allow targets permitted by the current tier.
+        $targets = CacheWarmer_License::filter_allowed_targets( $targets );
 
         $job_data = array(
             'id'          => $job_id,

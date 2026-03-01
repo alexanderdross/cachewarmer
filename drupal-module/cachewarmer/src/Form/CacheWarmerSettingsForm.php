@@ -29,6 +29,12 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('cachewarmer.settings');
+    $license = \Drupal::service('cachewarmer.license');
+    $is_free = !$license->isPremiumOrAbove();
+    $is_not_ent = !$license->isEnterprise();
+    $pricing_url = 'https://cachewarmer.drossmedia.de/pricing/';
+
+    $form['#attached']['library'][] = 'cachewarmer/admin';
 
     // General settings.
     $form['general'] = [
@@ -79,12 +85,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#maxlength' => 512,
     ];
 
-    // Facebook.
+    // Facebook (Premium).
     $form['facebook'] = [
       '#type' => 'details',
       '#title' => $this->t('Facebook Sharing Debugger'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['facebook']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['facebook']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['facebook']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Social media cache warming keeps your Facebook, LinkedIn and Twitter link previews always up-to-date.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['facebook']['facebook_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Facebook warming'),
@@ -111,12 +122,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('facebook.rate_limit') ?: 10,
     ];
 
-    // LinkedIn.
+    // LinkedIn (Premium).
     $form['linkedin'] = [
       '#type' => 'details',
       '#title' => $this->t('LinkedIn Post Inspector'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['linkedin']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['linkedin']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['linkedin']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Keep your LinkedIn link previews always fresh and accurate.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['linkedin']['linkedin_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable LinkedIn warming'),
@@ -138,12 +154,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('linkedin.delay') ?: 5000,
     ];
 
-    // Twitter/X.
+    // Twitter/X (Premium).
     $form['twitter'] = [
       '#type' => 'details',
       '#title' => $this->t('Twitter/X Card Validator'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['twitter']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['twitter']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['twitter']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Keep your Twitter/X card previews always up-to-date.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['twitter']['twitter_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Twitter/X warming'),
@@ -164,12 +185,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('twitter.delay') ?: 3000,
     ];
 
-    // Google.
+    // Google (Premium).
     $form['google'] = [
       '#type' => 'details',
       '#title' => $this->t('Google Indexing API'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['google']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['google']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['google']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Notify Google instantly when your content changes.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['google']['google_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Google indexing'),
@@ -190,12 +216,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('google.daily_quota') ?: 200,
     ];
 
-    // Bing.
+    // Bing (Premium).
     $form['bing'] = [
       '#type' => 'details',
       '#title' => $this->t('Bing Webmaster Tools'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['bing']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['bing']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['bing']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Submit pages directly to Bing for faster indexing.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['bing']['bing_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Bing indexing'),
@@ -239,12 +270,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('indexnow.key_location'),
     ];
 
-    // Scheduler.
+    // Scheduler (Premium).
     $form['scheduler'] = [
       '#type' => 'details',
       '#title' => $this->t('Scheduled Warming'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['scheduler']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['scheduler']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['scheduler']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Automate your cache warming with scheduled runs.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['scheduler']['scheduler_enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable scheduled warming'),
@@ -283,12 +319,17 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#markup' => '<strong>' . ucfirst($currentTier) . '</strong>',
     ];
 
-    // Auto-warm on publish.
+    // Auto-warm on publish (Premium).
     $form['auto_warm'] = [
       '#type' => 'details',
       '#title' => $this->t('Auto-Warm on Publish'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['auto_warm']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['auto_warm']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['auto_warm']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Automatically warm caches when you publish or update content.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['auto_warm']['auto_warm_on_publish'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Automatically warm URLs when content is published'),
@@ -323,13 +364,18 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#rows' => 4,
     ];
 
-    // Email notifications.
+    // Email notifications (Premium).
     $form['notifications'] = [
       '#type' => 'details',
       '#title' => $this->t('Email Notifications'),
       '#description' => $this->t('Email notifications require a Premium or Enterprise license.'),
       '#open' => FALSE,
     ];
+    if ($is_free) {
+      $form['notifications']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['notifications']['#attributes']['class'][] = 'cw-pro-locked';
+      $form['notifications']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Premium Feature') . '</strong><p>' . $this->t('Get notified by email when warming jobs complete or fail.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Premium') . '</a></div></div>';
+    }
     $form['notifications']['email_notifications'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable email notifications on job completion'),
@@ -342,13 +388,18 @@ class CacheWarmerSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('notification_email'),
     ];
 
-    // Webhooks.
+    // Webhooks (Enterprise).
     $form['webhooks'] = [
       '#type' => 'details',
       '#title' => $this->t('Webhooks'),
       '#description' => $this->t('Webhook notifications are available with an Enterprise license only.'),
       '#open' => FALSE,
     ];
+    if ($is_not_ent) {
+      $form['webhooks']['#prefix'] = '<div class="cw-locked-wrapper">';
+      $form['webhooks']['#attributes']['class'][] = 'cw-ent-locked';
+      $form['webhooks']['#suffix'] = '<div class="cw-pro-upgrade-overlay"><span class="cw-lock-icon"></span><strong>' . $this->t('Enterprise Feature') . '</strong><p>' . $this->t('Connect CacheWarmer to Slack, Zapier or any webhook endpoint for real-time notifications.') . '</p><a href="' . $pricing_url . '" target="_blank" rel="noopener" class="button button--primary">' . $this->t('Upgrade to Enterprise') . '</a></div></div>';
+    }
     $form['webhooks']['webhook_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Webhook URL'),

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { getConfig } from "@/lib/config";
+import logger from "@/lib/logger";
 
 export function authenticateRequest(request: NextRequest): NextResponse | null {
   const config = getConfig();
   const apiKey = config.server.apiKey;
 
   if (!apiKey || apiKey === "change-me-in-production") {
+    logger.warn("API authentication is disabled — no API key configured or using default key");
     return null; // No auth configured, allow all
   }
 
@@ -15,7 +18,9 @@ export function authenticateRequest(request: NextRequest): NextResponse | null {
   }
 
   const token = authHeader.slice(7);
-  if (token !== apiKey) {
+  const tokenBuffer = Buffer.from(token);
+  const apiKeyBuffer = Buffer.from(apiKey);
+  if (tokenBuffer.length !== apiKeyBuffer.length || !crypto.timingSafeEqual(tokenBuffer, apiKeyBuffer)) {
     return NextResponse.json({ error: "Invalid API key" }, { status: 403 });
   }
 

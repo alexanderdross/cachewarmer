@@ -2,6 +2,28 @@ import puppeteer, { type Browser } from "puppeteer-core";
 import { getConfig } from "@/lib/config";
 import logger from "@/lib/logger";
 
+let browser: Browser | null = null;
+
+async function getBrowser(): Promise<Browser> {
+  if (browser && browser.connected) return browser;
+
+  const config = getConfig();
+  browser = await puppeteer.launch({
+    executablePath: config.puppeteer.executablePath,
+    headless: config.puppeteer.headless,
+    args: config.puppeteer.args,
+  });
+
+  return browser;
+}
+
+export async function closeBrowser(): Promise<void> {
+  if (browser) {
+    await browser.close();
+    browser = null;
+  }
+}
+
 export interface LinkedInWarmResult {
   url: string;
   status: "success" | "failed" | "skipped";
@@ -29,17 +51,12 @@ export async function warmLinkedIn(
     return urls.map((url) => ({ url, status: "skipped" as const, durationMs: 0 }));
   }
 
-  let browser: Browser | null = null;
   const results: LinkedInWarmResult[] = [];
 
   try {
-    browser = await puppeteer.launch({
-      executablePath: config.puppeteer.executablePath,
-      headless: config.puppeteer.headless,
-      args: config.puppeteer.args,
-    });
+    const b = await getBrowser();
 
-    const page = await browser.newPage();
+    const page = await b.newPage();
 
     // Set LinkedIn session cookie
     await page.setCookie({
@@ -82,8 +99,9 @@ export async function warmLinkedIn(
     }
 
     await page.close();
-  } finally {
-    if (browser) await browser.close();
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    logger.error({ error }, "LinkedIn warming browser error");
   }
 
   return results;

@@ -275,6 +275,76 @@
   color: #fff;
 }
 
+/* Pro / Enterprise Feature Locked Sections */
+.cw-locked-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.cw-pro-locked,
+.cw-ent-locked {
+  filter: blur(4px);
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cw-pro-upgrade-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.cw-pro-upgrade-overlay .cw-lock-icon::before {
+  content: "\1F512";
+  font-size: 28px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cw-pro-upgrade-overlay strong {
+  display: block;
+  font-size: 15px;
+  color: #1d2327;
+  margin-bottom: 4px;
+}
+
+.cw-pro-upgrade-overlay p {
+  margin: 0 auto 14px;
+  max-width: 420px;
+  color: #3c434a;
+  font-size: 13px;
+}
+
+.cw-pro-upgrade-overlay .button--primary {
+  display: inline-block;
+  padding: 8px 28px;
+  background: #2271b1;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.cw-pro-upgrade-overlay .button--primary:hover {
+  background: #135e96;
+  color: #fff;
+}
+
 /* Responsive */
 @media (max-width: 782px) {
   .cachewarmer-status-cards {

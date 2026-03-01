@@ -65,7 +65,7 @@ class CacheWarmer_CDN_Warmer {
         $response = wp_remote_get( $url, array(
             'timeout'    => $this->timeout,
             'user-agent' => $user_agent,
-            'sslverify'  => false,
+            'sslverify'  => true,
             'headers'    => array(
                 'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => 'en-US,en;q=0.5',
@@ -89,14 +89,22 @@ class CacheWarmer_CDN_Warmer {
 
         $http_status = wp_remote_retrieve_response_code( $response );
 
+        $cache_headers = array_filter( array(
+            'xCache'        => wp_remote_retrieve_header( $response, 'x-cache' ) ?: null,
+            'cfCacheStatus' => wp_remote_retrieve_header( $response, 'cf-cache-status' ) ?: null,
+            'age'           => wp_remote_retrieve_header( $response, 'age' ) ?: null,
+            'cacheControl'  => wp_remote_retrieve_header( $response, 'cache-control' ) ?: null,
+        ) );
+
         return array(
-            'url'         => $url,
-            'target'      => 'cdn',
-            'status'      => ( $http_status >= 200 && $http_status < 400 ) ? 'success' : 'failed',
-            'http_status' => $http_status,
-            'duration_ms' => $duration_ms,
-            'error'       => ( $http_status >= 400 ) ? "HTTP $http_status" : null,
-            'viewport'    => $viewport,
+            'url'           => $url,
+            'target'        => 'cdn',
+            'status'        => ( $http_status >= 200 && $http_status < 400 ) ? 'success' : 'failed',
+            'http_status'   => $http_status,
+            'duration_ms'   => $duration_ms,
+            'error'         => ( $http_status >= 400 ) ? "HTTP $http_status" : null,
+            'viewport'      => $viewport,
+            'cache_headers' => ! empty( $cache_headers ) ? $cache_headers : null,
         );
     }
 }

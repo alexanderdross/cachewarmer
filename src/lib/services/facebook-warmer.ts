@@ -34,11 +34,9 @@ export async function warmFacebook(
 
   for (const url of urls) {
     const start = Date.now();
+    const apiUrl = `https://graph.facebook.com/v19.0/?scrape=true&id=${encodeURIComponent(url)}&access_token=${accessToken}`;
     try {
-      const response = await fetch(
-        `https://graph.facebook.com/v19.0/?scrape=true&id=${encodeURIComponent(url)}&access_token=${accessToken}`,
-        { method: "POST" }
-      );
+      const response = await fetch(apiUrl, { method: "POST" });
 
       const durationMs = Date.now() - start;
 
@@ -56,7 +54,8 @@ export async function warmFacebook(
       }
     } catch (err) {
       const durationMs = Date.now() - start;
-      const error = err instanceof Error ? err.message : String(err);
+      const rawError = err instanceof Error ? err.message : String(err);
+      const error = rawError.replace(/access_token=[^&\s]+/g, "access_token=REDACTED");
       logger.error({ url, error }, "Facebook cache warm error");
       const result: FacebookWarmResult = { url, status: "failed", durationMs, error };
       results.push(result);

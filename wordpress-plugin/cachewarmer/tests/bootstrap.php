@@ -161,6 +161,24 @@ if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
     }
 }
 
+if ( ! function_exists( 'wp_remote_retrieve_header' ) ) {
+    function wp_remote_retrieve_header( $response, string $header ): string {
+        if ( is_array( $response ) && isset( $response['headers'][ strtolower( $header ) ] ) ) {
+            return (string) $response['headers'][ strtolower( $header ) ];
+        }
+        return '';
+    }
+}
+
+if ( ! function_exists( 'wp_remote_retrieve_headers' ) ) {
+    function wp_remote_retrieve_headers( $response ): array {
+        if ( is_array( $response ) && isset( $response['headers'] ) ) {
+            return (array) $response['headers'];
+        }
+        return array();
+    }
+}
+
 if ( ! function_exists( 'is_wp_error' ) ) {
     function is_wp_error( $thing ): bool {
         return $thing instanceof WP_Error;
@@ -372,6 +390,26 @@ if ( ! class_exists( 'WP_REST_Response' ) ) {
         public function get_status(): int {
             return $this->status;
         }
+    }
+}
+
+if ( ! function_exists( 'wp_add_dashboard_widget' ) ) {
+    function wp_add_dashboard_widget( string $widget_id, string $widget_name, callable $callback ): void {
+        // Stub for testing.
+    }
+}
+
+if ( ! function_exists( 'human_time_diff' ) ) {
+    function human_time_diff( int $from, int $to = 0 ): string {
+        $diff = abs( $to - $from );
+        if ( $diff < 60 ) {
+            return $diff . ' secs';
+        } elseif ( $diff < 3600 ) {
+            return round( $diff / 60 ) . ' mins';
+        } elseif ( $diff < 86400 ) {
+            return round( $diff / 3600 ) . ' hours';
+        }
+        return round( $diff / 86400 ) . ' days';
     }
 }
 

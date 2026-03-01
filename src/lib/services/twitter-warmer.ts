@@ -2,6 +2,28 @@ import puppeteer, { type Browser } from "puppeteer-core";
 import { getConfig } from "@/lib/config";
 import logger from "@/lib/logger";
 
+let browser: Browser | null = null;
+
+async function getBrowser(): Promise<Browser> {
+  if (browser && browser.connected) return browser;
+
+  const config = getConfig();
+  browser = await puppeteer.launch({
+    executablePath: config.puppeteer.executablePath,
+    headless: config.puppeteer.headless,
+    args: config.puppeteer.args,
+  });
+
+  return browser;
+}
+
+export async function closeBrowser(): Promise<void> {
+  if (browser) {
+    await browser.close();
+    browser = null;
+  }
+}
+
 export interface TwitterWarmResult {
   url: string;
   status: "success" | "failed" | "skipped";
@@ -24,15 +46,10 @@ export async function warmTwitter(
     return urls.map((url) => ({ url, status: "skipped" as const, durationMs: 0 }));
   }
 
-  let browser: Browser | null = null;
   const results: TwitterWarmResult[] = [];
 
   try {
-    browser = await puppeteer.launch({
-      executablePath: config.puppeteer.executablePath,
-      headless: config.puppeteer.headless,
-      args: config.puppeteer.args,
-    });
+    const b = await getBrowser();
 
     const { concurrency, delayBetweenRequests, timeout } = config.twitter;
 
@@ -42,7 +59,7 @@ export async function warmTwitter(
 
       const batchResults = await Promise.all(
         batch.map(async (url) => {
-          const page = await browser!.newPage();
+          const page = await b.newPage();
           const start = Date.now();
           try {
             // Open Tweet Composer — this triggers Twitter's card scraper
@@ -76,8 +93,9 @@ export async function warmTwitter(
         await delay(delayBetweenRequests);
       }
     }
-  } finally {
-    if (browser) await browser.close();
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    logger.error({ error }, "Twitter warming browser error");
   }
 
   return results;
