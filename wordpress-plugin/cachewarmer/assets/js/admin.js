@@ -86,9 +86,12 @@
 
                 $.each(response.data, function (i, job) {
                     var targets = Array.isArray(job.targets) ? job.targets : [];
+                    var activeCount = targets.length || 1;
+                    var urlsInSitemap = activeCount > 0 ? Math.round(job.total_urls / activeCount) : job.total_urls;
                     var progress = job.total_urls > 0
                         ? Math.round((job.processed_urls / job.total_urls) * 100)
                         : 0;
+                    var progressTip = job.processed_urls + ' / ' + job.total_urls + ' tasks (' + urlsInSitemap + ' URLs \u00d7 ' + activeCount + ' services)';
                     var host = '';
                     try { host = new URL(job.sitemap_url).hostname; } catch (e) { host = job.sitemap_url; }
 
@@ -100,7 +103,7 @@
                     var row = '<tr data-job-id="' + escAttr(job.id) + '">' +
                         '<td><span class="cachewarmer-badge badge-' + escAttr(job.status) + '">' + escHtml(capitalize(job.status)) + '</span></td>' +
                         '<td class="column-sitemap" title="' + escAttr(job.sitemap_url) + '">' + escHtml(host) + '</td>' +
-                        '<td><div class="cachewarmer-progress"><div class="cachewarmer-progress-bar" style="width:' + progress + '%"></div>' +
+                        '<td><div class="cachewarmer-progress" title="' + escAttr(progressTip) + '"><div class="cachewarmer-progress-bar" style="width:' + progress + '%"></div>' +
                         '<span class="cachewarmer-progress-text">' + job.processed_urls + '/' + job.total_urls + '</span></div></td>' +
                         '<td>' + tagsHtml + '</td>' +
                         '<td>' + escHtml(job.created_at) + '</td>' +
@@ -169,7 +172,10 @@
                 html += '<div><dt>Job ID</dt><dd><code>' + escHtml(job.id) + '</code></dd></div>';
                 html += '<div><dt>Status</dt><dd><span class="cachewarmer-badge badge-' + escAttr(job.status) + '">' + escHtml(capitalize(job.status)) + '</span></dd></div>';
                 html += '<div><dt>Sitemap</dt><dd>' + escHtml(job.sitemap_url) + '</dd></div>';
-                html += '<div><dt>Progress</dt><dd>' + job.processed_urls + ' / ' + job.total_urls + '</dd></div>';
+                var detailTargets = (typeof job.targets === 'string') ? JSON.parse(job.targets || '[]') : (job.targets || []);
+                var detailActiveCount = detailTargets.length || 1;
+                var detailUrlCount = detailActiveCount > 0 ? Math.round(job.total_urls / detailActiveCount) : job.total_urls;
+                html += '<div><dt>Progress</dt><dd>' + job.processed_urls + ' / ' + job.total_urls + ' tasks <span style="color:#646970;">(' + detailUrlCount + ' URLs &times; ' + detailActiveCount + ' services)</span></dd></div>';
                 html += '<div><dt>Started</dt><dd>' + escHtml(job.started_at || '-') + '</dd></div>';
                 html += '<div><dt>Completed</dt><dd>' + escHtml(job.completed_at || '-') + '</dd></div>';
                 html += '</dl>';

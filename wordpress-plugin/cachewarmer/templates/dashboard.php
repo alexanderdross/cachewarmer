@@ -92,7 +92,11 @@ $jobs   = $db->get_jobs( 20 );
                 <tr>
                     <th class="column-status"><?php esc_html_e( 'Status', 'cachewarmer' ); ?></th>
                     <th class="column-sitemap"><?php esc_html_e( 'Sitemap', 'cachewarmer' ); ?></th>
-                    <th class="column-progress"><?php esc_html_e( 'Progress', 'cachewarmer' ); ?></th>
+                    <th class="column-progress">
+                        <?php esc_html_e( 'Progress', 'cachewarmer' ); ?>
+                        <span class="dashicons dashicons-editor-help cachewarmer-help-tip"
+                              title="<?php esc_attr_e( 'Total tasks = URLs × active services. Each URL is processed once per enabled target (CDN, Facebook, etc.).', 'cachewarmer' ); ?>"></span>
+                    </th>
                     <th class="column-targets"><?php esc_html_e( 'Targets', 'cachewarmer' ); ?></th>
                     <th class="column-created"><?php esc_html_e( 'Created', 'cachewarmer' ); ?></th>
                     <th class="column-actions"><?php esc_html_e( 'Actions', 'cachewarmer' ); ?></th>
@@ -103,8 +107,18 @@ $jobs   = $db->get_jobs( 20 );
                     <tr><td colspan="6"><?php esc_html_e( 'No jobs yet. Start a warming job above.', 'cachewarmer' ); ?></td></tr>
                 <?php else : ?>
                     <?php foreach ( $jobs as $job ) :
-                        $job_targets = json_decode( $job->targets, true ) ?: array();
-                        $progress    = $job->total_urls > 0 ? round( ( $job->processed_urls / $job->total_urls ) * 100 ) : 0;
+                        $job_targets      = json_decode( $job->targets, true ) ?: array();
+                        $active_count     = count( $job_targets );
+                        $urls_in_sitemap  = $active_count > 0 ? intval( $job->total_urls / $active_count ) : $job->total_urls;
+                        $progress         = $job->total_urls > 0 ? round( ( $job->processed_urls / $job->total_urls ) * 100 ) : 0;
+                        $progress_tooltip = sprintf(
+                            /* translators: 1: processed tasks, 2: total tasks, 3: URL count, 4: target count */
+                            __( '%1$d / %2$d tasks (%3$d URLs × %4$d services)', 'cachewarmer' ),
+                            $job->processed_urls,
+                            $job->total_urls,
+                            $urls_in_sitemap,
+                            $active_count
+                        );
                     ?>
                         <tr data-job-id="<?php echo esc_attr( $job->id ); ?>">
                             <td>
@@ -116,7 +130,7 @@ $jobs   = $db->get_jobs( 20 );
                                 <?php echo esc_html( wp_parse_url( $job->sitemap_url, PHP_URL_HOST ) ); ?>
                             </td>
                             <td>
-                                <div class="cachewarmer-progress">
+                                <div class="cachewarmer-progress" title="<?php echo esc_attr( $progress_tooltip ); ?>">
                                     <div class="cachewarmer-progress-bar" style="width: <?php echo esc_attr( $progress ); ?>%"></div>
                                     <span class="cachewarmer-progress-text">
                                         <?php echo esc_html( $job->processed_urls . '/' . $job->total_urls ); ?>

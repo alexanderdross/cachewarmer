@@ -116,9 +116,29 @@ class CacheWarmer_Job_Manager {
                 } ) );
             }
 
-            $this->db->update_job( $job_id, array( 'total_urls' => count( $url_strings ) ) );
+            $targets = json_decode( $job->targets, true ) ?: array();
 
-            $targets   = json_decode( $job->targets, true ) ?: array();
+            // Count how many targets are both requested and enabled so
+            // total_urls reflects the actual work items (urls × active targets).
+            $target_option_map = array(
+                'cdn'      => array( 'cachewarmer_cdn_enabled', '1' ),
+                'facebook' => array( 'cachewarmer_facebook_enabled', '0' ),
+                'linkedin' => array( 'cachewarmer_linkedin_enabled', '0' ),
+                'twitter'  => array( 'cachewarmer_twitter_enabled', '0' ),
+                'google'   => array( 'cachewarmer_google_enabled', '0' ),
+                'bing'     => array( 'cachewarmer_bing_enabled', '0' ),
+                'indexnow' => array( 'cachewarmer_indexnow_enabled', '0' ),
+            );
+            $active_target_count = 0;
+            foreach ( $targets as $t ) {
+                if ( isset( $target_option_map[ $t ] ) && get_option( $target_option_map[ $t ][0], $target_option_map[ $t ][1] ) ) {
+                    ++$active_target_count;
+                }
+            }
+            $active_target_count = max( 1, $active_target_count );
+
+            $this->db->update_job( $job_id, array( 'total_urls' => count( $url_strings ) * $active_target_count ) );
+
             $processed = 0;
 
             // Notify job started.
