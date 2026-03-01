@@ -472,15 +472,15 @@ class CacheWarmer_Admin {
         $last_run     = null;
 
         foreach ( $recent_jobs as $job ) {
-            if ( 'running' === $job['status'] || 'queued' === $job['status'] ) {
+            if ( 'running' === $job->status || 'queued' === $job->status ) {
                 ++$running;
-            } elseif ( 'completed' === $job['status'] ) {
+            } elseif ( 'completed' === $job->status ) {
                 ++$completed;
-            } elseif ( 'failed' === $job['status'] ) {
+            } elseif ( 'failed' === $job->status ) {
                 ++$failed;
             }
-            if ( ! empty( $job['completed_at'] ) && null === $last_run ) {
-                $last_run = $job['completed_at'];
+            if ( ! empty( $job->completed_at ) && null === $last_run ) {
+                $last_run = $job->completed_at;
             }
         }
 

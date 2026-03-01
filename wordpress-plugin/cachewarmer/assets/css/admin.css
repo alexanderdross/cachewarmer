@@ -433,6 +433,62 @@
     56% { transform: scale(1); }
 }
 
+/* Pro Feature Locked Sections */
+.cw-pro-locked {
+    position: relative;
+    overflow: hidden;
+}
+
+.cw-pro-locked > h2,
+.cw-pro-locked > p.description,
+.cw-pro-locked > .form-table {
+    filter: blur(3px);
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+}
+
+.cw-pro-upgrade-overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 20px 16px;
+    margin: -16px -24px 16px;
+    background: linear-gradient(135deg, #f0f6fc, #e8f0fe);
+    border-bottom: 1px solid #c3c4c7;
+    border-radius: 4px 4px 0 0;
+}
+
+.cw-pro-upgrade-overlay .dashicons-lock {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #2271b1;
+    display: block;
+    margin: 0 auto 8px;
+}
+
+.cw-pro-upgrade-overlay strong {
+    display: block;
+    font-size: 15px;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.cw-pro-upgrade-overlay p {
+    margin: 0 auto 12px;
+    max-width: 480px;
+    color: #646970;
+    font-size: 13px;
+}
+
+.cw-pro-upgrade-overlay .button-primary {
+    font-size: 14px;
+    padding: 6px 24px;
+    height: auto;
+    line-height: 1.6;
+}
+
 /* Responsive */
 @media screen and (max-width: 782px) {
     .cachewarmer-status-cards {

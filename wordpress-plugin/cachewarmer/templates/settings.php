@@ -6,6 +6,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+$cw_is_free       = ! CacheWarmer_License::is_premium_or_above();
+$cw_is_not_ent    = ! CacheWarmer_License::is_enterprise();
+$cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 ?>
 <div class="wrap cachewarmer-wrap">
     <h1>
@@ -146,7 +150,15 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Facebook -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <?php if ( $cw_is_free ) : ?>
+                <div class="cw-pro-upgrade-overlay">
+                    <span class="dashicons dashicons-lock"></span>
+                    <strong><?php esc_html_e( 'Premium Feature', 'cachewarmer' ); ?></strong>
+                    <p><?php esc_html_e( 'Social media cache warming keeps your Facebook, LinkedIn and Twitter link previews always up-to-date.', 'cachewarmer' ); ?></p>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Premium', 'cachewarmer' ); ?></a>
+                </div>
+            <?php endif; ?>
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_facebook_enabled" value="0">
@@ -168,7 +180,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <p class="description">
                             <?php
                             printf(
-                                /* translators: %s: link to Facebook developers */
                                 esc_html__( 'Create a free Facebook App at %1$sdevelopers.facebook.com%2$s and copy the App ID here.', 'cachewarmer' ),
                                 '<a href="https://developers.facebook.com" target="_blank" rel="noopener">',
                                 '</a>'
@@ -199,7 +210,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- LinkedIn -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_linkedin_enabled" value="0">
@@ -244,7 +255,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Twitter/X -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_twitter_enabled" value="0">
@@ -279,7 +290,15 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Google Indexing API -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <?php if ( $cw_is_free ) : ?>
+                <div class="cw-pro-upgrade-overlay">
+                    <span class="dashicons dashicons-lock"></span>
+                    <strong><?php esc_html_e( 'Premium Feature', 'cachewarmer' ); ?></strong>
+                    <p><?php esc_html_e( 'Notify Google, Bing and other search engines instantly when your content changes.', 'cachewarmer' ); ?></p>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Premium', 'cachewarmer' ); ?></a>
+                </div>
+            <?php endif; ?>
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_google_enabled" value="0">
@@ -302,7 +321,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <br>
                             <?php
                             printf(
-                                /* translators: %s: link to Google Cloud Console */
                                 esc_html__( '1. Go to %1$sGoogle Cloud Console%2$s and create a Service Account.', 'cachewarmer' ),
                                 '<a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener">',
                                 '</a>'
@@ -330,7 +348,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Bing Webmaster -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_bing_enabled" value="0">
@@ -352,7 +370,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <p class="description">
                             <?php
                             printf(
-                                /* translators: %s: link to Bing Webmaster Tools */
                                 esc_html__( 'Get your API key from %1$sBing Webmaster Tools%2$s under Settings > API Access.', 'cachewarmer' ),
                                 '<a href="https://www.bing.com/webmasters" target="_blank" rel="noopener">',
                                 '</a>'
@@ -416,7 +433,15 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Scheduler -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <?php if ( $cw_is_free ) : ?>
+                <div class="cw-pro-upgrade-overlay">
+                    <span class="dashicons dashicons-lock"></span>
+                    <strong><?php esc_html_e( 'Premium Feature', 'cachewarmer' ); ?></strong>
+                    <p><?php esc_html_e( 'Automate your cache warming with scheduled runs, auto-warm on publish and email notifications.', 'cachewarmer' ); ?></p>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Premium', 'cachewarmer' ); ?></a>
+                </div>
+            <?php endif; ?>
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_scheduler_enabled" value="0">
@@ -483,7 +508,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Auto-Warm on Publish -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_auto_warm_on_publish" value="0">
@@ -494,16 +519,6 @@ if ( ! defined( 'ABSPATH' ) ) {
             </h2>
             <p class="description">
                 <?php esc_html_e( 'Automatically warms the cache every time you publish or update a post or page. The CDN cache and social media previews are refreshed instantly — no manual action needed.', 'cachewarmer' ); ?>
-                <?php if ( ! CacheWarmer_License::is_premium_or_above() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?>
-                    <?php
-                    printf(
-                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
-                        esc_html__( 'Upgrade now', 'cachewarmer' )
-                    );
-                    ?>
-                    </em>
-                <?php endif; ?>
             </p>
             <table class="form-table">
                 <tr>
@@ -561,7 +576,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Email Notifications -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
             <h2>
                 <label>
                     <input type="hidden" name="cachewarmer_email_notifications" value="0">
@@ -572,16 +587,6 @@ if ( ! defined( 'ABSPATH' ) ) {
             </h2>
             <p class="description">
                 <?php esc_html_e( 'Get an email whenever a warming job finishes or fails. Handy if you run scheduled jobs and want to stay informed without checking the dashboard.', 'cachewarmer' ); ?>
-                <?php if ( ! CacheWarmer_License::is_premium_or_above() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?>
-                    <?php
-                    printf(
-                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
-                        esc_html__( 'Upgrade now', 'cachewarmer' )
-                    );
-                    ?>
-                    </em>
-                <?php endif; ?>
             </p>
             <table class="form-table">
                 <tr>
@@ -599,20 +604,18 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Webhook Notifications -->
-        <div class="cachewarmer-settings-section">
+        <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-pro-locked' : ''; ?>">
+            <?php if ( $cw_is_not_ent ) : ?>
+                <div class="cw-pro-upgrade-overlay">
+                    <span class="dashicons dashicons-lock"></span>
+                    <strong><?php esc_html_e( 'Enterprise Feature', 'cachewarmer' ); ?></strong>
+                    <p><?php esc_html_e( 'Connect CacheWarmer to Slack, Zapier or any webhook endpoint for real-time notifications.', 'cachewarmer' ); ?></p>
+                    <a href="<?php echo esc_url( $cw_pricing_url ); ?>" target="_blank" rel="noopener" class="button button-primary"><?php esc_html_e( 'Upgrade to Enterprise', 'cachewarmer' ); ?></a>
+                </div>
+            <?php endif; ?>
             <h2><?php esc_html_e( 'Webhook Notifications', 'cachewarmer' ); ?></h2>
             <p class="description">
                 <?php esc_html_e( 'Send automatic notifications to external services (like Slack, Zapier or a custom server) when a warming job completes or fails.', 'cachewarmer' ); ?>
-                <?php if ( ! CacheWarmer_License::is_enterprise() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires an Enterprise license.', 'cachewarmer' ); ?>
-                    <?php
-                    printf(
-                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
-                        esc_html__( 'Upgrade now', 'cachewarmer' )
-                    );
-                    ?>
-                    </em>
-                <?php endif; ?>
             </p>
             <table class="form-table">
                 <tr>
@@ -624,7 +627,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                value="<?php echo esc_attr( get_option( 'cachewarmer_webhook_url', '' ) ); ?>"
                                class="regular-text"
                                placeholder="https://example.com/webhook"
-                               <?php echo ! CacheWarmer_License::is_enterprise() ? 'disabled' : ''; ?>>
+                               <?php echo $cw_is_not_ent ? 'disabled' : ''; ?>>
                         <p class="description"><?php esc_html_e( 'Paste the URL where CacheWarmer should send event data (in JSON format). For example, a Slack incoming webhook URL or a Zapier catch hook.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
