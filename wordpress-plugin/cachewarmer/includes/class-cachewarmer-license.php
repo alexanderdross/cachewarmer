@@ -2,7 +2,12 @@
 /**
  * License management for CacheWarmer.
  *
- * Defines tier-based feature limits and license activation.
+ * Validates license keys via HMAC signature, enforces tier-based
+ * feature limits, and auto-downgrades expired licenses to Free.
+ *
+ * Key format: CW-{TIER}-{HEX16}
+ *   TIER = PRO | ENT
+ *   HEX16 = 4-char duration (days, hex, 0000 = never) + 12-char HMAC signature
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,6 +19,9 @@ class CacheWarmer_License {
     const TIER_FREE       = 'free';
     const TIER_PREMIUM    = 'premium';
     const TIER_ENTERPRISE = 'enterprise';
+
+    /** @var string HMAC signing secret for key validation. */
+    const SIGN_SECRET = 'cw-drossmedia-lic-2026-s3cr3t';
 
     const LIMITS = array(
         'free' => array(
@@ -60,14 +68,149 @@ class CacheWarmer_License {
         ),
     );
 
+    // ──────────────────────────────────────────────
+    // Key generation & validation
+    // ──────────────────────────────────────────────
+
     /**
-     * Get the current license tier.
+     * Generate a license key.
+     *
+     * @param string $tier          'premium' or 'enterprise'.
+     * @param int    $duration_days Validity in days after activation. 0 = never expires.
+     * @return string License key in format CW-{PRO|ENT}-{HEX16}.
+     */
+    public static function generate_key( string $tier, int $duration_days = 0 ): string {
+        $tier_code    = 'enterprise' === $tier ? 'ENT' : 'PRO';
+        $duration_hex = str_pad( strtoupper( dechex( $duration_days ) ), 4, '0', STR_PAD_LEFT );
+        $payload      = $tier_code . $duration_hex;
+        $signature    = strtoupper( substr( hash_hmac( 'sha256', $payload, self::SIGN_SECRET ), 0, 12 ) );
+
+        return 'CW-' . $tier_code . '-' . $duration_hex . $signature;
+    }
+
+    /**
+     * Validate a license key and extract its data.
+     *
+     * @param string $key License key.
+     * @return array|false Array with 'tier' and 'duration_days', or false if invalid.
+     */
+    public static function validate_key( string $key ) {
+        $key = strtoupper( trim( $key ) );
+
+        if ( ! preg_match( '/^CW-(PRO|ENT)-([0-9A-F]{16})$/', $key, $m ) ) {
+            return false;
+        }
+
+        $tier_code    = $m[1];
+        $hex          = $m[2];
+        $duration_hex = substr( $hex, 0, 4 );
+        $provided_sig = strtolower( substr( $hex, 4, 12 ) );
+
+        $payload      = $tier_code . $duration_hex;
+        $expected_sig = substr( hash_hmac( 'sha256', $payload, self::SIGN_SECRET ), 0, 12 );
+
+        if ( ! hash_equals( $expected_sig, $provided_sig ) ) {
+            return false;
+        }
+
+        return array(
+            'tier'          => 'ENT' === $tier_code ? self::TIER_ENTERPRISE : self::TIER_PREMIUM,
+            'duration_days' => hexdec( $duration_hex ),
+        );
+    }
+
+    // ──────────────────────────────────────────────
+    // Activation & expiry
+    // ──────────────────────────────────────────────
+
+    /**
+     * Activate a license key.
+     *
+     * Validates the key, stores the tier, and sets the expiry date.
+     *
+     * @param string $license_key The license key to activate.
+     * @return array Activation result.
+     */
+    public static function activate( string $license_key ): array {
+        $license_key = strtoupper( trim( $license_key ) );
+        update_option( 'cachewarmer_license_key', sanitize_text_field( $license_key ) );
+
+        $parsed = self::validate_key( $license_key );
+
+        if ( false === $parsed ) {
+            update_option( 'cachewarmer_license_tier', self::TIER_FREE );
+            delete_option( 'cachewarmer_license_activated_at' );
+            delete_option( 'cachewarmer_license_expires_at' );
+
+            return array(
+                'tier'      => self::TIER_FREE,
+                'activated' => false,
+                'error'     => 'Invalid license key.',
+            );
+        }
+
+        update_option( 'cachewarmer_license_tier', $parsed['tier'] );
+        update_option( 'cachewarmer_license_activated_at', time() );
+
+        if ( $parsed['duration_days'] > 0 ) {
+            $expires_at = time() + ( $parsed['duration_days'] * DAY_IN_SECONDS );
+            update_option( 'cachewarmer_license_expires_at', $expires_at );
+        } else {
+            update_option( 'cachewarmer_license_expires_at', 0 ); // Never expires.
+        }
+
+        return array(
+            'tier'       => $parsed['tier'],
+            'activated'  => true,
+            'expires_at' => $parsed['duration_days'] > 0
+                ? gmdate( 'Y-m-d', time() + $parsed['duration_days'] * DAY_IN_SECONDS )
+                : 'never',
+        );
+    }
+
+    /**
+     * Get the current license tier, auto-downgrading if expired.
      *
      * @return string
      */
     public static function get_tier(): string {
-        return get_option( 'cachewarmer_license_tier', self::TIER_FREE );
+        $tier = get_option( 'cachewarmer_license_tier', self::TIER_FREE );
+
+        if ( self::TIER_FREE !== $tier ) {
+            $expires_at = (int) get_option( 'cachewarmer_license_expires_at', 0 );
+
+            if ( $expires_at > 0 && time() > $expires_at ) {
+                // License expired — auto-downgrade.
+                update_option( 'cachewarmer_license_tier', self::TIER_FREE );
+                return self::TIER_FREE;
+            }
+        }
+
+        return $tier;
     }
+
+    /**
+     * Get the license expiry timestamp (0 = never).
+     *
+     * @return int
+     */
+    public static function get_expires_at(): int {
+        return (int) get_option( 'cachewarmer_license_expires_at', 0 );
+    }
+
+    /**
+     * Check if the license has expired.
+     *
+     * @return bool
+     */
+    public static function is_expired(): bool {
+        $expires_at = self::get_expires_at();
+        return $expires_at > 0 && time() > $expires_at;
+    }
+
+    // ──────────────────────────────────────────────
+    // Tier & feature queries
+    // ──────────────────────────────────────────────
 
     /**
      * Get a specific limit value for the current tier.
@@ -98,7 +241,21 @@ class CacheWarmer_License {
      */
     public static function is_target_allowed( string $target ): bool {
         $allowed = self::get_limit( 'allowed_targets' );
-        return in_array( $target, $allowed, true );
+        return is_array( $allowed ) && in_array( $target, $allowed, true );
+    }
+
+    /**
+     * Filter an array of targets to only those allowed by the current tier.
+     *
+     * @param array $targets Requested targets.
+     * @return array Allowed targets.
+     */
+    public static function filter_allowed_targets( array $targets ): array {
+        $allowed = self::get_limit( 'allowed_targets' );
+        if ( ! is_array( $allowed ) ) {
+            return array();
+        }
+        return array_values( array_intersect( $targets, $allowed ) );
     }
 
     /**
@@ -117,34 +274,5 @@ class CacheWarmer_License {
      */
     public static function is_enterprise(): bool {
         return self::get_tier() === self::TIER_ENTERPRISE;
-    }
-
-    /**
-     * Activate a license key.
-     *
-     * Determines the tier based on the key prefix. In production,
-     * this would validate against a remote license server.
-     *
-     * @param string $license_key The license key to activate.
-     * @return array Activation result with tier and status.
-     */
-    public static function activate( string $license_key ): array {
-        update_option( 'cachewarmer_license_key', sanitize_text_field( $license_key ) );
-
-        // Determine tier based on key prefix or server response.
-        $tier = self::TIER_FREE;
-        if ( strpos( $license_key, 'PRE-' ) === 0 ) {
-            $tier = self::TIER_PREMIUM;
-        }
-        if ( strpos( $license_key, 'ENT-' ) === 0 ) {
-            $tier = self::TIER_ENTERPRISE;
-        }
-
-        update_option( 'cachewarmer_license_tier', $tier );
-
-        return array(
-            'tier'      => $tier,
-            'activated' => true,
-        );
     }
 }

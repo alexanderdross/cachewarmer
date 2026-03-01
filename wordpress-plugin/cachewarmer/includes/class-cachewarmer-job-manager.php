@@ -35,6 +35,15 @@ class CacheWarmer_Job_Manager {
         }
         $targets = array_intersect( $targets, $all_targets );
 
+        // Enforce license: only allow targets permitted by the current tier.
+        $targets = CacheWarmer_License::filter_allowed_targets( $targets );
+        if ( empty( $targets ) ) {
+            return array(
+                'error'  => 'No warming targets available for your license tier.',
+                'status' => 'rejected',
+            );
+        }
+
         $job_data = array(
             'id'          => $job_id,
             'sitemap_id'  => $sitemap_id,
@@ -102,6 +111,12 @@ class CacheWarmer_Job_Manager {
                 return $entry['loc'];
             }, $parsed );
 
+            // Enforce license: cap URLs to tier limit.
+            $max_urls = CacheWarmer_License::get_limit( 'max_urls_per_job' );
+            if ( $max_urls && count( $url_strings ) > $max_urls ) {
+                $url_strings = array_slice( $url_strings, 0, $max_urls );
+            }
+
             // Apply URL exclude patterns.
             $exclude_raw = get_option( 'cachewarmer_exclude_patterns', '' );
             if ( ! empty( trim( $exclude_raw ) ) ) {
@@ -117,6 +132,9 @@ class CacheWarmer_Job_Manager {
             }
 
             $targets = json_decode( $job->targets, true ) ?: array();
+
+            // Enforce license at execution time (in case tier changed since job was queued).
+            $targets = CacheWarmer_License::filter_allowed_targets( $targets );
 
             // Count how many targets are both requested and enabled so
             // total_urls reflects the actual work items (urls × active targets).
@@ -261,6 +279,9 @@ class CacheWarmer_Job_Manager {
             $targets = $all_targets;
         }
         $targets = array_intersect( $targets, $all_targets );
+
+        // Enforce license: only allow targets permitted by the current tier.
+        $targets = CacheWarmer_License::filter_allowed_targets( $targets );
 
         $job_data = array(
             'id'          => $job_id,

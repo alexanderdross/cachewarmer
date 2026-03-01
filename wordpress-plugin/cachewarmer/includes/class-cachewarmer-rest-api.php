@@ -153,10 +153,19 @@ class CacheWarmer_REST_API {
     // ──────────────────────────────────────────────
 
     public function start_warm( WP_REST_Request $request ): WP_REST_Response {
+        // REST API requires Premium or above (Free tier is admin-only).
+        if ( ! current_user_can( 'manage_options' ) && ! CacheWarmer_License::can( 'api_enabled' ) ) {
+            return new WP_REST_Response( array( 'error' => 'REST API access requires a Premium or Enterprise license.' ), 403 );
+        }
+
         $sitemap_url = $request->get_param( 'sitemapUrl' );
         $targets     = $request->get_param( 'targets' ) ?: array();
 
         $result = $this->job_manager->create_job( $sitemap_url, $targets );
+
+        if ( isset( $result['status'] ) && 'rejected' === $result['status'] ) {
+            return new WP_REST_Response( $result, 403 );
+        }
 
         return new WP_REST_Response( $result, 202 );
     }
