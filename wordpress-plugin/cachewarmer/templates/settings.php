@@ -41,6 +41,15 @@ if ( ! defined( 'ABSPATH' ) ) {
                     '<strong>' . esc_html( $tier_labels[ $current_tier ] ?? $current_tier ) . '</strong>'
                 );
                 ?>
+                &mdash;
+                <?php
+                printf(
+                    /* translators: %s: opening link tag, %s: closing link tag */
+                    esc_html__( 'Upgrade or purchase a license at %1$scachewarmer.drossmedia.de%2$s', 'cachewarmer' ),
+                    '<a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">',
+                    '</a>'
+                );
+                ?>
             </p>
             <table class="form-table">
                 <tr>
@@ -50,8 +59,20 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <td>
                         <input type="text" id="cachewarmer_license_key" name="cachewarmer_license_key"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_license_key', '' ) ); ?>"
-                               class="regular-text">
-                        <p class="description"><?php esc_html_e( 'Enter your license key to unlock Premium or Enterprise features.', 'cachewarmer' ); ?></p>
+                               class="regular-text"
+                               placeholder="CW-PRO-XXXXXXXXXXXXXXXX">
+                        <p class="description">
+                            <?php esc_html_e( 'Enter the license key you received after purchase to unlock Premium or Enterprise features.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php
+                            printf(
+                                /* translators: %s: link to purchase page */
+                                esc_html__( 'Don\'t have a key yet? %1$sGet one here%2$s.', 'cachewarmer' ),
+                                '<a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">',
+                                '</a>'
+                            );
+                            ?>
+                        </p>
                     </td>
                 </tr>
             </table>
@@ -60,6 +81,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <!-- API Key -->
         <div class="cachewarmer-settings-section">
             <h2><?php esc_html_e( 'General', 'cachewarmer' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'General settings that apply to CacheWarmer as a whole.', 'cachewarmer' ); ?></p>
             <table class="form-table">
                 <tr>
                     <th scope="row">
@@ -69,7 +91,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" id="cachewarmer_api_key" name="cachewarmer_api_key"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_api_key', '' ) ); ?>"
                                class="regular-text">
-                        <p class="description"><?php esc_html_e( 'API key for REST API authentication (Bearer token). Leave empty to require WP login only.', 'cachewarmer' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'A secret password that protects the CacheWarmer REST API so only authorized tools or scripts can trigger warming remotely.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( 'Leave empty if you only want to use CacheWarmer from within the WordPress admin area.', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
             </table>
@@ -85,7 +111,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'CDN Cache Warming', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Fetches each URL with desktop and mobile user-agents to warm CDN edge caches.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Visits every page on your site in the background so that your CDN (e.g. Cloudflare, Fastly) stores a cached copy. This means real visitors will load pages much faster because the content is already prepared.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_cdn_concurrency"><?php esc_html_e( 'Concurrency', 'cachewarmer' ); ?></label></th>
@@ -93,6 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_cdn_concurrency" name="cachewarmer_cdn_concurrency"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_cdn_concurrency', 3 ) ); ?>"
                                min="1" max="20" class="small-text">
+                        <p class="description"><?php esc_html_e( 'How many pages to warm at the same time. Higher = faster, but uses more server resources. Start with 3 and increase if your server can handle it.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -101,6 +130,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_cdn_timeout" name="cachewarmer_cdn_timeout"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_cdn_timeout', 30 ) ); ?>"
                                min="5" max="120" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Maximum seconds to wait for a page to load before skipping it. Increase this if you have slow pages.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -109,6 +139,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="text" id="cachewarmer_cdn_user_agent" name="cachewarmer_cdn_user_agent"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_cdn_user_agent', 'Mozilla/5.0 (compatible; CacheWarmer/1.0)' ) ); ?>"
                                class="large-text">
+                        <p class="description"><?php esc_html_e( 'The browser identity CacheWarmer uses when visiting your pages. The default works fine for most setups.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -124,7 +155,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Facebook Sharing Debugger', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Uses the Facebook Graph API to scrape/cache OG tags.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'When someone shares your page on Facebook, it shows a preview with a title, description and image. This feature tells Facebook to fetch those details in advance, so the preview is always correct and up-to-date.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_facebook_app_id"><?php esc_html_e( 'App ID', 'cachewarmer' ); ?></label></th>
@@ -132,6 +165,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="text" id="cachewarmer_facebook_app_id" name="cachewarmer_facebook_app_id"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_facebook_app_id', '' ) ); ?>"
                                class="regular-text">
+                        <p class="description">
+                            <?php
+                            printf(
+                                /* translators: %s: link to Facebook developers */
+                                esc_html__( 'Create a free Facebook App at %1$sdevelopers.facebook.com%2$s and copy the App ID here.', 'cachewarmer' ),
+                                '<a href="https://developers.facebook.com" target="_blank" rel="noopener">',
+                                '</a>'
+                            );
+                            ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -140,6 +183,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" id="cachewarmer_facebook_app_secret" name="cachewarmer_facebook_app_secret"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_facebook_app_secret', '' ) ); ?>"
                                class="regular-text">
+                        <p class="description"><?php esc_html_e( 'Found in your Facebook App dashboard under Settings > Basic. Keep this secret — do not share it publicly.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -148,6 +192,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_facebook_rate_limit" name="cachewarmer_facebook_rate_limit"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_facebook_rate_limit', 10 ) ); ?>"
                                min="1" max="50" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Maximum requests per second to the Facebook API. Keep this at 10 or lower to avoid being blocked.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -163,7 +208,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'LinkedIn Post Inspector', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Triggers LinkedIn OG tag scraping via the Post Inspector API.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Ensures that the link preview shown when sharing your page on LinkedIn is up-to-date. CacheWarmer tells LinkedIn to re-read your page\'s title, description and image.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_linkedin_session_cookie"><?php esc_html_e( 'Session Cookie (li_at)', 'cachewarmer' ); ?></label></th>
@@ -171,7 +218,17 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" id="cachewarmer_linkedin_session_cookie" name="cachewarmer_linkedin_session_cookie"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_linkedin_session_cookie', '' ) ); ?>"
                                class="large-text">
-                        <p class="description"><?php esc_html_e( 'Extract the li_at cookie from your browser DevTools after logging in to LinkedIn.', 'cachewarmer' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'This is a login token from your LinkedIn account. To find it:', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( '1. Log in to LinkedIn in your browser.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( '2. Open the browser developer tools (F12 or right-click > "Inspect").', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( '3. Go to Application > Cookies > linkedin.com and copy the value of the "li_at" cookie.', 'cachewarmer' ); ?>
+                            <br>
+                            <em><?php esc_html_e( 'Note: This cookie expires periodically. You may need to update it from time to time.', 'cachewarmer' ); ?></em>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -180,6 +237,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_linkedin_delay" name="cachewarmer_linkedin_delay"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_linkedin_delay', 5000 ) ); ?>"
                                min="1000" max="30000" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Waiting time in milliseconds between requests. LinkedIn is strict about rate limits, so keep this at 5000 ms or higher.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -195,7 +253,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Twitter/X Card Validator', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Triggers Twitter card scraping via the Tweet Composer endpoint. No API key needed.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Updates the link preview (Twitter Card) that appears when your page is shared on Twitter/X. No API key is needed — this works automatically through the public Tweet Composer.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_twitter_concurrency"><?php esc_html_e( 'Concurrency', 'cachewarmer' ); ?></label></th>
@@ -203,6 +263,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_twitter_concurrency" name="cachewarmer_twitter_concurrency"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_twitter_concurrency', 2 ) ); ?>"
                                min="1" max="10" class="small-text">
+                        <p class="description"><?php esc_html_e( 'How many pages to process at once. Keep this at 2 or lower to avoid being rate-limited by Twitter.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -211,6 +272,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_twitter_delay" name="cachewarmer_twitter_delay"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_twitter_delay', 3000 ) ); ?>"
                                min="1000" max="30000" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Waiting time in milliseconds between requests. A value of 3000 (3 seconds) works well.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -226,14 +288,33 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Google Indexing API', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Submit URL_UPDATED notifications to the Google Indexing API via a Service Account.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Tells Google directly that a page has been updated, so it gets re-crawled and re-indexed faster. This can significantly speed up how quickly your changes appear in Google search results.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_google_service_account"><?php esc_html_e( 'Service Account JSON', 'cachewarmer' ); ?></label></th>
                     <td>
                         <textarea id="cachewarmer_google_service_account" name="cachewarmer_google_service_account"
                                   rows="6" class="large-text code"><?php echo esc_textarea( get_option( 'cachewarmer_google_service_account', '' ) ); ?></textarea>
-                        <p class="description"><?php esc_html_e( 'Paste the full JSON content of your Google Service Account key file.', 'cachewarmer' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'Paste the contents of the JSON key file from your Google Cloud Service Account. To set this up:', 'cachewarmer' ); ?>
+                            <br>
+                            <?php
+                            printf(
+                                /* translators: %s: link to Google Cloud Console */
+                                esc_html__( '1. Go to %1$sGoogle Cloud Console%2$s and create a Service Account.', 'cachewarmer' ),
+                                '<a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener">',
+                                '</a>'
+                            );
+                            ?>
+                            <br>
+                            <?php esc_html_e( '2. Enable the "Web Search Indexing API" in the API Library.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( '3. Download the JSON key and paste it here.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( '4. Add the Service Account email as an owner in Google Search Console.', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -242,6 +323,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_google_daily_quota" name="cachewarmer_google_daily_quota"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_google_daily_quota', 200 ) ); ?>"
                                min="1" max="10000" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Google allows 200 URL submissions per day by default. CacheWarmer stops automatically once this limit is reached.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -257,7 +339,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Bing Webmaster Tools', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Submit URLs via the Bing Webmaster URL Submission API.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Submits your updated pages directly to Bing so they appear in Bing search results faster. Also improves discoverability on Yahoo, DuckDuckGo and other Bing-powered search engines.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_bing_api_key"><?php esc_html_e( 'API Key', 'cachewarmer' ); ?></label></th>
@@ -265,6 +349,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" id="cachewarmer_bing_api_key" name="cachewarmer_bing_api_key"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_bing_api_key', '' ) ); ?>"
                                class="regular-text">
+                        <p class="description">
+                            <?php
+                            printf(
+                                /* translators: %s: link to Bing Webmaster Tools */
+                                esc_html__( 'Get your API key from %1$sBing Webmaster Tools%2$s under Settings > API Access.', 'cachewarmer' ),
+                                '<a href="https://www.bing.com/webmasters" target="_blank" rel="noopener">',
+                                '</a>'
+                            );
+                            ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -273,6 +367,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="number" id="cachewarmer_bing_daily_quota" name="cachewarmer_bing_daily_quota"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_bing_daily_quota', 10000 ) ); ?>"
                                min="1" max="100000" class="small-text">
+                        <p class="description"><?php esc_html_e( 'Bing allows up to 10,000 URL submissions per day. CacheWarmer stops automatically once this limit is reached.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -288,7 +383,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'IndexNow Protocol', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Submit URLs via the IndexNow protocol (supports Bing, Yandex, Seznam, Naver).', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'IndexNow is a free, open protocol that instantly notifies multiple search engines (Bing, Yandex, Seznam, Naver and others) when your content changes. One submission reaches all participating search engines at once.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_indexnow_key"><?php esc_html_e( 'IndexNow Key', 'cachewarmer' ); ?></label></th>
@@ -296,7 +393,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="text" id="cachewarmer_indexnow_key" name="cachewarmer_indexnow_key"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_indexnow_key', '' ) ); ?>"
                                class="regular-text">
-                        <p class="description"><?php esc_html_e( 'Self-generated key. Must also be hosted as a .txt file on your site.', 'cachewarmer' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'A unique key that proves you own the website. You can use any random string of letters and numbers (e.g. "my-indexnow-key-12345").', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( 'Important: You must also upload a text file with this key as the filename to your website root (see "Key Location URL" below).', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -306,6 +407,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                                value="<?php echo esc_attr( get_option( 'cachewarmer_indexnow_key_location', '' ) ); ?>"
                                class="regular-text"
                                placeholder="https://example.com/your-key.txt">
+                        <p class="description">
+                            <?php esc_html_e( 'The full URL to the .txt file containing your key, e.g. https://example.com/my-indexnow-key-12345.txt. The file must contain exactly the key string above.', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
             </table>
@@ -321,7 +425,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Scheduled Warming', 'cachewarmer' ); ?>
                 </label>
             </h2>
-            <p class="description"><?php esc_html_e( 'Automatically warm all registered sitemaps on a schedule via WP-Cron.', 'cachewarmer' ); ?></p>
+            <p class="description">
+                <?php esc_html_e( 'Automatically warms all your registered sitemaps on a recurring schedule. Great for keeping your cache fresh without having to click "Warm Now" manually.', 'cachewarmer' ); ?>
+            </p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_scheduler_cron"><?php esc_html_e( 'Schedule', 'cachewarmer' ); ?></label></th>
@@ -343,6 +449,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <p class="description"><?php esc_html_e( 'How often CacheWarmer should automatically warm all registered sitemaps. "Daily" is a good default for most sites.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -351,6 +458,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <!-- Logging -->
         <div class="cachewarmer-settings-section">
             <h2><?php esc_html_e( 'Logging', 'cachewarmer' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Controls how much detail CacheWarmer records in its log. Useful for troubleshooting.', 'cachewarmer' ); ?></p>
             <table class="form-table">
                 <tr>
                     <th><label for="cachewarmer_log_level"><?php esc_html_e( 'Log Level', 'cachewarmer' ); ?></label></th>
@@ -366,6 +474,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <p class="description">
+                            <?php esc_html_e( 'Debug = log everything (best for troubleshooting). Info = normal operation. Warn = only potential issues. Error = only failures.', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
             </table>
@@ -382,9 +493,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </label>
             </h2>
             <p class="description">
-                <?php esc_html_e( 'Automatically warm cache when a post or page is published. Requires Premium or Enterprise license.', 'cachewarmer' ); ?>
+                <?php esc_html_e( 'Automatically warms the cache every time you publish or update a post or page. The CDN cache and social media previews are refreshed instantly — no manual action needed.', 'cachewarmer' ); ?>
                 <?php if ( ! CacheWarmer_License::is_premium_or_above() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?></em>
+                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?>
+                    <?php
+                    printf(
+                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
+                        esc_html__( 'Upgrade now', 'cachewarmer' )
+                    );
+                    ?>
+                    </em>
                 <?php endif; ?>
             </p>
             <table class="form-table">
@@ -413,7 +531,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 <?php echo esc_html( $label ); ?>
                             </label>
                         <?php endforeach; ?>
-                        <p class="description"><?php esc_html_e( 'Select which targets to warm when a post is published.', 'cachewarmer' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Choose which services should be refreshed when you publish or update content.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -422,7 +540,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <!-- URL Exclude Patterns -->
         <div class="cachewarmer-settings-section">
             <h2><?php esc_html_e( 'URL Exclude Patterns', 'cachewarmer' ); ?></h2>
-            <p class="description"><?php esc_html_e( 'URLs matching these patterns will be skipped during warming. One pattern per line. Supports wildcard (*) matching.', 'cachewarmer' ); ?></p>
+            <p class="description"><?php esc_html_e( 'Skip certain pages during warming. Useful for excluding admin pages, tag archives, author pages, or PDF files that don\'t need caching.', 'cachewarmer' ); ?></p>
             <table class="form-table">
                 <tr>
                     <th scope="row">
@@ -432,7 +550,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <textarea id="cachewarmer_exclude_patterns" name="cachewarmer_exclude_patterns"
                                   rows="6" class="large-text code"
                                   placeholder="/tag/*&#10;/author/*&#10;*.pdf&#10;/wp-admin/*"><?php echo esc_textarea( get_option( 'cachewarmer_exclude_patterns', '' ) ); ?></textarea>
-                        <p class="description"><?php esc_html_e( 'Examples: /tag/*, /author/*, *.pdf, /wp-admin/*', 'cachewarmer' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'Enter one pattern per line. Any URL containing the pattern will be skipped.', 'cachewarmer' ); ?>
+                            <br>
+                            <?php esc_html_e( 'Examples: /tag/ (skip tag pages), /author/ (skip author pages), .pdf (skip PDF files), /wp-admin/ (skip admin pages).', 'cachewarmer' ); ?>
+                        </p>
                     </td>
                 </tr>
             </table>
@@ -449,9 +571,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </label>
             </h2>
             <p class="description">
-                <?php esc_html_e( 'Receive email notifications when warming jobs complete or fail.', 'cachewarmer' ); ?>
+                <?php esc_html_e( 'Get an email whenever a warming job finishes or fails. Handy if you run scheduled jobs and want to stay informed without checking the dashboard.', 'cachewarmer' ); ?>
                 <?php if ( ! CacheWarmer_License::is_premium_or_above() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?></em>
+                    <br><em><?php esc_html_e( 'This feature requires a Premium or Enterprise license.', 'cachewarmer' ); ?>
+                    <?php
+                    printf(
+                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
+                        esc_html__( 'Upgrade now', 'cachewarmer' )
+                    );
+                    ?>
+                    </em>
                 <?php endif; ?>
             </p>
             <table class="form-table">
@@ -463,7 +592,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="email" id="cachewarmer_notification_email" name="cachewarmer_notification_email"
                                value="<?php echo esc_attr( get_option( 'cachewarmer_notification_email', get_option( 'admin_email' ) ) ); ?>"
                                class="regular-text">
-                        <p class="description"><?php esc_html_e( 'Email address to receive notifications. Defaults to the admin email.', 'cachewarmer' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'The email address where notifications are sent. Defaults to the WordPress admin email.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -473,9 +602,16 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="cachewarmer-settings-section">
             <h2><?php esc_html_e( 'Webhook Notifications', 'cachewarmer' ); ?></h2>
             <p class="description">
-                <?php esc_html_e( 'Send event notifications to an external webhook URL.', 'cachewarmer' ); ?>
+                <?php esc_html_e( 'Send automatic notifications to external services (like Slack, Zapier or a custom server) when a warming job completes or fails.', 'cachewarmer' ); ?>
                 <?php if ( ! CacheWarmer_License::is_enterprise() ) : ?>
-                    <br><em><?php esc_html_e( 'This feature requires an Enterprise license.', 'cachewarmer' ); ?></em>
+                    <br><em><?php esc_html_e( 'This feature requires an Enterprise license.', 'cachewarmer' ); ?>
+                    <?php
+                    printf(
+                        ' <a href="https://cachewarmer.drossmedia.de" target="_blank" rel="noopener">%s</a>',
+                        esc_html__( 'Upgrade now', 'cachewarmer' )
+                    );
+                    ?>
+                    </em>
                 <?php endif; ?>
             </p>
             <table class="form-table">
@@ -489,7 +625,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                class="regular-text"
                                placeholder="https://example.com/webhook"
                                <?php echo ! CacheWarmer_License::is_enterprise() ? 'disabled' : ''; ?>>
-                        <p class="description"><?php esc_html_e( 'JSON payloads will be POSTed to this URL for events like job.completed and job.failed.', 'cachewarmer' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Paste the URL where CacheWarmer should send event data (in JSON format). For example, a Slack incoming webhook URL or a Zapier catch hook.', 'cachewarmer' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -497,4 +633,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <?php submit_button( __( 'Save Settings', 'cachewarmer' ) ); ?>
     </form>
+
+    <div class="cachewarmer-footer">
+        <?php
+        printf(
+            'made with %s by <a href="https://dross.net/media/?ref=cachewarmer" target="_blank" rel="noopener">Dross:Media</a>',
+            '<span class="cachewarmer-heart">&hearts;</span>'
+        );
+        ?>
+    </div>
 </div>

@@ -399,6 +399,40 @@
 #cw-jobs-table .column-actions { width: 160px; }
 #cw-jobs-table .column-created { width: 160px; }
 
+/* Footer */
+.cachewarmer-footer {
+    text-align: center;
+    padding: 20px 0 10px;
+    margin-top: 24px;
+    color: #a7aaad;
+    font-size: 13px;
+}
+
+.cachewarmer-footer a {
+    color: #646970;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.cachewarmer-footer a:hover {
+    color: #2271b1;
+}
+
+.cachewarmer-heart {
+    color: #d63638;
+    font-size: 15px;
+    display: inline-block;
+    animation: cachewarmer-heartbeat 1.2s ease-in-out infinite;
+}
+
+@keyframes cachewarmer-heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.2); }
+    56% { transform: scale(1); }
+}
+
 /* Responsive */
 @media screen and (max-width: 782px) {
     .cachewarmer-status-cards {

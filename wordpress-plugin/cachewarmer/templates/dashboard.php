@@ -168,4 +168,13 @@ $jobs   = $db->get_jobs( 20 );
             </div>
         </div>
     </div>
+
+    <div class="cachewarmer-footer">
+        <?php
+        printf(
+            'made with %s by <a href="https://dross.net/media/?ref=cachewarmer" target="_blank" rel="noopener">Dross:Media</a>',
+            '<span class="cachewarmer-heart">&hearts;</span>'
+        );
+        ?>
+    </div>
 </div>
