@@ -378,28 +378,31 @@ a.cw-stat-toggle.cw-stat-active {
   margin-bottom: 16px;
 }
 
-.cw-pro-locked,
-.cw-ent-locked {
+.cw-pro-locked > .details-wrapper,
+.cw-ent-locked > .details-wrapper {
+  position: relative;
   filter: blur(4px);
   opacity: 0.45;
   pointer-events: none;
   user-select: none;
 }
 
+.cw-pro-locked > summary,
+.cw-ent-locked > summary {
+  pointer-events: none;
+}
+
 .cw-pro-upgrade-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px 16px;
-  background: rgba(255, 255, 255, 0.35);
+  padding: 18px 16px;
+  margin-top: -20px;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .cw-pro-upgrade-overlay .cw-lock-icon::before {

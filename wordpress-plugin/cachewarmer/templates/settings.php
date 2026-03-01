@@ -151,18 +151,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Facebook (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_facebook_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_facebook_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_facebook_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Facebook Sharing Debugger', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'When someone shares your page on Facebook, it shows a preview with a title, description and image. This feature tells Facebook to fetch those details in advance, so the preview is always correct and up-to-date.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_facebook_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_facebook_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_facebook_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Facebook Sharing Debugger', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'When someone shares your page on Facebook, it shows a preview with a title, description and image. This feature tells Facebook to fetch those details in advance, so the preview is always correct and up-to-date.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_facebook_app_id"><?php esc_html_e( 'App ID', 'cachewarmer' ); ?></label></th>
@@ -213,18 +213,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- LinkedIn (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_linkedin_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_linkedin_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_linkedin_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'LinkedIn Post Inspector', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Ensures that the link preview shown when sharing your page on LinkedIn is up-to-date. CacheWarmer tells LinkedIn to re-read your page\'s title, description and image.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_linkedin_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_linkedin_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_linkedin_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'LinkedIn Post Inspector', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Ensures that the link preview shown when sharing your page on LinkedIn is up-to-date. CacheWarmer tells LinkedIn to re-read your page\'s title, description and image.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_linkedin_session_cookie"><?php esc_html_e( 'Session Cookie (li_at)', 'cachewarmer' ); ?></label></th>
@@ -268,18 +268,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Twitter/X (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_twitter_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_twitter_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_twitter_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Twitter/X Card Validator', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Updates the link preview (Twitter Card) that appears when your page is shared on Twitter/X. No API key is needed — this works automatically through the public Tweet Composer.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_twitter_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_twitter_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_twitter_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Twitter/X Card Validator', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Updates the link preview (Twitter Card) that appears when your page is shared on Twitter/X. No API key is needed — this works automatically through the public Tweet Composer.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_twitter_concurrency"><?php esc_html_e( 'Concurrency', 'cachewarmer' ); ?></label></th>
@@ -313,18 +313,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Google Indexing API (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_google_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_google_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_google_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Google Indexing API', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Tells Google directly that a page has been updated, so it gets re-crawled and re-indexed faster. This can significantly speed up how quickly your changes appear in Google search results.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_google_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_google_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_google_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Google Indexing API', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Tells Google directly that a page has been updated, so it gets re-crawled and re-indexed faster. This can significantly speed up how quickly your changes appear in Google search results.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_google_service_account"><?php esc_html_e( 'Service Account JSON', 'cachewarmer' ); ?></label></th>
@@ -373,18 +373,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Bing Webmaster (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_bing_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_bing_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_bing_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Bing Webmaster Tools', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Submits your updated pages directly to Bing so they appear in Bing search results faster. Also improves discoverability on Yahoo, DuckDuckGo and other Bing-powered search engines.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_bing_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_bing_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_bing_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Bing Webmaster Tools', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Submits your updated pages directly to Bing so they appear in Bing search results faster. Also improves discoverability on Yahoo, DuckDuckGo and other Bing-powered search engines.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_bing_api_key"><?php esc_html_e( 'API Key', 'cachewarmer' ); ?></label></th>
@@ -468,18 +468,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Scheduler (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_scheduler_enabled" value="0">
+                    <input type="checkbox" name="cachewarmer_scheduler_enabled" value="1"
+                        <?php checked( get_option( 'cachewarmer_scheduler_enabled', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Scheduled Warming', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Automatically warms all your registered sitemaps on a recurring schedule. Great for keeping your cache fresh without having to click "Warm Now" manually.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_scheduler_enabled" value="0">
-                        <input type="checkbox" name="cachewarmer_scheduler_enabled" value="1"
-                            <?php checked( get_option( 'cachewarmer_scheduler_enabled', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Scheduled Warming', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Automatically warms all your registered sitemaps on a recurring schedule. Great for keeping your cache fresh without having to click "Warm Now" manually.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th><label for="cachewarmer_scheduler_cron"><?php esc_html_e( 'Schedule', 'cachewarmer' ); ?></label></th>
@@ -545,18 +545,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Auto-Warm on Publish (Premium) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_free ? ' cw-pro-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_auto_warm_on_publish" value="0">
+                    <input type="checkbox" name="cachewarmer_auto_warm_on_publish" value="1"
+                        <?php checked( get_option( 'cachewarmer_auto_warm_on_publish', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Auto-Warm on Publish', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Automatically warms the cache every time you publish or update a post or page. The CDN cache and social media previews are refreshed instantly — no manual action needed.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_auto_warm_on_publish" value="0">
-                        <input type="checkbox" name="cachewarmer_auto_warm_on_publish" value="1"
-                            <?php checked( get_option( 'cachewarmer_auto_warm_on_publish', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Auto-Warm on Publish', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Automatically warms the cache every time you publish or update a post or page. The CDN cache and social media previews are refreshed instantly — no manual action needed.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th scope="row"><?php esc_html_e( 'Targets', 'cachewarmer' ); ?></th>
@@ -600,9 +600,9 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- URL Exclude Patterns (Enterprise) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-ent-locked' : ''; ?>">
+            <h2><?php esc_html_e( 'URL Exclude Patterns', 'cachewarmer' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Skip certain pages during warming. Useful for excluding admin pages, tag archives, author pages, or PDF files that don\'t need caching.', 'cachewarmer' ); ?></p>
             <div class="cw-locked-content">
-                <h2><?php esc_html_e( 'URL Exclude Patterns', 'cachewarmer' ); ?></h2>
-                <p class="description"><?php esc_html_e( 'Skip certain pages during warming. Useful for excluding admin pages, tag archives, author pages, or PDF files that don\'t need caching.', 'cachewarmer' ); ?></p>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
@@ -634,18 +634,18 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Email Notifications (Enterprise) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-ent-locked' : ''; ?>">
+            <h2>
+                <label>
+                    <input type="hidden" name="cachewarmer_email_notifications" value="0">
+                    <input type="checkbox" name="cachewarmer_email_notifications" value="1"
+                        <?php checked( get_option( 'cachewarmer_email_notifications', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Email Notifications', 'cachewarmer' ); ?>
+                </label>
+            </h2>
+            <p class="description">
+                <?php esc_html_e( 'Get an email whenever a warming job finishes or fails. Handy if you run scheduled jobs and want to stay informed without checking the dashboard.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2>
-                    <label>
-                        <input type="hidden" name="cachewarmer_email_notifications" value="0">
-                        <input type="checkbox" name="cachewarmer_email_notifications" value="1"
-                            <?php checked( get_option( 'cachewarmer_email_notifications', '0' ), '1' ); ?>>
-                        <?php esc_html_e( 'Email Notifications', 'cachewarmer' ); ?>
-                    </label>
-                </h2>
-                <p class="description">
-                    <?php esc_html_e( 'Get an email whenever a warming job finishes or fails. Handy if you run scheduled jobs and want to stay informed without checking the dashboard.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
@@ -672,11 +672,11 @@ $cw_pricing_url   = 'https://cachewarmer.drossmedia.de/pricing/';
 
         <!-- Webhook Notifications (Enterprise) -->
         <div class="cachewarmer-settings-section<?php echo $cw_is_not_ent ? ' cw-ent-locked' : ''; ?>">
+            <h2><?php esc_html_e( 'Webhook Notifications', 'cachewarmer' ); ?></h2>
+            <p class="description">
+                <?php esc_html_e( 'Send automatic notifications to external services (like Slack, Zapier or a custom server) when a warming job completes or fails.', 'cachewarmer' ); ?>
+            </p>
             <div class="cw-locked-content">
-                <h2><?php esc_html_e( 'Webhook Notifications', 'cachewarmer' ); ?></h2>
-                <p class="description">
-                    <?php esc_html_e( 'Send automatic notifications to external services (like Slack, Zapier or a custom server) when a warming job completes or fails.', 'cachewarmer' ); ?>
-                </p>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
