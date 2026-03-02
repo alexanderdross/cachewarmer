@@ -647,8 +647,8 @@ class CacheWarmer_Admin {
         }
         ?>
         <style>
-            .cw-widget-kpis { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e2e4e7; }
-            .cw-widget-kpi { flex: 1; text-align: center; padding: 8px 4px; background: #f6f7f7; border-radius: 4px; }
+            .cw-widget-kpis { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e2e4e7; }
+            .cw-widget-kpi { flex: 1; min-width: calc(25% - 10px); text-align: center; padding: 8px 4px; background: #f6f7f7; border-radius: 4px; }
             .cw-widget-kpi .cw-wk-value { font-size: 22px; font-weight: 700; line-height: 1.2; color: #1d2327; }
             .cw-widget-kpi .cw-wk-label { font-size: 11px; color: #646970; }
             .cw-widget-kpi.cw-wk-warn .cw-wk-value { color: #dba617; }
@@ -667,6 +667,11 @@ class CacheWarmer_Admin {
             .cw-widget-link-text { line-height: 1.3; }
             .cw-widget-link-label { font-weight: 600; font-size: 13px; }
             .cw-widget-link-desc { font-size: 11px; color: #646970; }
+            @media screen and (max-width: 782px) {
+                .cw-widget-kpi { min-width: calc(50% - 10px); }
+                .cw-widget-links { grid-template-columns: 1fr; }
+                .cw-widget-link { padding: 10px 12px; }
+            }
         </style>
 
         <div class="cw-widget-kpis">
