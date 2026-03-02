@@ -66,7 +66,7 @@
   function refreshJobsTable() {
     if (!urls.getJobs) return;
 
-    $.getJSON(urls.getJobs, function (response) {
+    $.getJSON(urls.getJobs).done(function (response) {
       if (!response.success) return;
 
       var tbody = $('#cachewarmer-jobs-tbody');
@@ -92,14 +92,14 @@
           '</tr>';
         tbody.append(row);
       });
-    });
+    }).fail(function () { /* silent fail — auto-refresh will retry */ });
   }
 
   // Refresh status
   function refreshStatus() {
     if (!urls.status) return;
 
-    $.getJSON(urls.status, function (response) {
+    $.getJSON(urls.status).done(function (response) {
       if (!response.success) return;
       var data = response.data;
       $('#cachewarmer-status-queued').text(data.queued || 0);
@@ -107,7 +107,7 @@
       $('#cachewarmer-status-completed').text(data.completed || 0);
       $('#cachewarmer-status-failed').text(data.failed || 0);
       $('#cachewarmer-status-total').text(data.total_processed || 0);
-    });
+    }).fail(function () { /* silent fail — auto-refresh will retry */ });
   }
 
   // Job details modal
@@ -117,7 +117,7 @@
     modalBody.html('<p>' + Drupal.t('Loading...') + '</p>');
     $('#cachewarmer-modal').show();
 
-    $.getJSON(urls.getJob + jobId, function (response) {
+    $.getJSON(urls.getJob + jobId).done(function (response) {
       if (!response.success) {
         modalBody.html('<p>' + Drupal.t('Failed to load job details.') + '</p>');
         return;
@@ -180,6 +180,8 @@
 
       modalBody.html(html);
       modalBody.data('results', results);
+    }).fail(function () {
+      modalBody.html('<p>' + Drupal.t('Failed to load job details.') + '</p>');
     });
   });
 
@@ -487,16 +489,22 @@
         link.href = URL.createObjectURL(blob);
         link.download = data.filename;
         link.click();
+      },
+      error: function () {
+        alert(Drupal.t('Export failed.'));
       }
     });
   });
 
-  // Auto-refresh on dashboard
+  // Auto-refresh on dashboard; clean up on page unload.
   if ($('.cachewarmer-dashboard').length) {
-    setInterval(function () {
+    var cwRefreshInterval = setInterval(function () {
       refreshJobsTable();
       refreshStatus();
     }, 10000);
+    $(window).on('beforeunload.cachewarmer', function () {
+      clearInterval(cwRefreshInterval);
+    });
   }
 
 })(jQuery, Drupal, drupalSettings);

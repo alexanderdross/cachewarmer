@@ -134,9 +134,12 @@
         });
     }
 
-    // Auto-refresh every 10s if on dashboard.
+    // Auto-refresh every 10s if on dashboard; clean up on page unload.
     if ($('#cw-jobs-table').length) {
-        setInterval(refreshJobsTable, 10000);
+        var cwRefreshInterval = setInterval(refreshJobsTable, 10000);
+        $(window).on('beforeunload.cachewarmer', function () {
+            clearInterval(cwRefreshInterval);
+        });
     }
 
     // ──────────────────────────────────────────────
@@ -173,7 +176,12 @@
                 html += '<div><dt>Job ID</dt><dd><code>' + escHtml(job.id) + '</code></dd></div>';
                 html += '<div><dt>Status</dt><dd><span class="cachewarmer-badge badge-' + escAttr(job.status) + '">' + escHtml(capitalize(job.status)) + '</span></dd></div>';
                 html += '<div><dt>Sitemap</dt><dd>' + escHtml(job.sitemap_url) + '</dd></div>';
-                var detailTargets = (typeof job.targets === 'string') ? JSON.parse(job.targets || '[]') : (job.targets || []);
+                var detailTargets;
+                try {
+                    detailTargets = (typeof job.targets === 'string') ? JSON.parse(job.targets || '[]') : (job.targets || []);
+                } catch (e) {
+                    detailTargets = [];
+                }
                 var detailActiveCount = detailTargets.length || 1;
                 var detailUrlCount = detailActiveCount > 0 ? Math.round(job.total_urls / detailActiveCount) : job.total_urls;
                 html += '<div><dt>Progress</dt><dd>' + job.processed_urls + ' / ' + job.total_urls + ' tasks <span style="color:#646970;">(' + detailUrlCount + ' URLs &times; ' + detailActiveCount + ' services)</span></dd></div>';
@@ -602,6 +610,9 @@
                 link.href = URL.createObjectURL(blob);
                 link.download = response.data.filename;
                 link.click();
+            },
+            error: function () {
+                alert(CW.i18n.error || 'Export failed');
             }
         });
     });
