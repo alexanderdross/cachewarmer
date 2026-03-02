@@ -610,6 +610,23 @@ a.cw-stat-toggle.cw-stat-active {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
+    /* Status cards: 3+2 grid on tablet instead of cramped 5-in-a-row */
+    .cachewarmer-status-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    /* Settings form-table: narrower labels on tablet */
+    .cachewarmer-settings-section .form-table th {
+        width: 160px;
+    }
+
+    /* Code blocks scroll hint on tablet */
+    .cw-code-block {
+        font-size: 11px;
+    }
 }
 
 /* ==========================================================================
@@ -618,11 +635,18 @@ a.cw-stat-toggle.cw-stat-active {
 @media screen and (max-width: 782px) {
     /* --- Layout --- */
     .cachewarmer-status-cards {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .cachewarmer-card {
         min-width: auto;
+    }
+
+    /* Let the 5th card (URLs Processed) span full width for visual balance */
+    .cachewarmer-status-cards .cachewarmer-card:nth-child(5) {
+        grid-column: 1 / -1;
     }
 
     .cachewarmer-form-inline {
@@ -635,10 +659,6 @@ a.cw-stat-toggle.cw-stat-active {
 
     .cachewarmer-job-meta {
         grid-template-columns: 1fr;
-    }
-
-    .cachewarmer-settings-section .form-table th {
-        width: auto;
     }
 
     .cachewarmer-section {
@@ -668,7 +688,127 @@ a.cw-stat-toggle.cw-stat-active {
     /* --- Modal full-screen-ish on mobile --- */
     .cachewarmer-modal-content {
         width: 95%;
+        max-height: 90vh;
         padding: 16px;
+        border-radius: 6px;
+    }
+
+    .cachewarmer-modal-close {
+        right: 12px;
+        top: 8px;
+        font-size: 32px;
+        padding: 4px;
+    }
+
+    /* --- Settings form-table: stack label above input on mobile --- */
+    .cachewarmer-settings-section .form-table th {
+        width: auto;
+        display: block;
+        padding: 12px 0 4px;
+    }
+
+    .cachewarmer-settings-section .form-table td {
+        display: block;
+        padding: 4px 0 12px;
+    }
+
+    .cachewarmer-settings-section .form-table tr {
+        display: block;
+        border-bottom: 1px solid #f0f0f1;
+    }
+
+    .cachewarmer-settings-section .form-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .cachewarmer-settings-section {
+        padding: 14px 16px;
+    }
+
+    /* --- Touch-friendly target checkboxes --- */
+    .cachewarmer-targets {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .cachewarmer-target-label {
+        justify-content: center;
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .cachewarmer-target-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Touch-friendly buttons --- */
+    .cachewarmer-wrap .button {
+        min-height: 36px;
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+
+    .cachewarmer-wrap .button-hero {
+        min-height: 44px;
+        font-size: 15px;
+    }
+
+    /* --- Bulk import buttons stack on mobile --- */
+    #cw-bulk-import-form .cachewarmer-form-row:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #cw-bulk-import-form .cachewarmer-form-row:nth-child(2) .button {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    /* --- Code blocks on mobile --- */
+    .cw-code-block {
+        font-size: 11px;
+        padding: 10px 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    /* --- Upgrade overlay compact on mobile --- */
+    .cw-pro-upgrade-overlay {
+        padding: 14px 12px;
+    }
+
+    .cw-pro-upgrade-overlay .dashicons-lock {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        margin-bottom: 8px;
+    }
+
+    .cw-pro-upgrade-overlay strong {
+        font-size: 14px;
+    }
+
+    .cw-pro-upgrade-overlay p {
+        font-size: 12px;
+        max-width: 100%;
+    }
+
+    .cw-pro-upgrade-overlay .button-primary {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* --- URL list panel in modal: scrollable on mobile --- */
+    #cw-url-list {
+        max-height: 200px;
+    }
+
+    .cw-url-item {
+        padding: 10px;
+        font-size: 12px;
     }
 
     /* ======================================================================
@@ -738,6 +878,8 @@ a.cw-stat-toggle.cw-stat-active {
     #cw-sitemaps-table tbody td:nth-child(5) .button {
         flex: 1;
         text-align: center;
+        min-height: 36px;
+        line-height: 34px;
     }
 
     /* ======================================================================
@@ -829,6 +971,8 @@ a.cw-stat-toggle.cw-stat-active {
     #cw-jobs-table tbody td:nth-child(6) .button {
         flex: 1;
         text-align: center;
+        min-height: 36px;
+        line-height: 34px;
     }
 
     /* Sitemap column text — break long URLs */
@@ -836,14 +980,17 @@ a.cw-stat-toggle.cw-stat-active {
         word-break: break-all;
     }
 
-    /* Targets checkboxes — stack on mobile */
-    .cachewarmer-targets {
-        flex-direction: column;
-        gap: 8px;
+    /* --- WP Dashboard widget mobile --- */
+    .cw-widget-kpis {
+        flex-wrap: wrap;
     }
 
-    .cachewarmer-target-label {
-        justify-content: center;
+    .cw-widget-kpi {
+        min-width: calc(50% - 6px);
+    }
+
+    .cw-widget-links {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -906,6 +1053,15 @@ a.cw-stat-toggle.cw-stat-active {
    Responsive — Small Phone (≤ 480px)
    ========================================================================== */
 @media screen and (max-width: 480px) {
+    /* Status cards: single column on very small phones */
+    .cachewarmer-status-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .cachewarmer-status-cards .cachewarmer-card:nth-child(5) {
+        grid-column: auto;
+    }
+
     .cachewarmer-card {
         padding: 12px 14px;
     }
@@ -924,11 +1080,56 @@ a.cw-stat-toggle.cw-stat-active {
         padding: 1px 6px;
     }
 
+    .cachewarmer-section {
+        padding: 10px 12px;
+        margin: 12px 0;
+    }
+
     .cachewarmer-section h2 {
         font-size: 15px;
     }
 
     .cachewarmer-wrap h1 {
         font-size: 18px;
+    }
+
+    .cachewarmer-wrap h1 .dashicons {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Modal: near full-screen on small phone */
+    .cachewarmer-modal-content {
+        width: 100%;
+        max-height: 95vh;
+        border-radius: 0;
+        padding: 12px;
+    }
+
+    /* Stats grid cards: tighter on small screens */
+    .cachewarmer-stat-card {
+        padding: 10px;
+    }
+
+    /* Job detail meta: tighter */
+    .cachewarmer-job-meta dd code {
+        word-break: break-all;
+        font-size: 11px;
+    }
+
+    /* Upgrade overlay: more compact */
+    .cw-pro-upgrade-overlay {
+        padding: 10px 8px;
+    }
+
+    .cw-pro-upgrade-overlay strong {
+        font-size: 13px;
+    }
+
+    /* Footer: smaller on tiny screens */
+    .cachewarmer-footer {
+        font-size: 11px;
+        padding: 14px 0 8px;
     }
 }
