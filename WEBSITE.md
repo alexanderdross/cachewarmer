@@ -278,7 +278,7 @@ Lucide Icons (konsistent mit pdfviewer.drossmedia.de):
 
 **Headline:** One Click. All Caches Warm.
 
-**Subheadline:** CacheWarmer systematically warms all 7 cache layers — so your content is always fresh, everywhere.
+**Subheadline:** CacheWarmer systematically warms all your cache layers — CDN, social media, search engines, and even purges CDN caches directly via API — so your content is always fresh, everywhere.
 
 | Lösung | Icon | Beschreibung |
 |--------|------|-------------|
@@ -298,8 +298,9 @@ Lucide Icons (konsistent mit pdfviewer.drossmedia.de):
 │  ✓  Google:   200 URLs submitted to Indexing API │
 │  ✓  Bing:     200 URLs submitted via API         │
 │  ✓  IndexNow: 200 URLs notified (4 engines)     │
+│  ✓  CDN Purge: Cloudflare/Imperva/Akamai purged │
 │                                                   │
-│  Total: 1,400 cache operations in 4 minutes      │
+│  Total: 1,400+ cache operations in 4 minutes     │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -398,7 +399,7 @@ A: When you update your website, CDNs and social media platforms still serve the
 A: When you share a link on Facebook, LinkedIn, or Twitter, these platforms cache the OG/meta tags (title, description, image). If you've updated your page, the old preview will still appear. CacheWarmer forces these platforms to re-scrape your pages so the preview is always current.
 
 **Q: Does this work with any CDN?**
-A: Yes. CacheWarmer works with Cloudflare, Fastly, AWS CloudFront, Varnish, Nginx cache, and any other reverse-proxy or CDN that caches based on HTTP requests. It simply visits your URLs — the CDN caches the fresh response.
+A: Yes. CacheWarmer works with Cloudflare, Fastly, AWS CloudFront, Varnish, Nginx cache, and any other reverse-proxy or CDN that caches based on HTTP requests. It simply visits your URLs — the CDN caches the fresh response. Enterprise users also get direct CDN API integration for **Cloudflare**, **Imperva (Incapsula)**, and **Akamai** — purge and re-warm caches in seconds via their native APIs.
 
 **Q: Can I warm external sitemaps (other domains)?**
 A: Yes. CacheWarmer supports adding multiple external XML sitemaps from any domain. The free version allows 1 external sitemap, Premium allows 10, and Enterprise is unlimited.
@@ -739,7 +740,8 @@ Deploy your own CacheWarmer instance.
 │  3 jobs per day    │  │  · Google Indexing API  │  │  Unlimited jobs        │
 │  Manual warming    │  │  · Bing Webmaster API  │  │                        │
 │  7-day log history │  │  · Pinterest Rich Pins │  │  Multi-Site management │
-│                    │  │                        │  │  Cloudflare integration│
+│                    │  │                        │  │  CDN Purge: Cloudflare │
+│                    │  │                        │  │   Imperva & Akamai     │
 │  Basic dashboard   │  │  10,000 URLs per job   │  │  Custom UA & Headers   │
 │                    │  │  25 sitemaps           │  │  Custom viewports      │
 │                    │  │  50 jobs per day       │  │  Authenticated warming │
@@ -792,6 +794,8 @@ Also available:
 | Bing Webmaster URL Submission | — | ✓ | ✓ |
 | **Pinterest Rich Pin Validator** | — | ✓ | ✓ |
 | **Cloudflare Cache Purge + Warm** | — | — | ✓ |
+| **Imperva (Incapsula) Cache Purge + Warm** | — | — | ✓ |
+| **Akamai Fast Purge + Warm** | — | — | ✓ |
 
 #### Limits
 
@@ -934,8 +938,8 @@ Start free. Upgrade when you're ready.
 ## 9. /enterprise/ — Enterprise
 
 **URL:** `https://cachewarmer.drossmedia.de/enterprise/`
-**Title:** `CacheWarmer Enterprise — Multi-Site, Webhooks, White-Label & Priority Support`
-**Description:** `CacheWarmer Enterprise for agencies and large organizations. Unlimited sites, unlimited URLs, webhook notifications, white-label branding, custom cron schedules, and SLA-backed priority support.`
+**Title:** `CacheWarmer Enterprise — Multi-Site, CDN Purge (Cloudflare, Imperva, Akamai), Webhooks & Priority Support`
+**Description:** `CacheWarmer Enterprise for agencies and large organizations. Unlimited sites, unlimited URLs, direct CDN cache purge via Cloudflare, Imperva & Akamai APIs, webhook notifications, white-label branding, and SLA-backed priority support.`
 
 ---
 
@@ -963,7 +967,9 @@ Start free. Upgrade when you're ready.
 | **Custom User Agent & Headers** | Define custom UA strings and HTTP headers for CDN warming. Useful for CDN rules, bot detection bypass, and internal caching layers. |
 | **Custom Viewports** | Test beyond desktop and mobile — add tablet, 4K, or any custom viewport size to your warming runs. |
 | **Authenticated Warming** | Warm pages behind login walls by injecting cookies or session tokens. Essential for intranets, paywalls, and staging environments. |
-| **Cloudflare Integration** | Purge and re-warm via Cloudflare Zone API. Auto-detect CF-proxied domains. |
+| **CDN Cache Purge (Cloudflare)** | Purge and re-warm via Cloudflare Zone API v4. Batch up to 30 URLs per request. Auto-detect CF-proxied domains. |
+| **CDN Cache Purge (Imperva)** | Purge Imperva (Incapsula) CDN cache via Cloud WAF API v1 with URL-pattern support. Sub-500ms purge propagation across the Imperva network. |
+| **CDN Cache Purge (Akamai)** | Invalidate URLs via Akamai Fast Purge API v3 with EdgeGrid authentication. Batch up to 50 URLs per request. Supports production and staging networks. |
 | **Conditional Warming** | Skip URLs where cache is still fresh (checks CDN headers before warming). Saves time and bandwidth. |
 | **Sitemap Change Polling** | Automatically detect sitemap changes and trigger warming without manual intervention. |
 | **Performance Regression Alerts** | Get alerted when response times spike >50% compared to previous runs. |
@@ -996,7 +1002,7 @@ Start free. Upgrade when you're ready.
 | Plan | Price | Sites | Support |
 |------|------:|------:|---------|
 | **Enterprise Starter** | €599/year (WP) / €799/year (Drupal) / €999/year (Node.js) | Up to 5 sites | Email + Live Chat |
-| **Enterprise Professional** | €1,799/year (WP) / €2,499/year (Drupal) / €2,999/year (Node.js) | Up to 25 sites | Priority + SLA, Webhooks, White-Label, Multi-Site, Cloudflare |
+| **Enterprise Professional** | €1,799/year (WP) / €2,499/year (Drupal) / €2,999/year (Node.js) | Up to 25 sites | Priority + SLA, Webhooks, White-Label, Multi-Site, Cloudflare/Imperva/Akamai |
 | **Enterprise Corporate** | from €5,999/year (WP) / €6,999/year (Drupal) | Unlimited | Dedicated Account Manager, Custom Dev |
 | **Enterprise Starter Lifetime** | €1,499 (WP) / €1,999 (Drupal) / €2,499 (Node.js) | Up to 5 sites | Lifetime updates + support |
 | **Enterprise Professional Lifetime** | €4,499 (WP) / €5,999 (Drupal) / €7,499 (Node.js) | Up to 25 sites | Lifetime updates + support |
@@ -1016,15 +1022,15 @@ Let's find the right plan for your team.
 ## 10. /features/ — Alle Features
 
 **URL:** `https://cachewarmer.drossmedia.de/features/`
-**Title:** `CacheWarmer Features — CDN, Facebook, LinkedIn, Twitter, Google, Bing & IndexNow`
-**Description:** `Complete feature overview of CacheWarmer. 7 warming targets, scheduled automation, REST API, multi-sitemap support, and a real-time dashboard.`
+**Title:** `CacheWarmer Features — CDN, Facebook, LinkedIn, Twitter, Google, Bing, IndexNow, Pinterest & CDN Purge`
+**Description:** `Complete feature overview of CacheWarmer. 11 warming targets incl. direct CDN cache purge via Cloudflare, Imperva & Akamai. Scheduled automation, REST API, multi-sitemap support, and a real-time dashboard.`
 
 ---
 
 ### Sektion 1: Hero
 
 **Headline:** Everything You Need to Keep Caches Fresh
-**Subheadline:** 7 warming targets, scheduled automation, REST API, and a real-time dashboard.
+**Subheadline:** 11 warming targets including direct CDN cache purge, scheduled automation, REST API, and a real-time dashboard.
 
 ---
 
@@ -1085,9 +1091,24 @@ Let's find the right plan for your team.
 - **Available in:** Premium, Enterprise
 
 #### Cloudflare Cache Purge + Warm (NEW)
-- Purge Cloudflare cache via Zone API before warming
-- Auto-detect Cloudflare-proxied domains
-- Requires Cloudflare API token with cache purge permissions
+- Purge Cloudflare cache via Zone API v4 before warming
+- Batch up to 30 URLs per purge request
+- Requires Cloudflare API token with Zone:Cache Purge permission + Zone ID
+- **Available in:** Enterprise
+
+#### Imperva (Incapsula) Cache Purge + Warm (NEW)
+- Purge Imperva CDN cache via Cloud WAF API v1
+- URL-pattern based purge or full site purge
+- Sub-500ms purge propagation across the entire Imperva network
+- Requires Imperva API ID, API Key, and Site ID
+- **Available in:** Enterprise
+
+#### Akamai Fast Purge + Warm (NEW)
+- Invalidate URLs via Akamai Fast Purge API v3
+- Batch up to 50 URLs per invalidation request
+- Cache invalidation in < 5 seconds globally
+- EdgeGrid (EG1-HMAC-SHA256) authentication
+- Supports production and staging networks
 - **Available in:** Enterprise
 
 ---
@@ -1138,6 +1159,9 @@ Let's find the right plan for your team.
 | **Custom Viewports** | Define additional viewport sizes beyond default desktop (1920x1080) and mobile (375x812). |
 | **Authenticated Page Warming** | Inject cookies or session tokens to warm pages behind login walls or paywalls. |
 | **Multi-Site Management** | Manage warming for multiple domains from a single dashboard. Per-domain sitemap groups and statistics. |
+| **Cloudflare Cache Purge** | Purge and re-warm via Cloudflare Zone API v4. Batch up to 30 URLs per request. |
+| **Imperva Cache Purge** | Purge Imperva (Incapsula) CDN cache via Cloud WAF API v1 with URL-pattern support. Sub-500ms propagation. |
+| **Akamai Fast Purge** | Invalidate URLs via Akamai Fast Purge API v3 with EdgeGrid auth. Batch up to 50 URLs. Supports production + staging. |
 | **IP Whitelist** | Restrict REST API access to configured IP ranges for additional security. |
 | **Zapier/n8n/Make Compatibility** | Structured webhook payloads with documented JSON event schema for no-code automation platforms. |
 
@@ -1193,6 +1217,9 @@ Documentation
 │   ├── Google Indexing API
 │   ├── Bing Webmaster API
 │   ├── IndexNow Protocol
+│   ├── Cloudflare Cache Purge (Enterprise)
+│   ├── Imperva Cache Purge (Enterprise)
+│   ├── Akamai Fast Purge (Enterprise)
 │   └── Scheduling
 │
 ├── Sitemap Management
@@ -1244,6 +1271,30 @@ Documentation
 ### Format
 
 ```
+## v1.2.0 — 2026-03-02
+
+### New Warming Targets (Enterprise)
+- **Imperva (Incapsula) Cache Purge + Warm** — purge site cache via
+  Imperva Cloud WAF API v1 with URL-pattern support; sub-500ms purge
+  propagation across the Imperva network
+- **Akamai Fast Purge + Warm** — invalidate URLs via Akamai Fast Purge
+  API v3 with EdgeGrid (EG1-HMAC-SHA256) authentication; batch up to
+  50 URLs per request; supports production and staging networks
+
+### Enhanced
+- CDN Cache Purge feature now supports 3 providers (Cloudflare +
+  Imperva + Akamai) — all configurable independently
+- New `cdn-purge` warming target for API usage: purges all enabled
+  CDN providers before optional Puppeteer-based re-warming
+- Updated feature flags and license tiers across all platforms
+
+### Platforms
+- WordPress 5.8+ / PHP 7.4+
+- Drupal 10+ / PHP 8.1+
+- Node.js 20+ / TypeScript
+
+---
+
 ## v1.1.0 — 2026-03-02
 
 ### New Warming Target

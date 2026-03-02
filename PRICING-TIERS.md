@@ -50,6 +50,8 @@
 | **Bing Webmaster URL Submission** | — | ✅ | ✅ |
 | **Pinterest Rich Pin Validator** | — | ✅ | ✅ |
 | **Cloudflare Cache Purge + Warm** | — | — | ✅ |
+| **Imperva (Incapsula) Cache Purge + Warm** | — | — | ✅ |
+| **Akamai Fast Purge + Warm** | — | — | ✅ |
 
 ### 2.2 Mengen-Limits
 
@@ -257,7 +259,7 @@ class CacheWarmer_License {
             'max_jobs_per_day'     => PHP_INT_MAX,
             'log_retention_days'   => 365,
             'cdn_concurrency'      => 20,
-            'allowed_targets'      => ['cdn', 'indexnow', 'facebook', 'linkedin', 'twitter', 'google', 'bing'],
+            'allowed_targets'      => ['cdn', 'indexnow', 'facebook', 'linkedin', 'twitter', 'google', 'bing', 'pinterest', 'cdn-purge'],
             'scheduler_enabled'    => true,
             'api_enabled'          => true,
             'export_enabled'       => true,
@@ -306,7 +308,7 @@ Fallback: Wenn der Lizenzserver nicht erreichbar ist, gilt die letzte bekannte L
 | **Free** | 0 € | Unbegrenzt, 1 Site |
 | **Premium** | 99 € / Jahr | 1 Site, 1 Jahr Updates + Support |
 | **Enterprise Starter** | 599 € / Jahr | Bis 5 Sites, Priority Support |
-| **Enterprise Professional** | 1.799 € / Jahr | Bis 25 Sites, Webhooks, White-Label, SLA, Multi-Site, Cloudflare |
+| **Enterprise Professional** | 1.799 € / Jahr | Bis 25 Sites, Webhooks, White-Label, SLA, Multi-Site, Cloudflare/Imperva/Akamai |
 | **Enterprise Corporate** | ab 5.999 € / Jahr | Unbegrenzte Sites, Custom Development, Dedicated Account Manager |
 
 ### Drupal Modul
@@ -316,7 +318,7 @@ Fallback: Wenn der Lizenzserver nicht erreichbar ist, gilt die letzte bekannte L
 | **Free** | 0 € | Unbegrenzt, 1 Site |
 | **Premium** | 129 € / Jahr | 1 Site, 1 Jahr Updates + Support |
 | **Enterprise Starter** | 799 € / Jahr | Bis 5 Sites, Priority Support |
-| **Enterprise Professional** | 2.499 € / Jahr | Bis 25 Sites, Webhooks, White-Label, SLA, Multi-Site, Cloudflare |
+| **Enterprise Professional** | 2.499 € / Jahr | Bis 25 Sites, Webhooks, White-Label, SLA, Multi-Site, Cloudflare/Imperva/Akamai |
 | **Enterprise Corporate** | ab 6.999 € / Jahr | Unbegrenzte Sites, Custom Development, Dedicated Account Manager |
 
 > **Hinweis:** Drupal-Preise sind höher, da der Markt kleiner und die Zielgruppe professioneller ist (Agenturen, Unternehmen, regulierte Branchen).
@@ -328,7 +330,7 @@ Fallback: Wenn der Lizenzserver nicht erreichbar ist, gilt die letzte bekannte L
 | **Free** | 0 € | Unbegrenzt, 1 Instance |
 | **Premium** | 149 € / Jahr | 1 Instance, 1 Jahr Updates + Support |
 | **Enterprise Starter** | 999 € / Jahr | Bis 5 Instances, Priority Support |
-| **Enterprise Professional** | 2.999 € / Jahr | Unbegrenzte Instances, SLA, Multi-Site, Cloudflare |
+| **Enterprise Professional** | 2.999 € / Jahr | Unbegrenzte Instances, SLA, Multi-Site, Cloudflare/Imperva/Akamai |
 
 ### Lifetime-Option
 
@@ -442,11 +444,13 @@ drush cachewarmer:warm --sitemap=https://example.com/sitemap.xml --targets=cdn,f
 #### n) Slack/Discord/Teams Integration (Enterprise)
 Benachrichtigungen in Chat-Tools, wenn Jobs abgeschlossen oder fehlgeschlagen sind.
 
-#### o) Cloudflare / Fastly / Varnish Integration
+#### o) ~~Cloudflare / Fastly / Varnish Integration~~ ✅ Implementiert (v1.2.0)
 Direkte Integration mit CDN-APIs zum gezielten Cache-Purge _vor_ dem Warming:
-1. Cache purgen (Cloudflare API)
-2. Seite aufrufen (CDN Warming)
+1. Cache purgen (Cloudflare, Imperva, oder Akamai API)
+2. Seite aufrufen (CDN Warming via Puppeteer)
 3. Frischer Cache ist aktiv
+
+> **Status:** Cloudflare, Imperva (Incapsula) und Akamai Fast Purge sind seit v1.2.0 als Enterprise-Feature verfügbar. Fastly und Varnish werden in einer zukünftigen Version ergänzt.
 
 #### p) AMP & hreflang Support
 - AMP-Seiten separat aufwärmen
