@@ -133,6 +133,63 @@ if ( $table_exists ) {
         $timeline_data[]   = isset( $timeline_raw[ $date ] ) ? (int) $timeline_raw[ $date ]->cnt : 0;
     }
 
+    // Geo-Daten: Installations-Verteilung nach Land/Stadt
+    $geo_countries    = [];
+    $geo_cities       = [];
+    $geo_map_points   = [];
+    $table_geo        = $wpdb->get_var( "SHOW TABLES LIKE '" . esc_sql( $prefix . 'geo_data' ) . "'" );
+
+    if ( $table_geo ) {
+        $geo_cache_key  = 'cwlm_dashboard_geo';
+        $geo_cache_data = get_transient( $geo_cache_key );
+
+        if ( false === $geo_cache_data ) {
+            // Top Länder nach Anzahl aktiver Installationen
+            $geo_countries_raw = $wpdb->get_results(
+                "SELECT g.country_code, g.country_name, COUNT(DISTINCT g.installation_id) AS install_count
+                 FROM {$prefix}geo_data g
+                 INNER JOIN {$prefix}installations i ON g.installation_id = i.id AND i.is_active = 1
+                 WHERE g.country_code IS NOT NULL
+                 GROUP BY g.country_code, g.country_name
+                 ORDER BY install_count DESC
+                 LIMIT 50"
+            );
+
+            // Top Städte nach Anzahl aktiver Installationen
+            $geo_cities_raw = $wpdb->get_results(
+                "SELECT g.country_code, g.country_name, g.city, COUNT(DISTINCT g.installation_id) AS install_count
+                 FROM {$prefix}geo_data g
+                 INNER JOIN {$prefix}installations i ON g.installation_id = i.id AND i.is_active = 1
+                 WHERE g.city IS NOT NULL AND g.city != ''
+                 GROUP BY g.country_code, g.country_name, g.city
+                 ORDER BY install_count DESC
+                 LIMIT 30"
+            );
+
+            // Kartenpunkte: Durchschnittliche Koordinaten pro Land
+            $geo_map_raw = $wpdb->get_results(
+                "SELECT g.country_code, g.country_name,
+                        AVG(g.latitude) AS lat, AVG(g.longitude) AS lng,
+                        COUNT(DISTINCT g.installation_id) AS install_count
+                 FROM {$prefix}geo_data g
+                 INNER JOIN {$prefix}installations i ON g.installation_id = i.id AND i.is_active = 1
+                 WHERE g.latitude IS NOT NULL AND g.longitude IS NOT NULL
+                 GROUP BY g.country_code, g.country_name"
+            );
+
+            $geo_cache_data = [
+                'countries' => is_array( $geo_countries_raw ) ? $geo_countries_raw : [],
+                'cities'    => is_array( $geo_cities_raw ) ? $geo_cities_raw : [],
+                'map'       => is_array( $geo_map_raw ) ? $geo_map_raw : [],
+            ];
+            set_transient( $geo_cache_key, $geo_cache_data, 300 );
+        }
+
+        $geo_countries  = $geo_cache_data['countries'] ?? [];
+        $geo_cities     = $geo_cache_data['cities'] ?? [];
+        $geo_map_points = $geo_cache_data['map'] ?? [];
+    }
+
     // Letzte Audit-Einträge (nicht gecacht – soll stets aktuell sein)
     if ( $table_audit_logs ) {
         $recent_logs = $wpdb->get_results(
@@ -197,6 +254,94 @@ if ( $table_exists ) {
         <canvas id="cwlm-chart-timeline" height="100"></canvas>
     </div>
 
+    <!-- Geo-Verteilung: Weltkarte + Tabelle -->
+    <div class="cwlm-chart-container">
+        <h3><?php esc_html_e( 'Installationen weltweit', 'cwlm' ); ?></h3>
+        <div class="cwlm-geo-section">
+            <div class="cwlm-geo-map-wrap">
+                <div id="cwlm-world-map" class="cwlm-world-map"></div>
+                <div class="cwlm-map-legend">
+                    <span class="cwlm-map-legend-item">
+                        <span class="cwlm-map-dot cwlm-map-dot-sm"></span> 1–5
+                    </span>
+                    <span class="cwlm-map-legend-item">
+                        <span class="cwlm-map-dot cwlm-map-dot-md"></span> 6–20
+                    </span>
+                    <span class="cwlm-map-legend-item">
+                        <span class="cwlm-map-dot cwlm-map-dot-lg"></span> 21+
+                    </span>
+                </div>
+            </div>
+            <div class="cwlm-geo-tables">
+                <!-- Länder-Tabelle -->
+                <div class="cwlm-geo-table-wrap">
+                    <h4><?php esc_html_e( 'Nach Land', 'cwlm' ); ?></h4>
+                    <table class="cwlm-table cwlm-geo-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Land', 'cwlm' ); ?></th>
+                                <th class="cwlm-geo-col-count"><?php esc_html_e( 'Installationen', 'cwlm' ); ?></th>
+                                <th class="cwlm-geo-col-bar"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ( empty( $geo_countries ) ) : ?>
+                                <tr><td colspan="3"><?php esc_html_e( 'Keine Geodaten vorhanden.', 'cwlm' ); ?></td></tr>
+                            <?php else : ?>
+                                <?php
+                                $geo_max_country = max( array_column( $geo_countries, 'install_count' ) );
+                                foreach ( $geo_countries as $gc ) :
+                                    $pct = $geo_max_country > 0 ? round( ( (int) $gc->install_count / $geo_max_country ) * 100 ) : 0;
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <span class="cwlm-country-flag"><?php echo esc_html( $gc->country_code ); ?></span>
+                                            <?php echo esc_html( $gc->country_name ); ?>
+                                        </td>
+                                        <td class="cwlm-geo-col-count"><?php echo esc_html( $gc->install_count ); ?></td>
+                                        <td class="cwlm-geo-col-bar">
+                                            <div class="cwlm-geo-bar" style="width: <?php echo esc_attr( $pct ); ?>%"></div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Städte-Tabelle -->
+                <div class="cwlm-geo-table-wrap">
+                    <h4><?php esc_html_e( 'Nach Stadt', 'cwlm' ); ?></h4>
+                    <table class="cwlm-table cwlm-geo-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Stadt', 'cwlm' ); ?></th>
+                                <th><?php esc_html_e( 'Land', 'cwlm' ); ?></th>
+                                <th class="cwlm-geo-col-count"><?php esc_html_e( 'Installationen', 'cwlm' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ( empty( $geo_cities ) ) : ?>
+                                <tr><td colspan="3"><?php esc_html_e( 'Keine Geodaten vorhanden.', 'cwlm' ); ?></td></tr>
+                            <?php else : ?>
+                                <?php foreach ( $geo_cities as $gcity ) : ?>
+                                    <tr>
+                                        <td><?php echo esc_html( $gcity->city ); ?></td>
+                                        <td>
+                                            <span class="cwlm-country-flag"><?php echo esc_html( $gcity->country_code ); ?></span>
+                                            <?php echo esc_html( $gcity->country_name ); ?>
+                                        </td>
+                                        <td class="cwlm-geo-col-count"><?php echo esc_html( $gcity->install_count ); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Letzte Aktivitäten -->
     <div class="cwlm-chart-container">
         <h3><?php esc_html_e( 'Letzte Aktivitäten', 'cwlm' ); ?></h3>
@@ -249,6 +394,15 @@ window.cwlmChartData = {
     timeline: {
         labels: <?php echo wp_json_encode( $timeline_labels ); ?>,
         data: <?php echo wp_json_encode( $timeline_data ); ?>
-    }
+    },
+    geoMap: <?php echo wp_json_encode( array_map( function( $p ) {
+        return [
+            'cc'    => $p->country_code,
+            'name'  => $p->country_name,
+            'lat'   => (float) $p->lat,
+            'lng'   => (float) $p->lng,
+            'count' => (int) $p->install_count,
+        ];
+    }, $geo_map_points ) ); ?>
 };
 </script>

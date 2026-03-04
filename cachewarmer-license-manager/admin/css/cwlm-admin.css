@@ -139,12 +139,159 @@
     color: #646970;
 }
 
+/* Geo Section: World Map + Tables */
+.cwlm-geo-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.cwlm-geo-map-wrap {
+    position: relative;
+}
+
+.cwlm-world-map {
+    position: relative;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f0f4f8;
+}
+
+.cwlm-map-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.cwlm-map-dot-svg {
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.cwlm-map-dot-svg:hover {
+    opacity: 0.8;
+}
+
+.cwlm-map-tooltip {
+    position: absolute;
+    background: #1d2327;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cwlm-map-legend {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #646970;
+}
+
+.cwlm-map-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cwlm-map-dot {
+    display: inline-block;
+    border-radius: 50%;
+    background: #667eea;
+}
+
+.cwlm-map-dot-sm {
+    width: 8px;
+    height: 8px;
+}
+
+.cwlm-map-dot-md {
+    width: 14px;
+    height: 14px;
+}
+
+.cwlm-map-dot-lg {
+    width: 20px;
+    height: 20px;
+}
+
+.cwlm-geo-tables {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cwlm-geo-table-wrap h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.cwlm-geo-table {
+    font-size: 13px;
+}
+
+.cwlm-geo-table-wrap {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.cwlm-geo-col-count {
+    text-align: right;
+    font-weight: 600;
+    width: 100px;
+    white-space: nowrap;
+}
+
+.cwlm-geo-col-bar {
+    width: 120px;
+}
+
+.cwlm-geo-bar {
+    height: 8px;
+    background: #667eea;
+    border-radius: 4px;
+    min-width: 4px;
+    transition: width 0.3s;
+}
+
+.cwlm-country-flag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    background: #e2e4e7;
+    color: #1d2327;
+    padding: 1px 4px;
+    border-radius: 2px;
+    margin-right: 4px;
+    font-family: monospace;
+    text-transform: uppercase;
+}
+
 /* ==========================================================================
    Responsive — Tablet Optimizations
    ========================================================================== */
 @media screen and (max-width: 1024px) {
     .cwlm-chart-grid {
         grid-template-columns: 1fr;
+    }
+
+    .cwlm-geo-section {
+        grid-template-columns: 1fr;
+    }
+
+    .cwlm-geo-table-wrap {
+        max-height: none;
     }
 
     .cwlm-table {
