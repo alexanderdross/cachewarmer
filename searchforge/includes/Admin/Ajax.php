@@ -13,6 +13,7 @@ class Ajax {
 		add_action( 'wp_ajax_searchforge_export_brief', [ $this, 'export_brief' ] );
 		add_action( 'wp_ajax_searchforge_dismiss_alert', [ $this, 'dismiss_alert' ] );
 		add_action( 'wp_ajax_searchforge_generate_content_brief', [ $this, 'generate_content_brief' ] );
+		add_action( 'wp_ajax_searchforge_export_data', [ $this, 'export_data' ] );
 	}
 
 	public function sync_gsc(): void {
@@ -145,6 +146,51 @@ class Ajax {
 			'brief'    => $result['brief'],
 			'method'   => $result['method'],
 			'filename' => 'content-brief-' . sanitize_file_name( trim( $page_path, '/' ) ?: 'homepage' ) . '.md',
+		] );
+	}
+
+	public function export_data(): void {
+		check_ajax_referer( 'searchforge_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unauthorized.', 'searchforge' ) ], 403 );
+		}
+
+		if ( ! Settings::is_pro() ) {
+			wp_send_json_error( [ 'message' => __( 'Data export requires a Pro license.', 'searchforge' ) ] );
+		}
+
+		$type   = sanitize_text_field( $_POST['export_type'] ?? 'pages' );
+		$format = sanitize_text_field( $_POST['export_format'] ?? 'csv' );
+
+		$exporter = new \SearchForge\Export\CsvExporter();
+
+		switch ( $type ) {
+			case 'keywords':
+				$data     = $format === 'json' ? \SearchForge\Export\CsvExporter::export_keywords_json() : \SearchForge\Export\CsvExporter::export_keywords_csv();
+				$filename = 'searchforge-keywords.' . $format;
+				break;
+			case 'alerts':
+				$data     = \SearchForge\Export\CsvExporter::export_alerts_csv();
+				$filename = 'searchforge-alerts.csv';
+				$format   = 'csv';
+				break;
+			default:
+				$data     = $format === 'json' ? \SearchForge\Export\CsvExporter::export_pages_json() : \SearchForge\Export\CsvExporter::export_pages_csv();
+				$filename = 'searchforge-pages.' . $format;
+				break;
+		}
+
+		if ( empty( $data ) ) {
+			wp_send_json_error( [ 'message' => __( 'No data to export.', 'searchforge' ) ] );
+		}
+
+		$mime = $format === 'json' ? 'application/json' : 'text/csv';
+
+		wp_send_json_success( [
+			'data'     => $data,
+			'filename' => $filename,
+			'mime'     => $mime,
 		] );
 	}
 }

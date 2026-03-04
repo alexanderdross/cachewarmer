@@ -370,6 +370,64 @@ if ( isset( $_GET['gsc_connected'] ) ) : ?>
 			</tr>
 		</table>
 
+		<!-- Webhook Notifications (Pro) -->
+		<h2><?php esc_html_e( 'Webhook Notifications', 'searchforge' ); ?>
+			<?php if ( ! SearchForge\Admin\Settings::is_pro() ) : ?>
+				<span class="sf-pro-badge">Pro</span>
+			<?php endif; ?>
+		</h2>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Enable Webhooks', 'searchforge' ); ?></th>
+				<td>
+					<label>
+						<input type="checkbox" name="searchforge_settings[webhook_enabled]" value="1"
+							<?php checked( $settings['webhook_enabled'] ); ?>
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?> />
+						<?php esc_html_e( 'Send webhook notifications on sync events and alerts', 'searchforge' ); ?>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="webhook_url"><?php esc_html_e( 'Webhook URL', 'searchforge' ); ?></label>
+				</th>
+				<td>
+					<input type="url" name="searchforge_settings[webhook_url]" id="webhook_url"
+						value="<?php echo esc_attr( $settings['webhook_url'] ); ?>" class="regular-text"
+						placeholder="https://hooks.slack.com/services/..."
+						<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?> />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="webhook_format"><?php esc_html_e( 'Format', 'searchforge' ); ?></label>
+				</th>
+				<td>
+					<select name="searchforge_settings[webhook_format]" id="webhook_format"
+						<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?>>
+						<option value="json" <?php selected( $settings['webhook_format'], 'json' ); ?>>
+							<?php esc_html_e( 'JSON (generic)', 'searchforge' ); ?>
+						</option>
+						<option value="slack" <?php selected( $settings['webhook_format'], 'slack' ); ?>>
+							<?php esc_html_e( 'Slack', 'searchforge' ); ?>
+						</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Alert Notifications', 'searchforge' ); ?></th>
+				<td>
+					<label>
+						<input type="checkbox" name="searchforge_settings[webhook_on_alerts]" value="1"
+							<?php checked( $settings['webhook_on_alerts'] ); ?>
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?> />
+						<?php esc_html_e( 'Also send webhook for new alerts (ranking drops, anomalies)', 'searchforge' ); ?>
+					</label>
+				</td>
+			</tr>
+		</table>
+
 		<!-- General Settings -->
 		<h2><?php esc_html_e( 'General', 'searchforge' ); ?></h2>
 		<table class="form-table">
@@ -392,17 +450,29 @@ if ( isset( $_GET['gsc_connected'] ) ) : ?>
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Sync Frequency', 'searchforge' ); ?></th>
 				<td>
+					<?php $schedule_options = SearchForge\Scheduler\Manager::get_schedule_options(); ?>
 					<select name="searchforge_settings[sync_frequency]">
-						<option value="daily" <?php selected( $settings['sync_frequency'], 'daily' ); ?>>
-							<?php esc_html_e( 'Daily', 'searchforge' ); ?>
-						</option>
-						<option value="twicedaily" <?php selected( $settings['sync_frequency'], 'twicedaily' ); ?>>
-							<?php esc_html_e( 'Twice Daily', 'searchforge' ); ?>
-						</option>
-						<option value="weekly" <?php selected( $settings['sync_frequency'], 'weekly' ); ?>>
-							<?php esc_html_e( 'Weekly', 'searchforge' ); ?>
-						</option>
+						<?php foreach ( $schedule_options as $value => $label ) : ?>
+							<option value="<?php echo esc_attr( $value ); ?>"
+								<?php selected( $settings['sync_frequency'], $value ); ?>>
+								<?php echo esc_html( $label ); ?>
+							</option>
+						<?php endforeach; ?>
 					</select>
+					<?php
+					$next_run = SearchForge\Scheduler\Manager::get_next_run();
+					if ( $next_run ) :
+					?>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: %s: next scheduled run date/time */
+								esc_html__( 'Next sync: %s', 'searchforge' ),
+								esc_html( $next_run )
+							);
+							?>
+						</p>
+					<?php endif; ?>
 				</td>
 			</tr>
 		</table>

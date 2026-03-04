@@ -34,6 +34,11 @@ class Settings {
 		// AI Content Briefs (Pro).
 		'ai_api_key'          => '',
 		'ai_provider'         => 'openai',
+		// Webhooks (Pro).
+		'webhook_enabled'    => false,
+		'webhook_url'        => '',
+		'webhook_format'     => 'json',
+		'webhook_on_alerts'  => true,
 		// Alerts.
 		'alerts_enabled'    => false,
 		'alert_email'       => '',
@@ -99,12 +104,25 @@ class Settings {
 			? $input['ai_provider']
 			: $current['ai_provider'];
 
+		// Webhooks.
+		$sanitized['webhook_enabled']   = ! empty( $input['webhook_enabled'] );
+		$sanitized['webhook_url']       = esc_url_raw( $input['webhook_url'] ?? $current['webhook_url'] );
+		$sanitized['webhook_format']    = in_array( $input['webhook_format'] ?? '', [ 'json', 'slack' ], true )
+			? $input['webhook_format']
+			: $current['webhook_format'];
+		$sanitized['webhook_on_alerts'] = ! empty( $input['webhook_on_alerts'] );
+
 		$sanitized['alerts_enabled']  = ! empty( $input['alerts_enabled'] );
 		$sanitized['alert_email']     = sanitize_email( $input['alert_email'] ?? $current['alert_email'] );
 		$sanitized['alert_ranking_drop_threshold'] = absint( $input['alert_ranking_drop_threshold'] ?? $current['alert_ranking_drop_threshold'] );
 		$sanitized['alert_traffic_anomaly']        = ! empty( $input['alert_traffic_anomaly'] );
 		$sanitized['weekly_digest_enabled']        = ! empty( $input['weekly_digest_enabled'] );
-		$sanitized['sync_frequency']  = in_array( $input['sync_frequency'] ?? '', [ 'daily', 'twicedaily', 'weekly' ], true )
+
+		$valid_frequencies = [ 'daily', 'twicedaily', 'weekly' ];
+		if ( self::is_pro() ) {
+			$valid_frequencies = array_merge( [ 'every_four_hours', 'every_six_hours' ], $valid_frequencies );
+		}
+		$sanitized['sync_frequency']  = in_array( $input['sync_frequency'] ?? '', $valid_frequencies, true )
 			? $input['sync_frequency']
 			: $current['sync_frequency'];
 		$sanitized['data_retention']  = absint( $input['data_retention'] ?? $current['data_retention'] );

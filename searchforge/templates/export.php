@@ -25,6 +25,51 @@ $is_pro = SearchForge\Admin\Settings::is_pro();
 		</button>
 	</div>
 
+	<!-- Data Export (CSV/JSON) -->
+	<div class="sf-export-actions">
+		<h2><?php esc_html_e( 'Data Export', 'searchforge' ); ?>
+			<?php if ( ! $is_pro ) : ?>
+				<span class="sf-pro-badge">Pro</span>
+			<?php endif; ?>
+		</h2>
+		<p><?php esc_html_e( 'Export raw data as CSV or JSON for use in spreadsheets, BI tools, or custom analysis.', 'searchforge' ); ?></p>
+
+		<div class="sf-export-grid">
+			<div class="sf-export-option">
+				<h3><?php esc_html_e( 'Pages', 'searchforge' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'All page metrics (clicks, impressions, CTR, position)', 'searchforge' ); ?></p>
+				<button type="button" class="button sf-data-export-btn" data-type="pages" data-format="csv"
+					<?php disabled( ! $is_pro ); ?>>
+					<?php esc_html_e( 'Export CSV', 'searchforge' ); ?>
+				</button>
+				<button type="button" class="button sf-data-export-btn" data-type="pages" data-format="json"
+					<?php disabled( ! $is_pro ); ?>>
+					<?php esc_html_e( 'Export JSON', 'searchforge' ); ?>
+				</button>
+			</div>
+			<div class="sf-export-option">
+				<h3><?php esc_html_e( 'Keywords', 'searchforge' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'All keyword data with search volumes and competition', 'searchforge' ); ?></p>
+				<button type="button" class="button sf-data-export-btn" data-type="keywords" data-format="csv"
+					<?php disabled( ! $is_pro ); ?>>
+					<?php esc_html_e( 'Export CSV', 'searchforge' ); ?>
+				</button>
+				<button type="button" class="button sf-data-export-btn" data-type="keywords" data-format="json"
+					<?php disabled( ! $is_pro ); ?>>
+					<?php esc_html_e( 'Export JSON', 'searchforge' ); ?>
+				</button>
+			</div>
+			<div class="sf-export-option">
+				<h3><?php esc_html_e( 'Alerts', 'searchforge' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'Alert history (ranking drops, anomalies, decay)', 'searchforge' ); ?></p>
+				<button type="button" class="button sf-data-export-btn" data-type="alerts" data-format="csv"
+					<?php disabled( ! $is_pro ); ?>>
+					<?php esc_html_e( 'Export CSV', 'searchforge' ); ?>
+				</button>
+			</div>
+		</div>
+	</div>
+
 	<?php if ( ! empty( $pages ) ) : ?>
 		<h2><?php esc_html_e( 'Per-Page Briefs', 'searchforge' ); ?></h2>
 		<p><?php esc_html_e( 'Export a detailed brief for a specific page with keyword data and insights.', 'searchforge' ); ?></p>
