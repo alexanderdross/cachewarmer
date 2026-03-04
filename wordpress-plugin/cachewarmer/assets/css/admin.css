@@ -1,0 +1,1135 @@
+/**
+ * CacheWarmer Admin Styles
+ */
+
+/* Layout */
+.cachewarmer-wrap {
+    max-width: 1200px;
+}
+
+.cachewarmer-wrap h1 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 23px;
+    font-weight: 400;
+    margin: 0;
+    padding: 9px 0 4px;
+    line-height: 1.3;
+}
+
+.cachewarmer-wrap h1 .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+/* Status Cards */
+.cachewarmer-status-cards {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.cachewarmer-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 24px;
+    min-width: 140px;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.cachewarmer-card h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #646970;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cachewarmer-card-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1d2327;
+    display: block;
+}
+
+.cachewarmer-card-value.status-queued { color: #dba617; }
+.cachewarmer-card-value.status-running { color: #2271b1; }
+.cachewarmer-card-value.status-completed { color: #00a32a; }
+.cachewarmer-card-value.status-failed { color: #d63638; }
+
+/* Sections */
+.cachewarmer-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.cachewarmer-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 16px;
+}
+
+/* Forms */
+.cachewarmer-form {
+    margin-top: 16px;
+}
+
+.cachewarmer-form-row {
+    margin-bottom: 16px;
+}
+
+.cachewarmer-form-row label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.cachewarmer-form-inline {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.cachewarmer-form-inline > div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.cachewarmer-form-inline > div:last-child {
+    flex: 0;
+}
+
+/* Targets */
+.cachewarmer-targets {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cachewarmer-target-label {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 400 !important;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.cachewarmer-target-label:hover {
+    background: #e0e0e0;
+}
+
+.cachewarmer-target-label input:checked + span,
+.cachewarmer-target-label:has(input:checked) {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+/* Cron Description */
+.cachewarmer-cron-raw {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #a7aaad;
+    background: none;
+    padding: 0;
+}
+
+/* Help Tip Icon */
+.cachewarmer-help-tip {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #a7aaad;
+    vertical-align: middle;
+    cursor: help;
+}
+
+/* Hero Button Icon */
+#cw-warm-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#cw-warm-submit .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+}
+
+/* Badges */
+.cachewarmer-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.badge-queued {
+    background: #fef3cd;
+    color: #856404;
+}
+
+.badge-running {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.badge-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Tags */
+.cachewarmer-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    font-size: 11px;
+    margin: 1px 2px;
+    color: #50575e;
+}
+
+/* Progress Bar */
+.cachewarmer-progress {
+    position: relative;
+    height: 24px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 120px;
+}
+
+.cachewarmer-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #2271b1, #135e96);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.cachewarmer-progress-text {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* Messages */
+.cachewarmer-message {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.cachewarmer-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.cachewarmer-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Settings Sections */
+.cachewarmer-settings-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 24px;
+    margin: 16px 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.cachewarmer-settings-section h2 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.cachewarmer-settings-section h2 label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.cachewarmer-settings-section > p.description {
+    margin: 0 0 12px;
+    color: #646970;
+}
+
+.cachewarmer-settings-section .form-table {
+    margin-top: 0;
+}
+
+.cachewarmer-settings-section .form-table th {
+    width: 200px;
+    padding: 12px 10px 12px 0;
+}
+
+.cachewarmer-settings-section .form-table td {
+    padding: 12px 10px;
+}
+
+/* Modal */
+.cachewarmer-modal {
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cachewarmer-modal-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 32px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.cachewarmer-modal-close {
+    position: absolute;
+    right: 16px;
+    top: 12px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #646970;
+    line-height: 1;
+}
+
+.cachewarmer-modal-close:hover {
+    color: #1d2327;
+}
+
+/* Job Detail in Modal */
+.cachewarmer-job-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.cachewarmer-job-meta dt {
+    font-weight: 600;
+    color: #646970;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.cachewarmer-job-meta dd {
+    margin: 0 0 8px;
+}
+
+.cachewarmer-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.cachewarmer-stat-card {
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.cachewarmer-stat-card h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    text-transform: capitalize;
+}
+
+.cachewarmer-stat-card .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 2px 0;
+}
+
+.stat-success { color: #00a32a; }
+.stat-failed { color: #d63638; }
+.stat-skipped { color: #dba617; }
+
+/* Clickable stat counts */
+a.cw-stat-toggle {
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+a.cw-stat-toggle:hover {
+    opacity: 0.7;
+}
+
+a.cw-stat-toggle.cw-stat-active {
+    background: #f0f0f1;
+    border-radius: 3px;
+    padding: 0 4px;
+}
+
+/* URL list panel in modal */
+.cw-url-list-panel {
+    margin-top: 16px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 16px;
+    background: #f9f9f9;
+}
+
+.cw-url-list-panel h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+}
+
+#cw-url-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cw-url-item {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 13px;
+    word-break: break-all;
+}
+
+.cw-url-item:last-child {
+    border-bottom: none;
+}
+
+.cw-url-item a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.cw-url-item a:hover {
+    text-decoration: underline;
+}
+
+.cw-url-http {
+    display: inline-block;
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 11px;
+    color: #646970;
+    margin-left: 6px;
+}
+
+.cw-url-duration {
+    font-size: 11px;
+    color: #a7aaad;
+    margin-left: 4px;
+}
+
+.cw-url-error {
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: #f8d7da;
+    color: #721c24;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.cw-url-failed {
+    border-left: 3px solid #d63638;
+}
+
+.cw-url-skipped {
+    border-left: 3px solid #dba617;
+}
+
+.cw-url-success {
+    border-left: 3px solid #00a32a;
+}
+
+/* Table tweaks */
+#cw-jobs-table .column-status { width: 100px; }
+#cw-jobs-table .column-progress { width: 160px; }
+#cw-jobs-table .column-actions { width: 160px; }
+#cw-jobs-table .column-created { width: 160px; }
+
+/* Footer */
+.cachewarmer-footer {
+    text-align: center;
+    padding: 20px 0 10px;
+    margin-top: 24px;
+    color: #a7aaad;
+    font-size: 13px;
+}
+
+.cachewarmer-footer a {
+    color: #646970;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.cachewarmer-footer a:hover {
+    color: #2271b1;
+}
+
+.cachewarmer-heart {
+    color: #d63638;
+    font-size: 15px;
+    display: inline-block;
+    animation: cachewarmer-heartbeat 1.2s ease-in-out infinite;
+}
+
+@keyframes cachewarmer-heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.2); }
+    56% { transform: scale(1); }
+}
+
+/* Pro / Enterprise Feature Locked Sections */
+.cw-pro-locked,
+.cw-ent-locked {
+    position: relative;
+}
+
+.cw-pro-locked .cw-locked-content,
+.cw-ent-locked .cw-locked-content {
+    position: relative;
+    filter: blur(4px);
+    opacity: 0.45;
+    pointer-events: none;
+    user-select: none;
+}
+
+.cw-pro-upgrade-overlay {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 18px 16px;
+    margin-top: -20px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.cw-pro-upgrade-overlay .dashicons-lock {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #2271b1;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.cw-pro-upgrade-overlay strong {
+    display: block;
+    font-size: 15px;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.cw-pro-upgrade-overlay p {
+    margin: 0 auto 14px;
+    max-width: 420px;
+    color: #3c434a;
+    font-size: 13px;
+}
+
+.cw-pro-upgrade-overlay .button-primary {
+    font-size: 14px;
+    padding: 8px 28px;
+    height: auto;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Responsive — Tablet Optimizations
+   ========================================================================== */
+@media screen and (max-width: 1024px) {
+    /* Remove fixed table layout so columns size naturally on tablet */
+    #cw-sitemaps-table.widefat.fixed,
+    #cw-jobs-table.widefat.fixed {
+        table-layout: auto;
+    }
+
+    .cachewarmer-section {
+        padding: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Status cards: 3+2 grid on tablet instead of cramped 5-in-a-row */
+    .cachewarmer-status-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    /* Settings form-table: narrower labels on tablet */
+    .cachewarmer-settings-section .form-table th {
+        width: 160px;
+    }
+
+    /* Code blocks scroll hint on tablet */
+    .cw-code-block {
+        font-size: 11px;
+    }
+}
+
+/* ==========================================================================
+   Responsive — Smartphone Optimizations (782px = WP admin breakpoint)
+   ========================================================================== */
+@media screen and (max-width: 782px) {
+    /* --- Layout --- */
+    .cachewarmer-status-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .cachewarmer-card {
+        min-width: auto;
+    }
+
+    /* Let the 5th card (URLs Processed) span full width for visual balance */
+    .cachewarmer-status-cards .cachewarmer-card:nth-child(5) {
+        grid-column: 1 / -1;
+    }
+
+    .cachewarmer-form-inline {
+        flex-direction: column;
+    }
+
+    .cachewarmer-form-inline > div {
+        min-width: auto;
+    }
+
+    .cachewarmer-job-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .cachewarmer-section {
+        padding: 12px 14px;
+    }
+
+    /* --- Form inputs full width --- */
+    .cachewarmer-wrap input.regular-text,
+    .cachewarmer-wrap select.regular-text,
+    .cachewarmer-wrap textarea.large-text {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* --- Hero button full width on mobile --- */
+    #cw-warm-submit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* --- Stats grid single column --- */
+    .cachewarmer-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* --- Modal full-screen-ish on mobile --- */
+    .cachewarmer-modal-content {
+        width: 95%;
+        max-height: 90vh;
+        padding: 16px;
+        border-radius: 6px;
+    }
+
+    .cachewarmer-modal-close {
+        right: 12px;
+        top: 8px;
+        font-size: 32px;
+        padding: 4px;
+    }
+
+    /* --- Settings form-table: stack label above input on mobile --- */
+    .cachewarmer-settings-section .form-table th {
+        width: auto;
+        display: block;
+        padding: 12px 0 4px;
+    }
+
+    .cachewarmer-settings-section .form-table td {
+        display: block;
+        padding: 4px 0 12px;
+    }
+
+    .cachewarmer-settings-section .form-table tr {
+        display: block;
+        border-bottom: 1px solid #f0f0f1;
+    }
+
+    .cachewarmer-settings-section .form-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .cachewarmer-settings-section {
+        padding: 14px 16px;
+    }
+
+    /* --- Touch-friendly target checkboxes --- */
+    .cachewarmer-targets {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .cachewarmer-target-label {
+        justify-content: center;
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .cachewarmer-target-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Touch-friendly buttons --- */
+    .cachewarmer-wrap .button {
+        min-height: 36px;
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+
+    .cachewarmer-wrap .button-hero {
+        min-height: 44px;
+        font-size: 15px;
+    }
+
+    /* --- Bulk import buttons stack on mobile --- */
+    #cw-bulk-import-form .cachewarmer-form-row:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #cw-bulk-import-form .cachewarmer-form-row:nth-child(2) .button {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    /* --- Code blocks on mobile --- */
+    .cw-code-block {
+        font-size: 11px;
+        padding: 10px 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    /* --- Upgrade overlay compact on mobile --- */
+    .cw-pro-upgrade-overlay {
+        padding: 14px 12px;
+    }
+
+    .cw-pro-upgrade-overlay .dashicons-lock {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        margin-bottom: 8px;
+    }
+
+    .cw-pro-upgrade-overlay strong {
+        font-size: 14px;
+    }
+
+    .cw-pro-upgrade-overlay p {
+        font-size: 12px;
+        max-width: 100%;
+    }
+
+    .cw-pro-upgrade-overlay .button-primary {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* --- URL list panel in modal: scrollable on mobile --- */
+    #cw-url-list {
+        max-height: 200px;
+    }
+
+    .cw-url-item {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    /* ======================================================================
+       Card-based table layout: Sitemaps
+       ====================================================================== */
+    #cw-sitemaps-table.widefat.fixed {
+        table-layout: auto;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    #cw-sitemaps-table thead {
+        display: none;
+    }
+
+    #cw-sitemaps-table tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid #c3c4c7;
+        border-radius: 6px;
+        padding: 14px 16px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    #cw-sitemaps-table tbody td {
+        display: block;
+        padding: 4px 0;
+        border: none;
+        text-align: left;
+        width: 100% !important;
+    }
+
+    /* Label above each field */
+    #cw-sitemaps-table tbody td::before {
+        display: block;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #646970;
+        margin-bottom: 2px;
+    }
+
+    #cw-sitemaps-table tbody td:nth-child(1)::before { content: "Domain"; }
+    #cw-sitemaps-table tbody td:nth-child(2)::before { content: "URL"; }
+    #cw-sitemaps-table tbody td:nth-child(3)::before { content: "Schedule"; }
+    #cw-sitemaps-table tbody td:nth-child(4)::before { content: "Last Warmed"; }
+    #cw-sitemaps-table tbody td:nth-child(5)::before { content: ""; }
+
+    /* URL should break words instead of overflowing */
+    #cw-sitemaps-table tbody td:nth-child(2) a {
+        word-break: break-all;
+        font-size: 13px;
+    }
+
+    /* Actions row — side-by-side buttons */
+    #cw-sitemaps-table tbody td:nth-child(5) {
+        display: flex;
+        gap: 8px;
+        padding-top: 10px;
+        margin-top: 6px;
+        border-top: 1px solid #f0f0f1;
+    }
+
+    #cw-sitemaps-table tbody td:nth-child(5) .button {
+        flex: 1;
+        text-align: center;
+        min-height: 36px;
+        line-height: 34px;
+    }
+
+    /* ======================================================================
+       Card-based table layout: Jobs
+       ====================================================================== */
+    #cw-jobs-table.widefat.fixed {
+        table-layout: auto;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    #cw-jobs-table thead {
+        display: none;
+    }
+
+    #cw-jobs-table tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid #c3c4c7;
+        border-radius: 6px;
+        padding: 14px 16px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    #cw-jobs-table tbody td {
+        display: block;
+        padding: 4px 0;
+        border: none;
+        text-align: left;
+        width: 100% !important;
+    }
+
+    /* Label above each field */
+    #cw-jobs-table tbody td::before {
+        display: block;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #646970;
+        margin-bottom: 2px;
+    }
+
+    #cw-jobs-table tbody td:nth-child(1)::before { content: ""; }
+    #cw-jobs-table tbody td:nth-child(2)::before { content: "Sitemap"; }
+    #cw-jobs-table tbody td:nth-child(3)::before { content: "Progress"; }
+    #cw-jobs-table tbody td:nth-child(4)::before { content: "Targets"; }
+    #cw-jobs-table tbody td:nth-child(5)::before { content: "Created"; }
+    #cw-jobs-table tbody td:nth-child(6)::before { content: ""; }
+
+    /* Remove fixed column widths */
+    #cw-jobs-table .column-status,
+    #cw-jobs-table .column-progress,
+    #cw-jobs-table .column-actions,
+    #cw-jobs-table .column-created {
+        width: auto !important;
+    }
+
+    /* Progress bar: full width on mobile */
+    #cw-jobs-table .cachewarmer-progress {
+        min-width: 0;
+        width: 100%;
+    }
+
+    /* Targets: flex-wrap tags naturally */
+    #cw-jobs-table tbody td:nth-child(4) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: flex-start;
+    }
+
+    #cw-jobs-table tbody td:nth-child(4)::before {
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    /* Actions row */
+    #cw-jobs-table tbody td:nth-child(6) {
+        display: flex;
+        gap: 8px;
+        padding-top: 10px;
+        margin-top: 6px;
+        border-top: 1px solid #f0f0f1;
+    }
+
+    #cw-jobs-table tbody td:nth-child(6) .button {
+        flex: 1;
+        text-align: center;
+        min-height: 36px;
+        line-height: 34px;
+    }
+
+    /* Sitemap column text — break long URLs */
+    #cw-jobs-table .column-sitemap {
+        word-break: break-all;
+    }
+
+    /* --- WP Dashboard widget mobile --- */
+    .cw-widget-kpis {
+        flex-wrap: wrap;
+    }
+
+    .cw-widget-kpi {
+        min-width: calc(50% - 6px);
+    }
+
+    .cw-widget-links {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ==========================================================================
+   Tool Links & API Examples (Settings page)
+   ========================================================================== */
+.cw-tool-link {
+    margin-top: 6px !important;
+}
+
+.cw-tool-link .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 2px;
+    color: #2271b1;
+}
+
+.cw-tool-link a {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cw-tool-link a:hover {
+    text-decoration: underline;
+}
+
+.cw-help-note {
+    margin-top: 6px !important;
+    font-style: italic;
+    color: #646970;
+}
+
+.cw-api-example {
+    margin: 12px 0 4px;
+    padding: 0 10px;
+}
+
+.cw-code-block {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    color: #1d2327;
+    max-width: 100%;
+}
+
+.cw-target-label {
+    display: inline-block;
+    margin-right: 12px;
+}
+
+/* ==========================================================================
+   Responsive — Small Phone (≤ 480px)
+   ========================================================================== */
+@media screen and (max-width: 480px) {
+    /* Status cards: single column on very small phones */
+    .cachewarmer-status-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .cachewarmer-status-cards .cachewarmer-card:nth-child(5) {
+        grid-column: auto;
+    }
+
+    .cachewarmer-card {
+        padding: 12px 14px;
+    }
+
+    .cachewarmer-card-value {
+        font-size: 24px;
+    }
+
+    .cachewarmer-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    .cachewarmer-tag {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+
+    .cachewarmer-section {
+        padding: 10px 12px;
+        margin: 12px 0;
+    }
+
+    .cachewarmer-section h2 {
+        font-size: 15px;
+    }
+
+    .cachewarmer-wrap h1 {
+        font-size: 18px;
+    }
+
+    .cachewarmer-wrap h1 .dashicons {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Modal: near full-screen on small phone */
+    .cachewarmer-modal-content {
+        width: 100%;
+        max-height: 95vh;
+        border-radius: 0;
+        padding: 12px;
+    }
+
+    /* Stats grid cards: tighter on small screens */
+    .cachewarmer-stat-card {
+        padding: 10px;
+    }
+
+    /* Job detail meta: tighter */
+    .cachewarmer-job-meta dd code {
+        word-break: break-all;
+        font-size: 11px;
+    }
+
+    /* Upgrade overlay: more compact */
+    .cw-pro-upgrade-overlay {
+        padding: 10px 8px;
+    }
+
+    .cw-pro-upgrade-overlay strong {
+        font-size: 13px;
+    }
+
+    /* Footer: smaller on tiny screens */
+    .cachewarmer-footer {
+        font-size: 11px;
+        padding: 14px 0 8px;
+    }
+}

@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * CacheWarmer module: warms CDN, social media, and search engine caches.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function cachewarmer_help($route_name, RouteMatchInterface $route_match) {
+  if ($route_name === 'help.page.cachewarmer') {
+    return '<p>' . t('CacheWarmer processes XML sitemaps and systematically warms CDN edge caches, social media scraper caches (Facebook, LinkedIn, Twitter/X), and submits URLs to search engines (Google, Bing, IndexNow).') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cachewarmer_cron() {
+  $config = \Drupal::config('cachewarmer.settings');
+  if (!$config->get('scheduler.enabled')) {
+    return;
+  }
+
+  /** @var \Drupal\cachewarmer\Service\CacheWarmerDatabase $database */
+  $database = \Drupal::service('cachewarmer.database');
+
+  /** @var \Drupal\cachewarmer\Service\CacheWarmerJobManager $job_manager */
+  $job_manager = \Drupal::service('cachewarmer.job_manager');
+
+  $sitemaps = $database->getAllSitemaps();
+  $targets = ['cdn', 'facebook', 'linkedin', 'twitter', 'google', 'bing', 'indexnow'];
+
+  foreach ($sitemaps as $sitemap) {
+    $job_manager->createJob($sitemap->url, $targets, $sitemap->id);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function cachewarmer_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'job_notification':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cachewarmer_theme() {
+  return [
+    'cachewarmer_dashboard' => [
+      'variables' => [
+        'status' => [],
+        'jobs' => [],
+      ],
+      'template' => 'cachewarmer-dashboard',
+    ],
+    'cachewarmer_sitemaps' => [
+      'variables' => [
+        'sitemaps' => [],
+      ],
+      'template' => 'cachewarmer-sitemaps',
+    ],
+  ];
+}

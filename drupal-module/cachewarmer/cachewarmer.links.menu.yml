@@ -1,0 +1,6 @@
+cachewarmer.dashboard:
+  title: 'CacheWarmer'
+  description: 'Warm CDN, social media, and search engine caches.'
+  route_name: cachewarmer.dashboard
+  parent: system.admin_config_development
+  weight: 10

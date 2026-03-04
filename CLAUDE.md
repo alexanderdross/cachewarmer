@@ -1,222 +1,413 @@
-# CacheWarmer Microservice – Konzept & Architekturplan
+# CacheWarmer Microservice — Konzept & Architekturplan
 
-## 0. Repository
+## Ziel
 
-```
-GitHub: https://github.com/alexanderdross/cachewarmer.git
-```
-
-## 1. Überblick
-
-Ein selbst-gehosteter Microservice, der XML-Sitemaps entgegennimmt und automatisiert:
-- Alle URLs per Headless Chrome aufruft (CDN/Edge-Cache aufwärmen)
-- Social-Media-Caches aktualisiert (Facebook, LinkedIn, Twitter/X)
-- URLs bei Suchmaschinen zur Indexierung einreicht (Google, Bing via IndexNow)
+Ein selbst gehosteter Microservice, der XML-Sitemaps entgegennimmt und sämtliche darin enthaltenen URLs systematisch aufwärmt — im CDN-Edge-Cache, in den Social-Media-Scraper-Caches (Facebook, LinkedIn, Twitter/X) sowie bei Suchmaschinen (Google, Bing via IndexNow).
 
 ---
 
-## 2. Architektur
+## 1. Überblick & Architektur
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Frontend / UI                     │
-│  (Sitemap-URL eingeben, Status-Dashboard, Logs)     │
-└──────────────────────┬──────────────────────────────┘
-                       │ REST API
-┌──────────────────────▼──────────────────────────────┐
-│                  Backend (Node.js)                   │
-│                                                      │
-│  ┌────────────┐  ┌─────────────┐  ┌──────────────┐  │
-│  │  Sitemap   │  │   Job Queue │  │   Dashboard  │  │
-│  │  Parser    │──▶│  (BullMQ /  │  │   & Logs     │  │
-│  │            │  │  Agenda.js) │  │   (SQLite)   │  │
-│  └────────────┘  └──────┬──────┘  └──────────────┘  │
-│                         │                            │
-│         ┌───────────────┼───────────────┐            │
-│         ▼               ▼               ▼            │
-│  ┌─────────────┐ ┌────────────┐ ┌──────────────┐    │
-│  │  CDN Warmer │ │  Social    │ │  Search      │    │
-│  │  (Puppeteer)│ │  Cache     │ │  Indexing    │    │
-│  │             │ │  Workers   │ │  Workers     │    │
-│  └─────────────┘ └────────────┘ └──────────────┘    │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     CacheWarmer Service                         │
+│                        (Node.js / TypeScript)                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────────────────────────────┐   │
+│  │  REST API     │───▶│  Job Queue (BullMQ / Redis)          │   │
+│  │  POST /warm   │    │                                      │   │
+│  └──────────────┘    │  ┌─────────┐ ┌─────────┐ ┌────────┐ │   │
+│                       │  │CDN Warm │ │Social   │ │Search  │ │   │
+│  ┌──────────────┐    │  │Worker   │ │Cache    │ │Index   │ │   │
+│  │  Cron / CLI   │───▶│  │(Puppeteer│ │Worker   │ │Worker  │ │   │
+│  │  Scheduler    │    │  │)        │ │(FB,LI,X)│ │(IndexN)│ │   │
+│  └──────────────┘    │  └─────────┘ └─────────┘ └────────┘ │   │
+│                       └──────────────────────────────────────┘   │
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐                           │
+│  │  Dashboard    │    │  SQLite DB   │                           │
+│  │  (Web UI)     │    │  (Status/Log)│                           │
+│  └──────────────┘    └──────────────┘                           │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+**Tech-Stack:**
+- **Runtime:** Node.js 20+ mit TypeScript
+- **Web-Framework:** Fastify (leichtgewichtig, schnell)
+- **Headless Browser:** Puppeteer mit Chromium
+- **Job Queue:** BullMQ + Redis (für asynchrone, rate-limited Job-Verarbeitung)
+- **Datenbank:** SQLite (via better-sqlite3) — kein externer DB-Server nötig
+- **Deployment:** Docker Container auf dem Webspace
 
 ---
 
-## 3. Tech-Stack
+## 2. Kernmodule
 
-| Komponente         | Technologie                          | Begründung                                    |
-|--------------------|--------------------------------------|-----------------------------------------------|
-| Runtime            | Node.js (>=18 LTS)                   | Async-I/O, gutes Ecosystem                    |
-| Framework          | Express.js oder Fastify              | Leichtgewichtig, Webspace-kompatibel          |
-| Headless Browser   | Puppeteer (Chromium)                 | Full-Rendering für CDN + Social Previews      |
-| Job Queue          | BullMQ (mit Redis) ODER Agenda.js    | Retry, Concurrency, Scheduling                |
-| Datenbank          | SQLite (via better-sqlite3)          | Kein externer DB-Server nötig auf Webspace    |
-| Frontend           | Einfaches SPA (React/Vue oder Vanilla JS) | Dashboard & Sitemap-Eingabe             |
-| Auth               | API-Key + optional Basic Auth        | Schutz vor unautorisiertem Zugriff            |
+### 2.1 Sitemap Parser
 
-### Alternative bei eingeschränktem Webspace (kein Root/Docker):
-- **Ohne Redis**: Eigene File-basierte Queue oder `bee-queue` mit SQLite-Backend
-- **Ohne Puppeteer**: Playwright mit leichterem Chromium oder `got`/`axios` für einfache HTTP-Requests (kein JS-Rendering)
+- Akzeptiert XML-Sitemap-URLs via REST API oder CLI
+- Parst `<urlset>` und `<sitemapindex>` (rekursiv für Sitemap-Indizes)
+- Extrahiert alle `<loc>` URLs mit optionaler `<lastmod>` / `<priority>` Info
+- Validiert URLs und dedupliziert
 
----
+**Bibliothek:** `fast-xml-parser` oder `sitemapper`
 
-## 4. Module & Workflows
+### 2.2 CDN Edge Cache Warming (Puppeteer)
 
-### 4.1 Sitemap Parser
-```
-Input:  XML-Sitemap-URL (z.B. https://example.com/sitemap_index.xml)
-Output: Liste aller URLs (rekursiv bei Sitemap-Index)
-```
-- Unterstützt `<sitemapindex>` (verschachtelte Sitemaps)
-- Unterstützt `<urlset>` (direkte URL-Listen)
-- Parst `<loc>`, `<lastmod>`, `<changefreq>`, `<priority>`
-- Library: `fast-xml-parser` oder `xml2js`
+- Öffnet jede URL in einem headless Chromium-Browser
+- Wartet auf `networkidle0` oder `load` Event
+- Simuliert einen realen User-Agent (Desktop + Mobile)
+- Unterstützt konfigurierbare Concurrency (z.B. 3-5 parallele Tabs)
+- Optional: Screenshot als Nachweis speichern
 
-### 4.2 CDN Cache Warmer (Puppeteer)
+**Konfiguration:**
+```yaml
+cdnWarming:
+  enabled: true
+  concurrency: 3
+  waitUntil: "networkidle0"
+  timeout: 30000          # ms
+  userAgent: "Mozilla/5.0 (compatible; CacheWarmer/1.0)"
+  viewports:
+    - { width: 1920, height: 1080 }  # Desktop
+    - { width: 375, height: 812 }    # Mobile
 ```
-Für jede URL aus der Sitemap:
-  1. Headless Chrome öffnet die URL
-  2. Wartet auf `networkidle0` oder `load` Event
-  3. Optional: Screenshot speichern (Debugging)
-  4. Seite schließen
-  5. Status loggen (HTTP-Code, Ladezeit, Fehler)
-```
-- **Concurrency**: Max 3–5 parallele Tabs (RAM-schonend auf Webspace)
-- **Timeout**: 30s pro Seite, danach Abbruch + Retry
-- **User-Agent**: Konfigurierbarer UA-String (z.B. `CacheWarmer/1.0`)
 
-### 4.3 Facebook Sharing Debugger
-```
-Endpoint: POST https://graph.facebook.com/
-Query:    id={URL}&scrape=true&access_token={APP_TOKEN}
-```
-- Benötigt: Facebook App Access Token (`App-ID|App-Secret`)
-- Rate Limit: ~50 Requests/Stunde (mit Throttling)
-- Aktualisiert den Open Graph Cache bei Facebook
-- **Setup**: Facebook Developer App erstellen → App Token generieren
+### 2.3 Facebook Sharing Debugger
 
-### 4.4 LinkedIn Post Inspector
-```
-Endpoint: POST https://api.linkedin.com/v2/ugcPosts
-          ODER manuell via URL-Aufruf
-```
-- LinkedIn hat **keine offizielle API** zum Cache-Invalidieren
-- **Workaround A**: Puppeteer öffnet `https://www.linkedin.com/post-inspector/inspect/{encoded_url}`
-- **Workaround B**: LinkedIn Share API mit OAuth2 Token
-- **Hinweis**: LinkedIn Post Inspector erfordert Login → Puppeteer mit gespeicherter Session/Cookies
+- Nutzt die Facebook Graph API zum Scrapen/Cachen von OG-Tags
+- Endpoint: `POST https://graph.facebook.com/v19.0/?scrape=true&id={URL}`
+- Benötigt einen gültigen **Facebook App Access Token** (`app_id|app_secret`)
+- Rate-Limit: max. 10 Requests/Sekunde (automatisches Throttling)
 
-### 4.5 Twitter/X Card Cache (Tweet Composer Intent)
+**Konfiguration:**
+```yaml
+facebook:
+  enabled: true
+  appId: "YOUR_FB_APP_ID"
+  appSecret: "YOUR_FB_APP_SECRET"
+  rateLimitPerSecond: 10
 ```
-URL-Schema: https://twitter.com/intent/tweet?url={ENCODED_URL}
-```
-- Kein API-Zugang oder Login erforderlich
-- Puppeteer öffnet die Intent-URL → Twitter lädt die Card-Preview → Twitterbot scrapt die Metadaten
-- Der Tweet muss NICHT abgesendet werden – allein das Laden der Preview triggert den Cache-Refresh
-- **Ablauf**:
-  1. Puppeteer öffnet `https://twitter.com/intent/tweet?url={encodeURIComponent(url)}`
-  2. Wartet auf das Laden der Card-Preview (Selector für Preview-Element)
-  3. Seite schließen (kein Login nötig, kein Tweet wird gepostet)
-  4. Status loggen
-- **Hinweis**: Twitter Crawler re-indiziert Cards nur ~alle 7 Tage automatisch, daher ist aktives Warming sinnvoll
-- **Rate Limiting**: Konservativ throttlen (~1 Req/5s), um IP-Blocks zu vermeiden
 
-### 4.6 Search Engine Indexing
+### 2.4 LinkedIn Post Inspector
 
-#### 4.6.1 IndexNow (Bing, Yandex, Seznam, Naver u.a.)
+- LinkedIn bietet keine offizielle API zum Invalidieren/Aufwärmen des Caches
+- **Ansatz A (bevorzugt):** LinkedIn Post Inspector URL programmatisch via Puppeteer aufrufen:
+  `https://www.linkedin.com/post-inspector/inspect/{encoded_url}`
+  - Erfordert LinkedIn-Login (Session Cookie oder OAuth)
+  - Puppeteer navigiert zur Inspector-Seite, gibt URL ein, klickt "Inspect"
+- **Ansatz B (Fallback):** LinkedIn Share API aufrufen, was ebenfalls ein Scraping triggert
+
+**Konfiguration:**
+```yaml
+linkedin:
+  enabled: true
+  sessionCookie: "YOUR_LI_AT_COOKIE"    # li_at Cookie
+  concurrency: 1                         # konservativ wegen Rate-Limits
+  delayBetweenRequests: 5000             # ms
 ```
+
+### 2.5 Twitter/X Cache Warming (Tweet Composer)
+
+- Nutzt den **Tweet Composer** um das Card-Scraping zu triggern
+- Puppeteer öffnet `https://twitter.com/intent/tweet?url={encoded_url}` für jede URL
+- Beim Laden der Composer-Seite ruft Twitter automatisch die OG-/Twitter-Card-Meta-Tags ab und cached sie
+- Kein Twitter API-Key nötig — funktioniert rein über den öffentlichen Composer-Endpoint
+
+**Konfiguration:**
+```yaml
+twitter:
+  enabled: true
+  concurrency: 2
+  delayBetweenRequests: 3000  # ms — konservativ wegen Rate-Limits
+  timeout: 15000              # ms
+```
+
+### 2.6 Suchmaschinen-Indexierung
+
+#### 2.6.1 IndexNow (Bing, Yandex, Seznam, Naver u.a.)
+
+- Einfacher HTTP POST an `https://api.indexnow.org/indexnow`
+- Batch-Submission von bis zu 10.000 URLs pro Request
+- Benötigt einen IndexNow-Key (wird als Textdatei auf der Website gehostet)
+
+```json
 POST https://api.indexnow.org/indexnow
-Content-Type: application/json
-
 {
-  "host": "example.com",
-  "key": "{INDEXNOW_KEY}",
-  "keyLocation": "https://example.com/{INDEXNOW_KEY}.txt",
-  "urlList": ["https://example.com/page1", ...]
+  "host": "www.example.com",
+  "key": "YOUR_INDEXNOW_KEY",
+  "keyLocation": "https://www.example.com/YOUR_INDEXNOW_KEY.txt",
+  "urlList": [
+    "https://www.example.com/page1",
+    "https://www.example.com/page2"
+  ]
 }
 ```
-- **Setup**: Key-Datei auf dem Webserver hinterlegen
-- Batch-Submissions möglich (bis 10.000 URLs pro Request)
-- Automatisch an Bing, Yandex & Partner verteilt
 
-#### 4.6.2 Google Search Console API
-```
-POST https://searchconsole.googleapis.com/v1/urlInspection/index:inspect
-Authorization: Bearer {OAUTH_TOKEN}
+#### 2.6.2 Google Search Console (Indexing API)
 
-{
-  "inspectionUrl": "https://example.com/page1",
-  "siteUrl": "https://example.com/"
-}
-```
-- Benötigt: Google Cloud Projekt + OAuth2 Service Account
-- **Achtung**: Google bietet kein Batch-Indexing über die API – nur Inspection
-- Alternative: `Google Indexing API` (nur für `JobPosting` und `BroadcastEvent` Schemata)
-- **Empfehlung**: Für allgemeine Seiten → Sitemap bei GSC einreichen + IndexNow nutzen
+- Nutzt die **Google Indexing API** (`https://indexing.googleapis.com/v3/urlNotifications:publish`)
+- Erfordert ein **Google Service Account** mit Zugriff auf die Search Console Property
+- Rate-Limit: 200 Requests/Tag pro Property
+- Typ: `URL_UPDATED` oder `URL_DELETED`
 
-#### 4.6.3 Bing Webmaster Tools API
+**Konfiguration:**
+```yaml
+google:
+  enabled: true
+  serviceAccountKeyFile: "./credentials/google-sa-key.json"
+  dailyQuota: 200
 ```
-POST https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlBatch
-Content-Type: application/json
-apikey: {BING_API_KEY}
 
-{
-  "siteUrl": "https://example.com",
-  "urlList": ["https://example.com/page1", ...]
-}
+#### 2.6.3 Bing Webmaster Tools (URL Submission API)
+
+- Zusätzlich zu IndexNow: direkte Submission via Bing API
+- `POST https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlBatch?apikey={API_KEY}`
+- Tägliches Limit: 10.000 URLs (Standard), erweiterbar auf 100.000+
+
+**Konfiguration:**
+```yaml
+bing:
+  enabled: true
+  apiKey: "YOUR_BING_WEBMASTER_API_KEY"
+  dailyQuota: 10000
 ```
-- Max 10.000 URLs/Tag (bei verifizierten Sites)
-- API-Key über Bing Webmaster Portal
+
+### 2.7 CDN Cache Purge + Warm (Enterprise)
+
+Direkte Cache-Invalidierung über die APIs der CDN/WAF-Anbieter, ergänzend zum Puppeteer-basierten Edge-Warming. Unterstützt **Cloudflare**, **Imperva (Incapsula)** und **Akamai**.
+
+#### 2.7.1 Cloudflare
+
+- Nutzt die Cloudflare API v4 zum gezielten Purgen einzelner URLs
+- Endpoint: `POST https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache`
+- Batch-Verarbeitung: bis zu 30 URLs pro Request
+- Authentifizierung: Bearer Token (API Token mit `Zone:Cache Purge` Berechtigung)
+
+**Konfiguration:**
+```yaml
+cloudflare:
+  enabled: true
+  apiToken: "YOUR_CLOUDFLARE_API_TOKEN"
+  zoneId: "YOUR_ZONE_ID"
+```
+
+#### 2.7.2 Imperva (Incapsula)
+
+- Nutzt die Imperva Cloud WAF API v1 zum Purgen des Site-Caches
+- Endpoint: `POST https://my.incapsula.com/api/prov/v1/sites/performance/purge`
+- Unterstützt Purge per URL-Pattern (`purge_pattern`) oder vollständigen Site-Purge
+- Authentifizierung: `api_id` + `api_key` im Request-Body
+- Purge-Zeiten typischerweise < 500ms über das gesamte Imperva-Netzwerk
+
+**Konfiguration:**
+```yaml
+imperva:
+  enabled: true
+  apiId: "YOUR_IMPERVA_API_ID"
+  apiKey: "YOUR_IMPERVA_API_KEY"
+  siteId: "YOUR_SITE_ID"
+```
+
+#### 2.7.3 Akamai (Fast Purge API v3)
+
+- Nutzt die Akamai Fast Purge API v3 für URL-basierte Cache-Invalidierung
+- Endpoint: `POST https://{host}/ccu/v3/invalidate/url/{network}`
+- Batch-Verarbeitung: bis zu 50 URLs pro Request
+- Invalidierung in < 5 Sekunden über das gesamte Akamai-Netzwerk
+- Authentifizierung: EdgeGrid (EG1-HMAC-SHA256) mit `client_token`, `client_secret`, `access_token`
+- Unterstützt `production` und `staging` Networks
+
+**Konfiguration:**
+```yaml
+akamai:
+  enabled: true
+  host: "akaa-xxxxx.luna.akamaiapis.net"
+  clientToken: "YOUR_CLIENT_TOKEN"
+  clientSecret: "YOUR_CLIENT_SECRET"
+  accessToken: "YOUR_ACCESS_TOKEN"
+  network: "production"    # production | staging
+```
+
+**Wichtig:** CDN-Purge erhöht kurzfristig die Origin-Last, da ungecachte Requests zum Origin durchschlagen. Bei großen Purge-Batches daher empfohlen, das Puppeteer-Warming direkt im Anschluss auszuführen (`targets: ["cdn-purge", "cdn"]`).
 
 ---
 
-## 5. Datenmodell (SQLite)
+## 3. REST API Endpunkte
 
-```sql
--- Sitemaps die überwacht werden
-CREATE TABLE sitemaps (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    url         TEXT NOT NULL UNIQUE,
-    name        TEXT,
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_run    DATETIME
-);
+| Methode | Pfad | Beschreibung |
+|---------|------|--------------|
+| `POST` | `/api/warm` | Neue Sitemap zum Aufwärmen einreichen |
+| `GET` | `/api/jobs` | Alle laufenden/abgeschlossenen Jobs auflisten |
+| `GET` | `/api/jobs/:id` | Status eines einzelnen Jobs abrufen |
+| `DELETE` | `/api/jobs/:id` | Einen Job abbrechen |
+| `GET` | `/api/sitemaps` | Registrierte Sitemaps anzeigen |
+| `POST` | `/api/sitemaps` | Sitemap registrieren (für wiederkehrendes Warming) |
+| `DELETE` | `/api/sitemaps/:id` | Sitemap-Registrierung entfernen |
+| `GET` | `/api/status` | Health-Check & Systemstatus |
+| `GET` | `/api/logs` | Warming-Protokolle abrufen |
 
--- Einzelne URLs aus den Sitemaps
-CREATE TABLE urls (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    sitemap_id  INTEGER REFERENCES sitemaps(id),
-    url         TEXT NOT NULL,
-    lastmod     DATETIME,
-    priority    REAL,
-    UNIQUE(sitemap_id, url)
-);
+### Beispiel: Warming starten
 
--- Job-Ausführungen / Runs
-CREATE TABLE runs (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    sitemap_id  INTEGER REFERENCES sitemaps(id),
-    started_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-    finished_at DATETIME,
-    status      TEXT DEFAULT 'running',  -- running, completed, failed
-    total_urls  INTEGER,
-    completed   INTEGER DEFAULT 0,
-    failed      INTEGER DEFAULT 0
-);
+```bash
+curl -X POST http://localhost:3000/api/warm \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "sitemapUrl": "https://www.example.com/sitemap.xml",
+    "targets": ["cdn", "facebook", "linkedin", "twitter", "google", "bing"],
+    "priority": "normal"
+  }'
+```
 
--- Ergebnisse pro URL und Service
-CREATE TABLE results (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id      INTEGER REFERENCES runs(id),
-    url_id      INTEGER REFERENCES urls(id),
-    service     TEXT NOT NULL,  -- 'cdn', 'facebook', 'linkedin', 'twitter', 'indexnow', 'google', 'bing'
-    status      TEXT,           -- 'success', 'error', 'timeout', 'skipped'
-    http_code   INTEGER,
-    duration_ms INTEGER,
-    error_msg   TEXT,
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+### Beispiel: Antwort
+
+```json
+{
+  "jobId": "warm-abc123",
+  "status": "queued",
+  "urlCount": 42,
+  "targets": ["cdn", "facebook", "linkedin", "twitter", "google", "bing"],
+  "createdAt": "2026-02-25T12:00:00Z"
+}
+```
+
+---
+
+## 4. Datenmodell (SQLite)
+
+### Tabelle: `sitemaps`
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| id | TEXT (UUID) | Primärschlüssel |
+| url | TEXT | Sitemap-URL |
+| domain | TEXT | Extrahierte Domain |
+| cron_expression | TEXT | Cron-Ausdruck für wiederkehrendes Warming (optional) |
+| created_at | DATETIME | Erstellungszeitpunkt |
+| last_warmed_at | DATETIME | Letzter Warming-Durchlauf |
+
+### Tabelle: `jobs`
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| id | TEXT (UUID) | Primärschlüssel |
+| sitemap_id | TEXT (FK) | Verweis auf Sitemap |
+| status | TEXT | `queued` / `running` / `completed` / `failed` |
+| total_urls | INTEGER | Gesamtzahl URLs |
+| processed_urls | INTEGER | Bereits verarbeitete URLs |
+| targets | TEXT (JSON) | Aktivierte Warming-Ziele |
+| started_at | DATETIME | Startzeitpunkt |
+| completed_at | DATETIME | Endzeitpunkt |
+| error | TEXT | Fehlermeldung (optional) |
+
+### Tabelle: `url_results`
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| id | TEXT (UUID) | Primärschlüssel |
+| job_id | TEXT (FK) | Verweis auf Job |
+| url | TEXT | Die aufgewärmte URL |
+| target | TEXT | `cdn` / `facebook` / `linkedin` / `twitter` / `google` / `bing` |
+| status | TEXT | `success` / `failed` / `skipped` |
+| http_status | INTEGER | HTTP-Statuscode (wenn relevant) |
+| duration_ms | INTEGER | Dauer in Millisekunden |
+| error | TEXT | Fehlermeldung (optional) |
+| created_at | DATETIME | Zeitstempel |
+
+---
+
+## 5. Konfigurationsdatei
+
+Zentrale Konfiguration via `config.yaml` im Projektroot:
+
+```yaml
+server:
+  port: 3000
+  host: "0.0.0.0"
+  apiKey: "YOUR_SECRET_API_KEY"
+
+redis:
+  host: "localhost"
+  port: 6379
+
+database:
+  path: "./data/cachewarmer.db"
+
+puppeteer:
+  executablePath: "/usr/bin/chromium-browser"
+  headless: true
+  args:
+    - "--no-sandbox"
+    - "--disable-setuid-sandbox"
+    - "--disable-dev-shm-usage"
+
+cdnWarming:
+  enabled: true
+  concurrency: 3
+  waitUntil: "networkidle0"
+  timeout: 30000
+  userAgents:
+    desktop: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    mobile: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15"
+
+facebook:
+  enabled: true
+  appId: ""
+  appSecret: ""
+  rateLimitPerSecond: 10
+
+linkedin:
+  enabled: true
+  sessionCookie: ""
+  concurrency: 1
+  delayBetweenRequests: 5000
+
+twitter:
+  enabled: true
+  method: "composer"
+  concurrency: 2
+  delayBetweenRequests: 3000
+
+google:
+  enabled: true
+  serviceAccountKeyFile: "./credentials/google-sa-key.json"
+  dailyQuota: 200
+
+bing:
+  enabled: true
+  apiKey: ""
+  dailyQuota: 10000
+
+indexNow:
+  enabled: true
+  key: ""
+  keyLocation: ""
+
+cloudflare:
+  enabled: false
+  apiToken: ""                # Cloudflare API Token (Zone:Cache Purge permission)
+  zoneId: ""                  # Cloudflare Zone ID
+
+imperva:
+  enabled: false
+  apiId: ""                   # Imperva API ID
+  apiKey: ""                  # Imperva API Key
+  siteId: ""                  # Imperva Site ID (numeric)
+
+akamai:
+  enabled: false
+  host: ""                    # e.g. akaa-xxxxx.luna.akamaiapis.net
+  clientToken: ""             # EdgeGrid client_token
+  clientSecret: ""            # EdgeGrid client_secret
+  accessToken: ""             # EdgeGrid access_token
+  network: "production"       # production | staging
+
+scheduler:
+  enabled: false
+  defaultCron: "0 3 * * *"    # Standard: täglich um 03:00 Uhr
+
+logging:
+  level: "info"               # debug | info | warn | error
+  file: "./data/cachewarmer.log"
 ```
 
 ---
@@ -276,6 +467,21 @@ GOOGLE_SITE_URL=https://example.com/
 # Bing Webmaster
 BING_API_KEY=your-bing-api-key
 
+# Cloudflare (Enterprise)
+CLOUDFLARE_API_TOKEN=your-cloudflare-api-token
+CLOUDFLARE_ZONE_ID=your-zone-id
+
+# Imperva / Incapsula (Enterprise)
+IMPERVA_API_ID=your-imperva-api-id
+IMPERVA_API_KEY=your-imperva-api-key
+IMPERVA_SITE_ID=your-imperva-site-id
+
+# Akamai (Enterprise)
+AKAMAI_HOST=akaa-xxxxx.luna.akamaiapis.net
+AKAMAI_CLIENT_TOKEN=your-client-token
+AKAMAI_CLIENT_SECRET=your-client-secret
+AKAMAI_ACCESS_TOKEN=your-access-token
+
 # Rate Limiting
 RATE_LIMIT_CDN_PER_SECOND=2
 RATE_LIMIT_FACEBOOK_PER_HOUR=50
@@ -292,49 +498,56 @@ LICENSE_DASHBOARD_URL=https://cachewarmer.drossmedia.de
 
 ```
 cachewarmer/
-├── CLAUDE.md                    # Dieses Dokument
+├── CLAUDE.md                    # Dieses Dokument (Konzept & Entwicklungsnotizen)
 ├── package.json
-├── .env.example
-├── .env
+├── tsconfig.json
+├── Dockerfile
+├── docker-compose.yml
+├── config.yaml                  # Hauptkonfiguration
 ├── src/
-│   ├── index.js                 # Einstiegspunkt / Server-Start
-│   ├── config.js                # Env-Variablen laden & validieren
-│   ├── server.js                # Express/Fastify Setup + Routes
+│   ├── index.ts                 # Einstiegspunkt
+│   ├── server.ts                # Fastify Server Setup
+│   ├── config.ts                # Konfigurationsloader
 │   ├── db/
-│   │   ├── database.js          # SQLite-Verbindung
-│   │   └── migrations.js        # Schema-Setup
-│   ├── routes/
-│   │   ├── sitemaps.js
-│   │   ├── runs.js
-│   │   ├── settings.js
-│   │   └── health.js
+│   │   ├── database.ts          # SQLite-Verbindung & Migrationen
+│   │   └── migrations/          # SQL-Migrationsdateien
+│   ├── api/
+│   │   ├── routes.ts            # API-Routen
+│   │   ├── warm.controller.ts   # Warming-Endpoints
+│   │   ├── jobs.controller.ts   # Job-Verwaltung
+│   │   └── sitemaps.controller.ts
 │   ├── services/
-│   │   ├── sitemap-parser.js    # XML-Sitemap laden & parsen
-│   │   ├── cdn-warmer.js        # Puppeteer CDN-Warming
-│   │   ├── facebook.js          # FB Sharing Debugger API
-│   │   ├── linkedin.js          # LinkedIn Post Inspector
-│   │   ├── twitter.js           # Twitter/X Card Cache
-│   │   ├── indexnow.js          # IndexNow Submission
-│   │   ├── google-search.js     # Google Search Console API
-│   │   └── bing-webmaster.js    # Bing Webmaster Tools API
+│   │   ├── sitemap-parser.ts    # XML-Sitemap parsen
+│   │   ├── cdn-warmer.ts        # Puppeteer CDN-Warming
+│   │   ├── cdn-purge-warm.ts   # CDN Cache Purge (Cloudflare, Imperva, Akamai)
+│   │   ├── facebook-warmer.ts   # Facebook Debugger API
+│   │   ├── linkedin-warmer.ts   # LinkedIn Post Inspector
+│   │   ├── twitter-warmer.ts    # Twitter/X Card Validator
+│   │   ├── google-indexer.ts    # Google Indexing API
+│   │   ├── bing-indexer.ts      # Bing Webmaster API
+│   │   └── indexnow.ts          # IndexNow Protokoll
 │   ├── queue/
-│   │   ├── queue-manager.js     # Job-Queue Setup
-│   │   └── workers.js           # Worker-Prozesse
-│   ├── middleware/
-│   │   ├── auth.js              # API-Key Validierung
-│   │   └── rate-limiter.js
+│   │   ├── queue.ts             # BullMQ Queue Setup
+│   │   └── workers/
+│   │       ├── cdn.worker.ts
+│   │       ├── social.worker.ts
+│   │       └── search.worker.ts
+│   ├── scheduler/
+│   │   └── cron.ts              # Cron-basiertes Scheduling
 │   └── utils/
-│       ├── logger.js            # Logging (pino / winston)
-│       ├── browser-pool.js      # Puppeteer-Instanz-Management
-│       └── retry.js             # Retry-Logik mit Backoff
+│       ├── logger.ts            # Logging (pino)
+│       ├── browser-pool.ts      # Puppeteer-Instanz-Management
+│       ├── rate-limiter.ts      # Rate-Limiting Utility
+│       └── retry.ts             # Retry-Logik mit Backoff
 ├── public/
 │   ├── index.html               # Dashboard SPA
 │   ├── app.js
 │   └── style.css
-├── credentials/                  # Git-ignoriert
-│   └── google-sa.json
-├── data/
+├── credentials/                 # Git-ignoriert
+│   └── google-sa-key.json
+├── data/                        # Git-ignoriert
 │   ├── cachewarmer.db           # SQLite-Datenbank
+│   ├── cachewarmer.log
 │   └── .instance-id             # Persistente UUID für Lizenz-Fingerprint
 ├── src/
 │   └── license/
@@ -342,77 +555,119 @@ cachewarmer/
 │       ├── fingerprint.js       # Installations-Fingerprint (SHA-256)
 │       └── feature-gate.js      # Feature-Gating Middleware
 ├── LASTENHEFT-LICENSE-DASHBOARD.md  # Lastenheft License Dashboard
-└── license-dashboard/
-    └── README.md                # Technische Doku License Manager Plugin
+├── license-dashboard/
+│   └── README.md                # Technische Doku License Manager Plugin
+└── tests/
+    ├── sitemap-parser.test.ts
+    ├── cdn-warmer.test.ts
+    └── ...
 ```
 
 ---
 
-## 9. Ablauf eines Warming-Runs
+## 7. Docker Deployment
 
+### Dockerfile
+
+```dockerfile
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y \
+    chromium \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY dist/ ./dist/
+COPY config.yaml ./
+
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
 ```
-1. User submittiert Sitemap-URL über UI/API
-2. Sitemap Parser lädt XML, extrahiert alle URLs
-3. URLs werden in DB gespeichert, neuer Run wird erstellt
-4. Für jede URL werden Jobs in die Queue eingestellt:
-   ├── Job: CDN Warming (Puppeteer)
-   ├── Job: Facebook Cache Refresh
-   ├── Job: LinkedIn Inspector
-   ├── Job: Twitter/X Card Refresh
-   ├── Job: IndexNow Submission (Batch)
-   ├── Job: Google Search Console
-   └── Job: Bing Webmaster Submission (Batch)
-5. Workers verarbeiten Jobs parallel (mit Concurrency-Limits)
-6. Ergebnisse werden in results-Tabelle geschrieben
-7. Dashboard zeigt Live-Fortschritt via SSE
-8. Nach Abschluss: Zusammenfassung & Benachrichtigung
+
+### docker-compose.yml
+
+```yaml
+version: "3.8"
+services:
+  cachewarmer:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./credentials:/app/credentials:ro
+      - ./config.yaml:/app/config.yaml:ro
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:
 ```
 
 ---
 
-## 10. Rate-Limiting & Throttling-Strategie
+## 8. Benötigte API-Zugänge & Credentials
 
-| Service          | Limit                     | Strategie                            |
-|------------------|---------------------------|--------------------------------------|
-| CDN Warming      | 2–5 Requests/Sekunde      | Concurrency-Pool + Delay             |
-| Facebook API     | ~50/Stunde                | Token-Bucket, Pause bei 429          |
-| LinkedIn         | ~30/Stunde (geschätzt)    | Conservative Throttling              |
-| Twitter/X        | ~1 Req/5s (konservativ) | Festes Delay, IP-Schutz              |
-| IndexNow         | 10.000 URLs/Batch         | Batch-Requests, 1 Req/10s           |
-| Google SC API    | 600 Req/Min               | Standard Throttling                  |
-| Bing API         | 10.000/Tag                | Daily Counter, Batch-Submissions     |
-
----
-
-## 11. Webspace-Kompatibilität
-
-### Anforderungen an den Webspace:
-- **Node.js** ≥ 18 (oder Docker-Support)
-- **Chromium/Chrome** installierbar (für Puppeteer)
-- **Persistent Storage** für SQLite-DB
-- **Mindestens 512 MB RAM** (Chromium braucht ~200-300 MB)
-- **Cron-Job Unterstützung** (für scheduled Runs)
-
-### Falls kein Chromium möglich:
-- Fallback auf reine HTTP-Requests (`got`/`axios`) für CDN-Warming
-- Social-Media-APIs direkt ansprechen (ohne Browser-Automation)
-- Cloud-basierter Headless Chrome Service (z.B. Browserless.io)
-
-### Deployment-Optionen:
-1. **Node.js Webspace** (z.B. Netcup, Hetzner vServer): Volle Funktionalität
-2. **Shared Hosting mit Node.js**: Eingeschränkt (kein Puppeteer)
-3. **Docker**: `docker-compose.yml` mit Node + Chromium Container
+| Dienst | Benötigt | Wie erhalten |
+|--------|----------|--------------|
+| **Facebook** | App ID + App Secret | [developers.facebook.com](https://developers.facebook.com) — App erstellen |
+| **LinkedIn** | `li_at` Session Cookie | Aus Browser DevTools nach Login extrahieren |
+| **Twitter/X** | API Key + Secret (optional) | [developer.twitter.com](https://developer.twitter.com) |
+| **Google** | Service Account JSON | [Google Cloud Console](https://console.cloud.google.com) — Indexing API aktivieren |
+| **Bing** | Webmaster API Key | [Bing Webmaster Tools](https://www.bing.com/webmasters) |
+| **IndexNow** | API Key | Selbst generieren + als `.txt` auf der Website hosten |
+| **Cloudflare** | API Token + Zone ID | [Cloudflare Dashboard](https://dash.cloudflare.com) — API Token mit Zone:Cache Purge Berechtigung |
+| **Imperva** | API ID + API Key + Site ID | [Imperva Cloud Security Console](https://my.imperva.com) — Account Settings → API |
+| **Akamai** | EdgeGrid Credentials (Host, Client Token, Client Secret, Access Token) | [Akamai Control Center](https://control.akamai.com) — Identity & Access → API Clients |
 
 ---
 
-## 12. Sicherheit
+## 9. Implementierungsreihenfolge (Phasen)
 
-- API-Key-Authentifizierung für alle Endpunkte
-- Rate-Limiting auf API-Ebene (Schutz vor Missbrauch)
-- Input-Validierung (nur gültige URLs/Sitemaps akzeptieren)
-- Credentials in `.env` (nie in Git)
-- HTTPS erzwingen
-- Optional: IP-Whitelist
+### Phase 1 — Grundgerüst (MVP)
+1. Projekt-Setup (TypeScript, Fastify, Docker)
+2. Sitemap Parser (XML parsen, URLs extrahieren)
+3. CDN Cache Warming via Puppeteer
+4. REST API (`POST /api/warm`, `GET /api/jobs`)
+5. SQLite Datenbank & Logging
+
+### Phase 2 — Social Media Caches
+6. Facebook Sharing Debugger Integration
+7. LinkedIn Post Inspector Integration
+8. Twitter/X Card Validator Integration
+
+### Phase 3 — Suchmaschinen-Indexierung
+9. IndexNow Integration (Bing, Yandex etc.)
+10. Google Indexing API Integration
+11. Bing Webmaster Tools API Integration
+
+### Phase 4 — Automatisierung & Dashboard
+12. Cron-basiertes Scheduling
+13. Web-Dashboard (Statusübersicht, Logs, manuelle Trigger)
+14. Webhook-Notifications (optional, z.B. bei Fehlern)
+
+---
+
+## 10. Entwicklungshinweise
+
+- **Rate-Limiting ist kritisch:** Alle externen APIs haben Limits. Jeder Worker muss diese respektieren.
+- **Fehlertoleranz:** Einzelne URL-Fehler dürfen nicht den gesamten Job abbrechen. Fehler loggen und weitermachen.
+- **Idempotenz:** Ein erneutes Warming derselben URLs sollte keine Probleme verursachen.
+- **Sicherheit:** API-Key-Auth für alle Endpoints. Credentials niemals im Git. HTTPS erzwingen. Optional: IP-Whitelist.
+- **Monitoring:** Structured Logging mit Pino. Metriken über die `/api/status` Route.
+- **Input-Validierung:** Nur gültige URLs/Sitemaps akzeptieren.
 
 ---
 
@@ -425,7 +680,7 @@ cachewarmer/
 - **Lighthouse Audit**: Performance-Score pro URL mitspeichern
 - **Screenshot-Archiv**: Vor/Nach-Vergleich
 - **Pinterest Rich Pin Validator**: Zusätzlicher Social-Cache
-- **Cloudflare API Integration**: Direkte Cache-Purge + Warm Befehle
+- **CDN Cache Purge + Warm**: Direkte Cache-Purge via Cloudflare, Imperva (Incapsula) und Akamai APIs
 
 ---
 
@@ -464,19 +719,95 @@ CacheWarmer wird kommerziell vertrieben über ein zentrales **License Management
 
 ### 15.2 Produkt-Tiers
 
-| Feature | Free | Professional | Enterprise |
-|---------|------|-------------|-----------|
-| CDN Warming (HTTP) | ✓ | ✓ | ✓ |
-| CDN Warming (Puppeteer) | – | ✓ | ✓ |
-| Social Media (FB, LI, X) | – | ✓ | ✓ |
-| IndexNow | – | ✓ | ✓ |
-| Google Search Console | – | – | ✓ |
-| Bing Webmaster Tools | – | – | ✓ |
-| Scheduling | – | ✓ | ✓ |
-| Max Sitemaps | 1 | 5 | Unbegrenzt |
-| Max URLs | 50 | 5.000 | Unbegrenzt |
-| Workers | 1 | 5 | 10+ |
-| Multi-Site / Webhooks / Cloudflare | – | – | ✓ |
+#### Warming-Targets
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| CDN Edge Cache (Desktop + Mobile) | ✓ | ✓ | ✓ |
+| IndexNow (Bing, Yandex, Seznam, Naver) | ✓ | ✓ | ✓ |
+| Facebook Sharing Debugger | – | ✓ | ✓ |
+| LinkedIn Post Inspector | – | ✓ | ✓ |
+| Twitter/X Card Validator | – | ✓ | ✓ |
+| Google Indexing API | – | ✓ | ✓ |
+| Bing Webmaster URL Submission | – | ✓ | ✓ |
+| Pinterest Rich Pin Validator | – | ✓ | ✓ |
+| Cloudflare Cache Purge + Warm | – | – | ✓ |
+| Imperva (Incapsula) Cache Purge + Warm | – | – | ✓ |
+| Akamai Fast Purge + Warm | – | – | ✓ |
+
+#### Mengen-Limits
+
+| Limit | Free | Premium | Enterprise |
+|-------|:----:|:-------:|:----------:|
+| URLs pro Warming-Job | 50 | 10.000 | Unbegrenzt |
+| Registrierte Sitemaps | 2 | 25 | Unbegrenzt |
+| Externe Sitemaps | 1 | 10 | Unbegrenzt |
+| Jobs pro Tag | 3 | 50 | Unbegrenzt |
+| CDN Concurrency | 2 | 10 | 20 |
+| Log-Aufbewahrung | 7 Tage | 90 Tage | 365 Tage |
+| Verwaltete Sites | 1 | 1 | Unbegrenzt |
+
+#### Scheduling & Automatisierung
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| Manuelles Warming | ✓ | ✓ | ✓ |
+| Geplantes Warming (Scheduler) | – | ✓ | ✓ |
+| Auto-Warm bei Veröffentlichung | – | ✓ | ✓ |
+| Smart Warming (Diff-Detection) | – | ✓ | ✓ |
+| Prioritätsbasiertes URL-Warming | – | ✓ | ✓ |
+| Sitemap-Änderungsüberwachung | – | – | ✓ |
+| Bedingtes Warming | – | – | ✓ |
+| Benutzerdefinierte Warm-Reihenfolge | – | – | ✓ |
+
+#### Dashboard & Reporting
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| Status-Dashboard | ✓ | ✓ | ✓ |
+| CSV/JSON-Export | – | ✓ | ✓ |
+| Export fehlgeschlagener URLs (CSV) | – | ✓ | ✓ |
+| Cache Hit/Miss Analyse | – | ✓ | ✓ |
+| Performance-Trending | – | ✓ | ✓ |
+| Quota-Nutzungs-Tracker | – | ✓ | ✓ |
+| Automatische PDF/HTML-Reports | – | – | ✓ |
+| Audit-Log | – | – | ✓ |
+
+#### Monitoring & Alerting
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| Broken-Link-Erkennung | – | ✓ | ✓ |
+| SSL-Zertifikat-Ablauf-Warnung | – | ✓ | ✓ |
+| Performance-Regressions-Alerts | – | – | ✓ |
+| Quota-Erschöpfungs-Alerts | – | – | ✓ |
+
+#### Konfiguration & Customization
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| Custom Timeout pro Service | – | ✓ | ✓ |
+| Custom User-Agent | – | – | ✓ |
+| Custom HTTP-Headers | – | – | ✓ |
+| Custom Viewports | – | – | ✓ |
+| Authentifiziertes Warming | – | – | ✓ |
+
+#### API & Integration
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| REST API Zugang | – | ✓ | ✓ |
+| Webhook-Benachrichtigungen | – | – | ✓ |
+| Zapier/n8n/Make Kompatibilität | – | – | ✓ |
+| IP-Whitelist für API | – | – | ✓ |
+
+#### Multi-Site & Agentur
+
+| Feature | Free | Premium | Enterprise |
+|---------|:----:|:-------:|:----------:|
+| Single-Site | ✓ | ✓ | – |
+| Multi-Site-Verwaltung | – | – | ✓ |
+| White-Label | – | – | ✓ |
 | Priority Support | – | – | ✓ |
 
 Zusätzlich: **Development**-Lizenz (Enterprise-Features, nur localhost/\*.local/\*.dev/\*.test).

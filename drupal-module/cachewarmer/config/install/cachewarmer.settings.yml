@@ -1,0 +1,47 @@
+api_key: ''
+cdn:
+  enabled: true
+  concurrency: 3
+  timeout: 30
+  user_agent: 'Mozilla/5.0 (compatible; CacheWarmer/1.0)'
+facebook:
+  enabled: false
+  app_id: ''
+  app_secret: ''
+  rate_limit: 10
+linkedin:
+  enabled: false
+  session_cookie: ''
+  delay: 5000
+twitter:
+  enabled: true
+  concurrency: 2
+  delay: 3000
+google:
+  enabled: false
+  service_account_json: ''
+  daily_quota: 200
+bing:
+  enabled: false
+  api_key: ''
+  daily_quota: 10000
+indexnow:
+  enabled: false
+  key: ''
+  key_location: ''
+scheduler:
+  enabled: false
+  frequency: 'daily'
+log_level: 'info'
+license_key: ''
+license_tier: 'free'
+license_activated_at: 0
+license_expires_at: 0
+auto_warm_on_publish: false
+auto_warm_targets:
+  - cdn
+  - facebook
+exclude_patterns: ''
+webhook_url: ''
+email_notifications: false
+notification_email: ''

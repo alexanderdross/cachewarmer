@@ -128,7 +128,10 @@ class FeatureFlagsRegressionTest extends TestCase {
     }
 
     /**
-     * Regression: Jeder Tier hat genau 20 Feature-Flags (nicht mehr, nicht weniger).
+     * Regression: Jeder Tier hat genau 22 Feature-Flags (nicht mehr, nicht weniger).
+     *
+     * Updated from 20 to 22 after adding cloudflare, imperva, akamai, whitelabel, priority_support
+     * and consolidating the feature set.
      */
     public function test_each_tier_has_expected_feature_count(): void {
         $tiers = [ 'free', 'professional', 'enterprise', 'development' ];
@@ -136,9 +139,9 @@ class FeatureFlagsRegressionTest extends TestCase {
         foreach ( $tiers as $tier ) {
             $features = CWLM_Feature_Flags::get_tier_defaults( $tier );
             $this->assertCount(
-                20,
+                22,
                 $features,
-                "REGRESSION: Tier '$tier' hat " . count( $features ) . " statt 20 Features!"
+                "REGRESSION: Tier '$tier' hat " . count( $features ) . " statt 22 Features!"
             );
         }
     }

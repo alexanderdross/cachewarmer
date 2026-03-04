@@ -1,0 +1,138 @@
+cachewarmer.dashboard:
+  path: '/admin/config/performance/cachewarmer'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerDashboardController::dashboard'
+    _title: 'CacheWarmer Dashboard'
+  requirements:
+    _permission: 'administer cachewarmer'
+
+cachewarmer.sitemaps:
+  path: '/admin/config/performance/cachewarmer/sitemaps'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerDashboardController::sitemaps'
+    _title: 'CacheWarmer Sitemaps'
+  requirements:
+    _permission: 'administer cachewarmer'
+
+cachewarmer.settings:
+  path: '/admin/config/performance/cachewarmer/settings'
+  defaults:
+    _form: '\Drupal\cachewarmer\Form\CacheWarmerSettingsForm'
+    _title: 'CacheWarmer Settings'
+  requirements:
+    _permission: 'administer cachewarmer'
+
+# AJAX callbacks
+cachewarmer.ajax.start_warm:
+  path: '/admin/cachewarmer/ajax/start-warm'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::startWarm'
+  requirements:
+    _permission: 'administer cachewarmer'
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.get_jobs:
+  path: '/admin/cachewarmer/ajax/jobs'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::getJobs'
+  requirements:
+    _permission: 'administer cachewarmer'
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.get_job:
+  path: '/admin/cachewarmer/ajax/jobs/{job_id}'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::getJob'
+  requirements:
+    _permission: 'administer cachewarmer'
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.delete_job:
+  path: '/admin/cachewarmer/ajax/jobs/{job_id}/delete'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::deleteJob'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.add_sitemap:
+  path: '/admin/cachewarmer/ajax/sitemaps/add'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::addSitemap'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.delete_sitemap:
+  path: '/admin/cachewarmer/ajax/sitemaps/{sitemap_id}/delete'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::deleteSitemap'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.warm_sitemap:
+  path: '/admin/cachewarmer/ajax/sitemaps/{sitemap_id}/warm'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::warmSitemap'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.status:
+  path: '/admin/cachewarmer/ajax/status'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::getStatus'
+  requirements:
+    _permission: 'administer cachewarmer'
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.bulk_add_sitemaps:
+  path: '/admin/cachewarmer/ajax/bulk-add-sitemaps'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::bulkAddSitemaps'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.detect_sitemaps:
+  path: '/admin/cachewarmer/ajax/detect-sitemaps'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::detectSitemaps'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE
+
+cachewarmer.ajax.export_failed:
+  path: '/admin/cachewarmer/ajax/export-failed'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::exportFailed'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+
+cachewarmer.ajax.export_results:
+  path: '/admin/cachewarmer/ajax/export-results'
+  defaults:
+    _controller: '\Drupal\cachewarmer\Controller\CacheWarmerAjaxController::exportResults'
+  requirements:
+    _permission: 'administer cachewarmer'
+  methods: [POST]
+  options:
+    no_cache: TRUE

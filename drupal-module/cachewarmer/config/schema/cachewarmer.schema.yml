@@ -1,0 +1,150 @@
+cachewarmer.settings:
+  type: config_object
+  label: 'CacheWarmer settings'
+  mapping:
+    api_key:
+      type: string
+      label: 'API Key for REST authentication'
+    cdn:
+      type: mapping
+      label: 'CDN Cache Warming'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        concurrency:
+          type: integer
+          label: 'Concurrency'
+        timeout:
+          type: integer
+          label: 'Timeout (seconds)'
+        user_agent:
+          type: string
+          label: 'User Agent'
+    facebook:
+      type: mapping
+      label: 'Facebook Sharing Debugger'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        app_id:
+          type: string
+          label: 'App ID'
+        app_secret:
+          type: string
+          label: 'App Secret'
+        rate_limit:
+          type: integer
+          label: 'Rate limit (requests/second)'
+    linkedin:
+      type: mapping
+      label: 'LinkedIn Post Inspector'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        session_cookie:
+          type: string
+          label: 'Session Cookie (li_at)'
+        delay:
+          type: integer
+          label: 'Delay between requests (ms)'
+    twitter:
+      type: mapping
+      label: 'Twitter/X Card Validator'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        concurrency:
+          type: integer
+          label: 'Concurrency'
+        delay:
+          type: integer
+          label: 'Delay between batches (ms)'
+    google:
+      type: mapping
+      label: 'Google Indexing API'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        service_account_json:
+          type: string
+          label: 'Service Account JSON'
+        daily_quota:
+          type: integer
+          label: 'Daily quota'
+    bing:
+      type: mapping
+      label: 'Bing Webmaster Tools'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        api_key:
+          type: string
+          label: 'API Key'
+        daily_quota:
+          type: integer
+          label: 'Daily quota'
+    indexnow:
+      type: mapping
+      label: 'IndexNow Protocol'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        key:
+          type: string
+          label: 'IndexNow Key'
+        key_location:
+          type: string
+          label: 'Key Location URL'
+    scheduler:
+      type: mapping
+      label: 'Scheduled Warming'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'
+        frequency:
+          type: string
+          label: 'Frequency'
+    log_level:
+      type: string
+      label: 'Log level'
+    license_key:
+      type: string
+      label: 'License key'
+    license_tier:
+      type: string
+      label: 'License tier'
+    license_activated_at:
+      type: integer
+      label: 'License activation timestamp'
+    license_expires_at:
+      type: integer
+      label: 'License expiry timestamp (0 = never)'
+    auto_warm_on_publish:
+      type: boolean
+      label: 'Auto-warm on content publish'
+    auto_warm_targets:
+      type: sequence
+      label: 'Auto-warm targets'
+      sequence:
+        type: string
+        label: 'Target'
+    exclude_patterns:
+      type: string
+      label: 'URL exclude patterns'
+    webhook_url:
+      type: string
+      label: 'Webhook URL'
+    email_notifications:
+      type: boolean
+      label: 'Email notifications enabled'
+    notification_email:
+      type: string
+      label: 'Notification email'
