@@ -39,6 +39,8 @@ class Settings {
 		'webhook_url'        => '',
 		'webhook_format'     => 'json',
 		'webhook_on_alerts'  => true,
+		// API key for external REST access (Pro).
+		'api_key'              => '',
 		// Monitoring (Pro).
 		'broken_links_enabled' => false,
 		// Alerts.

@@ -132,14 +132,23 @@ class RestController {
 		] );
 	}
 
-	public function check_permissions(): bool {
+	public function check_permissions( \WP_REST_Request $request = null ): bool {
 		if ( ! Settings::is_pro() ) {
 			return false;
 		}
+
+		// Allow API key auth for external access.
+		if ( $request && ApiKeyAuth::validate( $request ) ) {
+			return true;
+		}
+
 		return current_user_can( 'edit_posts' );
 	}
 
-	public function check_admin_permissions(): bool {
+	public function check_admin_permissions( \WP_REST_Request $request = null ): bool {
+		if ( $request && ApiKeyAuth::validate( $request ) ) {
+			return true;
+		}
 		return current_user_can( 'manage_options' );
 	}
 

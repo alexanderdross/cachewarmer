@@ -3,7 +3,7 @@
  * Plugin Name: SearchForge
  * Plugin URI:  https://forge.drossmedia.de
  * Description: Unifies search data sources (GSC, Bing, Keyword Planner, Trends, GA4) into LLM-ready markdown briefs with AI content analysis.
- * Version:     1.5.0
+ * Version:     1.6.0
  * Author:      Dross Media
  * Author URI:  https://drossmedia.de
  * License:     GPL-2.0-or-later
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SEARCHFORGE_VERSION', '1.5.0' );
+define( 'SEARCHFORGE_VERSION', '1.6.0' );
 define( 'SEARCHFORGE_FILE', __FILE__ );
 define( 'SEARCHFORGE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SEARCHFORGE_URL', plugin_dir_url( __FILE__ ) );
@@ -84,6 +84,7 @@ final class SearchForge {
 			new SearchForge\Admin\Dashboard();
 			new SearchForge\Admin\Assets();
 			new SearchForge\Admin\DashboardWidget();
+			new SearchForge\Admin\Onboarding();
 			new SearchForge\Integrations\GSC\OAuth();
 		}
 

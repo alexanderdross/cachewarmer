@@ -543,3 +543,38 @@
 	color: #d63638;
 	font-weight: 500;
 }
+
+/* Search form */
+.sf-search-form {
+	margin: 12px 0;
+}
+
+.sf-search-form .search-box {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.sf-search-form input[type="search"] {
+	min-width: 280px;
+}
+
+/* Total count in title */
+.title-count {
+	font-weight: 400;
+	color: #646970;
+	font-size: 16px;
+}
+
+/* Onboarding */
+.sf-setup-steps {
+	margin: 8px 0 0 20px;
+}
+
+.sf-setup-steps li {
+	margin-bottom: 4px;
+}
+
+.sf-step-done {
+	color: #646970;
+}
