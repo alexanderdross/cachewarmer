@@ -85,6 +85,40 @@ class RestController {
 			'permission_callback' => [ $this, 'check_permissions' ],
 		] );
 
+		register_rest_route( self::NAMESPACE, '/performance', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_performance' ],
+			'permission_callback' => [ $this, 'check_permissions' ],
+			'args'                => [
+				'days' => [
+					'default'           => 30,
+					'sanitize_callback' => 'absint',
+				],
+			],
+		] );
+
+		register_rest_route( self::NAMESPACE, '/quota', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_quota' ],
+			'permission_callback' => [ $this, 'check_permissions' ],
+		] );
+
+		register_rest_route( self::NAMESPACE, '/ssl', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_ssl_status' ],
+			'permission_callback' => [ $this, 'check_permissions' ],
+		] );
+
+		register_rest_route( self::NAMESPACE, '/audit-log', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_audit_log' ],
+			'permission_callback' => [ $this, 'check_admin_permissions' ],
+			'args'                => [
+				'limit'  => [ 'default' => 50, 'sanitize_callback' => 'absint' ],
+				'offset' => [ 'default' => 0, 'sanitize_callback' => 'absint' ],
+			],
+		] );
+
 		register_rest_route( self::NAMESPACE, '/trends', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_trends' ],
@@ -222,6 +256,34 @@ class RestController {
 		return new \WP_REST_Response( [
 			'gaps'  => $result,
 			'total' => count( $result ),
+		] );
+	}
+
+	public function get_performance( \WP_REST_Request $request ): \WP_REST_Response {
+		$days = min( absint( $request->get_param( 'days' ) ?: 30 ), 365 );
+
+		return new \WP_REST_Response( [
+			'daily'      => \SearchForge\Monitoring\PerformanceTrend::get_daily_trends( $days ),
+			'comparison' => \SearchForge\Monitoring\PerformanceTrend::get_period_comparison( min( $days, 30 ) ),
+		] );
+	}
+
+	public function get_quota(): \WP_REST_Response {
+		return new \WP_REST_Response( \SearchForge\Monitoring\QuotaTracker::get_summary() );
+	}
+
+	public function get_ssl_status(): \WP_REST_Response {
+		$result = \SearchForge\Monitoring\SslChecker::check();
+		return new \WP_REST_Response( $result ?: [ 'status' => 'not_https' ] );
+	}
+
+	public function get_audit_log( \WP_REST_Request $request ): \WP_REST_Response {
+		$limit  = min( absint( $request->get_param( 'limit' ) ?: 50 ), 200 );
+		$offset = absint( $request->get_param( 'offset' ) ?: 0 );
+
+		return new \WP_REST_Response( [
+			'entries' => \SearchForge\Monitoring\AuditLog::get_entries( $limit, $offset ),
+			'total'   => \SearchForge\Monitoring\AuditLog::get_total(),
 		] );
 	}
 

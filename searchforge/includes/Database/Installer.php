@@ -117,6 +117,19 @@ class Installer {
 				setting_value LONGTEXT DEFAULT NULL,
 				PRIMARY KEY (setting_name)
 			) {$charset};
+
+			CREATE TABLE {$wpdb->prefix}sf_audit_log (
+				id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+				user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+				user_login VARCHAR(60) NOT NULL DEFAULT 'system',
+				action VARCHAR(50) NOT NULL,
+				details TEXT DEFAULT NULL,
+				ip_address VARCHAR(45) DEFAULT NULL,
+				created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY (id),
+				KEY idx_action (action),
+				KEY idx_created (created_at)
+			) {$charset};
 		";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

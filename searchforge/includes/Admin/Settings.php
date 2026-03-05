@@ -39,6 +39,8 @@ class Settings {
 		'webhook_url'        => '',
 		'webhook_format'     => 'json',
 		'webhook_on_alerts'  => true,
+		// Monitoring (Pro).
+		'broken_links_enabled' => false,
 		// Alerts.
 		'alerts_enabled'    => false,
 		'alert_email'       => '',
@@ -112,6 +114,7 @@ class Settings {
 			: $current['webhook_format'];
 		$sanitized['webhook_on_alerts'] = ! empty( $input['webhook_on_alerts'] );
 
+		$sanitized['broken_links_enabled'] = ! empty( $input['broken_links_enabled'] );
 		$sanitized['alerts_enabled']  = ! empty( $input['alerts_enabled'] );
 		$sanitized['alert_email']     = sanitize_email( $input['alert_email'] ?? $current['alert_email'] );
 		$sanitized['alert_ranking_drop_threshold'] = absint( $input['alert_ranking_drop_threshold'] ?? $current['alert_ranking_drop_threshold'] );

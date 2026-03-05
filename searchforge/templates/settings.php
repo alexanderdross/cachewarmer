@@ -368,6 +368,17 @@ if ( isset( $_GET['gsc_connected'] ) ) : ?>
 					</label>
 				</td>
 			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Broken Link Detection', 'searchforge' ); ?></th>
+				<td>
+					<label>
+						<input type="checkbox" name="searchforge_settings[broken_links_enabled]" value="1"
+							<?php checked( $settings['broken_links_enabled'] ); ?>
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?> />
+						<?php esc_html_e( 'Scan pages for broken outbound links during daily sync', 'searchforge' ); ?>
+					</label>
+				</td>
+			</tr>
 		</table>
 
 		<!-- Webhook Notifications (Pro) -->

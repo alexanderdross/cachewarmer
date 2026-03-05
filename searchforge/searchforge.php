@@ -3,7 +3,7 @@
  * Plugin Name: SearchForge
  * Plugin URI:  https://forge.drossmedia.de
  * Description: Unifies search data sources (GSC, Bing, Keyword Planner, Trends, GA4) into LLM-ready markdown briefs with AI content analysis.
- * Version:     1.2.0
+ * Version:     1.4.0
  * Author:      Dross Media
  * Author URI:  https://drossmedia.de
  * License:     GPL-2.0-or-later
@@ -15,12 +15,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SEARCHFORGE_VERSION', '1.3.0' );
+define( 'SEARCHFORGE_VERSION', '1.4.0' );
 define( 'SEARCHFORGE_FILE', __FILE__ );
 define( 'SEARCHFORGE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SEARCHFORGE_URL', plugin_dir_url( __FILE__ ) );
 define( 'SEARCHFORGE_SLUG', 'searchforge' );
-define( 'SEARCHFORGE_DB_VERSION', '1.2.0' );
+define( 'SEARCHFORGE_DB_VERSION', '1.4.0' );
 
 require_once SEARCHFORGE_PATH . 'includes/Autoloader.php';
 
@@ -104,6 +104,11 @@ final class SearchForge {
 		// Scheduler manager.
 		new SearchForge\Scheduler\Manager();
 
+		// Audit log (Pro).
+		if ( SearchForge\Admin\Settings::is_pro() ) {
+			new SearchForge\Monitoring\AuditLog();
+		}
+
 		// AJAX handlers.
 		new SearchForge\Admin\Ajax();
 
@@ -165,6 +170,16 @@ final class SearchForge {
 		) {
 			$enricher = new SearchForge\Integrations\KeywordPlanner\Enricher();
 			$enricher->enrich_keywords();
+		}
+
+		// Monitoring checks (Pro).
+		if ( SearchForge\Admin\Settings::is_pro() ) {
+			SearchForge\Monitoring\SslChecker::check_and_alert();
+			SearchForge\Monitoring\QuotaTracker::check_and_alert();
+
+			if ( $settings['broken_links_enabled'] ?? false ) {
+				SearchForge\Monitoring\BrokenLinks::scan( 20 );
+			}
 		}
 
 		// Data retention cleanup.
