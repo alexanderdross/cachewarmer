@@ -118,9 +118,35 @@ $tab        = sanitize_text_field( $_GET['tab'] ?? 'overview' );
 			<?php endforeach; ?>
 		</div>
 
+		<!-- Sitemap Discovery -->
+		<h2><?php esc_html_e( 'Sitemap Discovery', 'searchforge' ); ?></h2>
+		<p>
+			<button type="button" class="button" id="sf-discover-sitemaps">
+				<?php esc_html_e( 'Discover Sitemaps', 'searchforge' ); ?>
+			</button>
+		</p>
+		<div id="sf-sitemap-results"></div>
+
 		<!-- Broken Links -->
+		<?php if ( $is_pro ) : ?>
+			<h2>
+				<?php
+				if ( ! empty( $broken ) ) {
+					echo esc_html( sprintf( __( 'Broken Links (%d found)', 'searchforge' ), count( $broken ) ) );
+				} else {
+					esc_html_e( 'Broken Links', 'searchforge' );
+				}
+				?>
+			</h2>
+			<p>
+				<button type="button" class="button" id="sf-scan-broken-links">
+					<?php esc_html_e( 'Scan Now', 'searchforge' ); ?>
+				</button>
+			</p>
+			<div id="sf-broken-link-results"></div>
+		<?php endif; ?>
+
 		<?php if ( $is_pro && ! empty( $broken ) ) : ?>
-			<h2><?php echo esc_html( sprintf( __( 'Broken Links (%d found)', 'searchforge' ), count( $broken ) ) ); ?></h2>
 			<table class="widefat sf-table">
 				<thead>
 					<tr>

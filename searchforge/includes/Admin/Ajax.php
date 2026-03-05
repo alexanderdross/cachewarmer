@@ -14,6 +14,8 @@ class Ajax {
 		add_action( 'wp_ajax_searchforge_dismiss_alert', [ $this, 'dismiss_alert' ] );
 		add_action( 'wp_ajax_searchforge_generate_content_brief', [ $this, 'generate_content_brief' ] );
 		add_action( 'wp_ajax_searchforge_export_data', [ $this, 'export_data' ] );
+		add_action( 'wp_ajax_searchforge_discover_sitemaps', [ $this, 'discover_sitemaps' ] );
+		add_action( 'wp_ajax_searchforge_scan_broken_links', [ $this, 'scan_broken_links' ] );
 	}
 
 	public function sync_gsc(): void {
@@ -146,6 +148,46 @@ class Ajax {
 			'brief'    => $result['brief'],
 			'method'   => $result['method'],
 			'filename' => 'content-brief-' . sanitize_file_name( trim( $page_path, '/' ) ?: 'homepage' ) . '.md',
+		] );
+	}
+
+	public function discover_sitemaps(): void {
+		check_ajax_referer( 'searchforge_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unauthorized.', 'searchforge' ) ], 403 );
+		}
+
+		$sitemaps = \SearchForge\Sitemap\Discovery::discover();
+
+		$results = [];
+		foreach ( $sitemaps as $url ) {
+			$count = \SearchForge\Sitemap\Discovery::count_urls( $url );
+			$results[] = [
+				'url'       => $url,
+				'url_count' => $count,
+			];
+		}
+
+		wp_send_json_success( [ 'sitemaps' => $results ] );
+	}
+
+	public function scan_broken_links(): void {
+		check_ajax_referer( 'searchforge_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unauthorized.', 'searchforge' ) ], 403 );
+		}
+
+		if ( ! Settings::is_pro() ) {
+			wp_send_json_error( [ 'message' => __( 'Broken link scanning requires a Pro license.', 'searchforge' ) ] );
+		}
+
+		$broken = \SearchForge\Monitoring\BrokenLinks::scan( 20 );
+
+		wp_send_json_success( [
+			'count'  => count( $broken ),
+			'broken' => array_slice( $broken, 0, 50 ),
 		] );
 	}
 

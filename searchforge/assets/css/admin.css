@@ -497,3 +497,49 @@
 	font-size: 12px;
 	color: #646970;
 }
+
+/* WP Dashboard Widget */
+.sf-widget-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.sf-widget-metric {
+	text-align: center;
+	padding: 8px 4px;
+	background: #f6f7f7;
+	border-radius: 3px;
+}
+
+.sf-widget-label {
+	display: block;
+	font-size: 11px;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.sf-widget-value {
+	display: block;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sf-widget-score {
+	margin: 8px 0;
+	font-size: 13px;
+}
+
+.sf-widget-sync {
+	color: #646970;
+	font-size: 12px;
+	margin: 4px 0;
+}
+
+.sf-widget-alerts a {
+	color: #d63638;
+	font-weight: 500;
+}

@@ -186,6 +186,61 @@
 		});
 	});
 
+	// Sitemap discovery.
+	$(document).on('click', '#sf-discover-sitemaps', function () {
+		var $btn = $(this);
+		var $results = $('#sf-sitemap-results');
+		$btn.prop('disabled', true).text('Discovering...');
+		$results.html('<span class="sf-spinner"></span>');
+
+		$.post(searchforge.ajax_url, {
+			action: 'searchforge_discover_sitemaps',
+			nonce: searchforge.nonce
+		}, function (response) {
+			if (response.success && response.data.sitemaps.length) {
+				var html = '<ul>';
+				response.data.sitemaps.forEach(function (s) {
+					html += '<li><code>' + s.url + '</code> — ' + s.url_count + ' URLs</li>';
+				});
+				html += '</ul>';
+				$results.html(html);
+			} else {
+				$results.html('<p>No sitemaps found.</p>');
+			}
+			$btn.prop('disabled', false).text('Discover Sitemaps');
+		}).fail(function () {
+			$results.html('<p class="sf-error">Network error.</p>');
+			$btn.prop('disabled', false).text('Discover Sitemaps');
+		});
+	});
+
+	// Broken link scan trigger.
+	$(document).on('click', '#sf-scan-broken-links', function () {
+		var $btn = $(this);
+		var $results = $('#sf-broken-link-results');
+		$btn.prop('disabled', true).text('Scanning...');
+		$results.html('<span class="sf-spinner"></span> Scanning pages for broken links...');
+
+		$.post(searchforge.ajax_url, {
+			action: 'searchforge_scan_broken_links',
+			nonce: searchforge.nonce
+		}, function (response) {
+			if (response.success) {
+				if (response.data.count === 0) {
+					$results.html('<p style="color:#155724;font-weight:500;">No broken links found.</p>');
+				} else {
+					$results.html('<p class="sf-error">' + response.data.count + ' broken link(s) found. Reload the page to see details.</p>');
+				}
+			} else {
+				$results.html('<p class="sf-error">' + (response.data && response.data.message || 'Scan failed.') + '</p>');
+			}
+			$btn.prop('disabled', false).text('Scan Now');
+		}).fail(function () {
+			$results.html('<p class="sf-error">Network error.</p>');
+			$btn.prop('disabled', false).text('Scan Now');
+		});
+	});
+
 	// Close modal on outside click.
 	$(document).on('click', '#sf-export-modal', function (e) {
 		if (e.target === this) {
