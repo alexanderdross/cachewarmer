@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SEARCHFORGE_VERSION', '1.2.0' );
+define( 'SEARCHFORGE_VERSION', '1.3.0' );
 define( 'SEARCHFORGE_FILE', __FILE__ );
 define( 'SEARCHFORGE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SEARCHFORGE_URL', plugin_dir_url( __FILE__ ) );
@@ -98,6 +98,12 @@ final class SearchForge {
 		// Alert & monitoring system.
 		new SearchForge\Alerts\Monitor();
 
+		// Webhook notifications.
+		new SearchForge\Notifications\Webhook();
+
+		// Scheduler manager.
+		new SearchForge\Scheduler\Manager();
+
 		// AJAX handlers.
 		new SearchForge\Admin\Ajax();
 
@@ -116,7 +122,12 @@ final class SearchForge {
 		// GSC sync.
 		if ( ! empty( $settings['gsc_access_token'] ) ) {
 			$gsc_syncer = new SearchForge\Integrations\GSC\Syncer();
-			$gsc_syncer->sync_all();
+			$result = $gsc_syncer->sync_all();
+			if ( is_wp_error( $result ) ) {
+				do_action( 'searchforge_sync_failed', 'gsc', $result->get_error_message() );
+			} else {
+				do_action( 'searchforge_sync_completed', 'gsc', $result );
+			}
 		}
 
 		// Bing sync (Pro only).
@@ -125,7 +136,12 @@ final class SearchForge {
 			&& ! empty( $settings['bing_api_key'] )
 		) {
 			$bing_syncer = new SearchForge\Integrations\Bing\Syncer();
-			$bing_syncer->sync_all();
+			$result = $bing_syncer->sync_all();
+			if ( is_wp_error( $result ) ) {
+				do_action( 'searchforge_sync_failed', 'bing', $result->get_error_message() );
+			} else {
+				do_action( 'searchforge_sync_completed', 'bing', $result );
+			}
 		}
 
 		// GA4 sync (Pro only).
@@ -134,7 +150,12 @@ final class SearchForge {
 			&& ! empty( $settings['ga4_property_id'] )
 		) {
 			$ga4_syncer = new SearchForge\Integrations\GA4\Syncer();
-			$ga4_syncer->sync();
+			$result = $ga4_syncer->sync();
+			if ( is_wp_error( $result ) ) {
+				do_action( 'searchforge_sync_failed', 'ga4', $result->get_error_message() );
+			} else {
+				do_action( 'searchforge_sync_completed', 'ga4', $result );
+			}
 		}
 
 		// Keyword Planner enrichment (Pro only).
@@ -145,6 +166,9 @@ final class SearchForge {
 			$enricher = new SearchForge\Integrations\KeywordPlanner\Enricher();
 			$enricher->enrich_keywords();
 		}
+
+		// Data retention cleanup.
+		SearchForge\Database\Cleanup::run();
 	}
 
 	/**

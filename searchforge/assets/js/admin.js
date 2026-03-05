@@ -153,6 +153,39 @@
 		});
 	});
 
+	// Data export (CSV/JSON).
+	$(document).on('click', '.sf-data-export-btn', function () {
+		var $btn = $(this);
+		var type = $btn.data('type');
+		var format = $btn.data('format');
+		$btn.prop('disabled', true).text('Exporting...');
+
+		$.post(searchforge.ajax_url, {
+			action: 'searchforge_export_data',
+			nonce: searchforge.nonce,
+			export_type: type,
+			export_format: format
+		}, function (response) {
+			if (response.success) {
+				var blob = new Blob([response.data.data], { type: response.data.mime + ';charset=utf-8' });
+				var url = URL.createObjectURL(blob);
+				var a = document.createElement('a');
+				a.href = url;
+				a.download = response.data.filename;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else {
+				alert('Export failed: ' + (response.data && response.data.message || 'Unknown error'));
+			}
+			$btn.prop('disabled', false).text('Export ' + format.toUpperCase());
+		}).fail(function () {
+			alert('Network error.');
+			$btn.prop('disabled', false).text('Export ' + format.toUpperCase());
+		});
+	});
+
 	// Close modal on outside click.
 	$(document).on('click', '#sf-export-modal', function (e) {
 		if (e.target === this) {
