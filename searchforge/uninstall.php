@@ -17,6 +17,7 @@ $tables = [
 	'sf_alerts',
 	'sf_ga4_metrics',
 	'sf_settings',
+	'sf_audit_log',
 ];
 
 foreach ( $tables as $table ) {
