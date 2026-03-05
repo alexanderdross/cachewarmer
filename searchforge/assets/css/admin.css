@@ -376,3 +376,124 @@
 .searchforge-wrap .nav-tab-wrapper {
 	margin-bottom: 20px;
 }
+
+/* Period comparison change indicators */
+.sf-change {
+	display: block;
+	font-size: 13px;
+	margin-top: 4px;
+}
+
+.sf-change-up {
+	color: #155724;
+}
+
+.sf-change-down {
+	color: #d63638;
+}
+
+/* SSL Card */
+.sf-ssl-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px;
+	border-radius: 4px;
+	margin: 12px 0 20px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+}
+
+.sf-ssl-icon {
+	font-size: 24px;
+}
+
+.sf-ssl-valid {
+	border-left: 4px solid #00a32a;
+}
+
+.sf-ssl-valid .sf-ssl-icon {
+	color: #00a32a;
+}
+
+.sf-ssl-warning {
+	border-left: 4px solid #dba617;
+	background: #fef8ee;
+}
+
+.sf-ssl-warning .sf-ssl-icon {
+	color: #dba617;
+}
+
+.sf-ssl-critical,
+.sf-ssl-expired {
+	border-left: 4px solid #d63638;
+	background: #fef1f1;
+}
+
+.sf-ssl-critical .sf-ssl-icon,
+.sf-ssl-expired .sf-ssl-icon {
+	color: #d63638;
+}
+
+/* Quota Grid */
+.sf-quota-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 12px;
+	margin: 12px 0 20px;
+}
+
+.sf-quota-item {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 16px;
+}
+
+.sf-quota-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	font-size: 13px;
+}
+
+.sf-quota-bar {
+	height: 8px;
+	background: #f0f0f1;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.sf-quota-fill {
+	height: 100%;
+	background: #2271b1;
+	border-radius: 4px;
+	transition: width 0.3s;
+}
+
+.sf-quota-warning .sf-quota-fill {
+	background: #dba617;
+}
+
+.sf-quota-exhausted .sf-quota-fill {
+	background: #d63638;
+}
+
+/* Broken link URL column */
+.sf-broken-url {
+	max-width: 400px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Audit log details column */
+.sf-audit-details {
+	max-width: 400px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 12px;
+	color: #646970;
+}

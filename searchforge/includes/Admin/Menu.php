@@ -59,6 +59,15 @@ class Menu {
 
 		add_submenu_page(
 			'searchforge',
+			__( 'Monitoring', 'searchforge' ),
+			__( 'Monitoring', 'searchforge' ),
+			'manage_options',
+			'searchforge-monitoring',
+			[ $this, 'render_monitoring' ]
+		);
+
+		add_submenu_page(
+			'searchforge',
 			__( 'Export', 'searchforge' ),
 			__( 'Export', 'searchforge' ),
 			'manage_options',
@@ -90,6 +99,10 @@ class Menu {
 
 	public function render_analysis(): void {
 		include SEARCHFORGE_PATH . 'templates/analysis.php';
+	}
+
+	public function render_monitoring(): void {
+		include SEARCHFORGE_PATH . 'templates/monitoring.php';
 	}
 
 	public function render_export(): void {
