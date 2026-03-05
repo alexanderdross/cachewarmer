@@ -241,6 +241,43 @@
 		});
 	});
 
+	// API key management.
+	$(document).on('click', '#sf-generate-api-key, #sf-regenerate-api-key', function () {
+		var $btn = $(this);
+		var isRegen = $btn.attr('id') === 'sf-regenerate-api-key';
+		if (isRegen && !confirm('This will invalidate the existing API key. Continue?')) {
+			return;
+		}
+		$btn.prop('disabled', true);
+
+		$.post(searchforge.ajax_url, {
+			action: 'searchforge_generate_api_key',
+			nonce: searchforge.nonce
+		}, function (response) {
+			if (response.success) {
+				$('#sf-api-key-value').text(response.data.key);
+				$('#sf-api-key-display').show();
+			} else {
+				alert(response.data && response.data.message || 'Failed to generate key.');
+			}
+			$btn.prop('disabled', false);
+		});
+	});
+
+	$(document).on('click', '#sf-revoke-api-key', function () {
+		if (!confirm('Revoke the API key? External tools will lose access.')) {
+			return;
+		}
+		$.post(searchforge.ajax_url, {
+			action: 'searchforge_revoke_api_key',
+			nonce: searchforge.nonce
+		}, function (response) {
+			if (response.success) {
+				location.reload();
+			}
+		});
+	});
+
 	// Close modal on outside click.
 	$(document).on('click', '#sf-export-modal', function (e) {
 		if (e.target === this) {

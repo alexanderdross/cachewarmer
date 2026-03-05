@@ -488,6 +488,50 @@ if ( isset( $_GET['gsc_connected'] ) ) : ?>
 			</tr>
 		</table>
 
+		<!-- REST API Access (Pro) -->
+		<h2><?php esc_html_e( 'REST API Access', 'searchforge' ); ?>
+			<?php if ( ! SearchForge\Admin\Settings::is_pro() ) : ?>
+				<span class="sf-pro-badge">Pro</span>
+			<?php endif; ?>
+		</h2>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'API Key', 'searchforge' ); ?></th>
+				<td>
+					<?php if ( SearchForge\Api\ApiKeyAuth::has_key() ) : ?>
+						<span class="sf-status sf-status-connected">
+							<?php esc_html_e( 'Active', 'searchforge' ); ?>
+						</span>
+						<button type="button" class="button" id="sf-regenerate-api-key"
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?>>
+							<?php esc_html_e( 'Regenerate', 'searchforge' ); ?>
+						</button>
+						<button type="button" class="button" id="sf-revoke-api-key"
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?>>
+							<?php esc_html_e( 'Revoke', 'searchforge' ); ?>
+						</button>
+					<?php else : ?>
+						<button type="button" class="button button-primary" id="sf-generate-api-key"
+							<?php disabled( ! SearchForge\Admin\Settings::is_pro() ); ?>>
+							<?php esc_html_e( 'Generate API Key', 'searchforge' ); ?>
+						</button>
+					<?php endif; ?>
+					<p class="description">
+						<?php esc_html_e( 'Use this key to access the SearchForge REST API from external tools.', 'searchforge' ); ?>
+					</p>
+					<p class="description">
+						<?php echo esc_html( sprintf( __( 'Base URL: %s', 'searchforge' ), rest_url( 'searchforge/v1/' ) ) ); ?>
+					</p>
+					<div id="sf-api-key-display" style="display:none;">
+						<p class="description" style="color:#d63638;">
+							<?php esc_html_e( 'Copy this key now — it will not be shown again:', 'searchforge' ); ?>
+						</p>
+						<code id="sf-api-key-value" style="font-size:14px;padding:4px 8px;"></code>
+					</div>
+				</td>
+			</tr>
+		</table>
+
 		<!-- License -->
 		<h2><?php esc_html_e( 'License', 'searchforge' ); ?></h2>
 		<table class="form-table">

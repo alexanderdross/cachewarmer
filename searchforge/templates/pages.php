@@ -1,16 +1,27 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-$pages    = SearchForge\Admin\Dashboard::get_top_pages( 100 );
+$per_page = 50;
+$paged    = max( 1, absint( $_GET['paged'] ?? 1 ) );
+$search   = sanitize_text_field( $_GET['s'] ?? '' );
+$offset   = ( $paged - 1 ) * $per_page;
+
+$pages    = SearchForge\Admin\Dashboard::get_top_pages( $per_page, '', $offset, $search );
+$total    = SearchForge\Admin\Dashboard::count_pages( $search );
 $settings = SearchForge\Admin\Settings::get_all();
 $is_pro   = SearchForge\Admin\Settings::is_pro();
 $limit    = SearchForge\Admin\Settings::get_page_limit();
+
+$total_pages = ceil( $total / $per_page );
+$base_url    = admin_url( 'admin.php?page=searchforge-pages' );
 ?>
 
 <div class="wrap searchforge-wrap">
-	<h1><?php esc_html_e( 'SearchForge — Pages', 'searchforge' ); ?></h1>
+	<h1><?php esc_html_e( 'SearchForge — Pages', 'searchforge' ); ?>
+		<span class="title-count">(<?php echo esc_html( number_format( $total ) ); ?>)</span>
+	</h1>
 
-	<?php if ( $limit > 0 && count( $pages ) >= $limit ) : ?>
+	<?php if ( $limit > 0 && $total >= $limit ) : ?>
 		<div class="notice notice-info">
 			<p>
 				<?php echo esc_html( sprintf(
@@ -20,6 +31,25 @@ $limit    = SearchForge\Admin\Settings::get_page_limit();
 			</p>
 		</div>
 	<?php endif; ?>
+
+	<!-- Search -->
+	<form method="get" class="sf-search-form">
+		<input type="hidden" name="page" value="searchforge-pages" />
+		<p class="search-box">
+			<label class="screen-reader-text" for="sf-search-input">
+				<?php esc_html_e( 'Search pages:', 'searchforge' ); ?>
+			</label>
+			<input type="search" id="sf-search-input" name="s"
+				value="<?php echo esc_attr( $search ); ?>"
+				placeholder="<?php esc_attr_e( 'Search pages...', 'searchforge' ); ?>" />
+			<input type="submit" class="button" value="<?php esc_attr_e( 'Search', 'searchforge' ); ?>" />
+			<?php if ( $search ) : ?>
+				<a href="<?php echo esc_url( $base_url ); ?>" class="button">
+					<?php esc_html_e( 'Clear', 'searchforge' ); ?>
+				</a>
+			<?php endif; ?>
+		</p>
+	</form>
 
 	<?php if ( empty( $pages ) ) : ?>
 		<p><?php esc_html_e( 'No page data available. Run a GSC sync first.', 'searchforge' ); ?></p>
@@ -65,5 +95,35 @@ $limit    = SearchForge\Admin\Settings::get_page_limit();
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+
+		<!-- Pagination -->
+		<?php if ( $total_pages > 1 ) : ?>
+			<div class="tablenav bottom">
+				<div class="tablenav-pages">
+					<span class="displaying-num">
+						<?php echo esc_html( sprintf(
+							/* translators: %s: total items */
+							__( '%s items', 'searchforge' ),
+							number_format( $total )
+						) ); ?>
+					</span>
+					<span class="pagination-links">
+						<?php if ( $paged > 1 ) : ?>
+							<a class="prev-page button" href="<?php echo esc_url( add_query_arg( [ 'paged' => $paged - 1, 's' => $search ], $base_url ) ); ?>">
+								&lsaquo;
+							</a>
+						<?php endif; ?>
+						<span class="paging-input">
+							<?php echo esc_html( $paged ); ?> / <?php echo esc_html( $total_pages ); ?>
+						</span>
+						<?php if ( $paged < $total_pages ) : ?>
+							<a class="next-page button" href="<?php echo esc_url( add_query_arg( [ 'paged' => $paged + 1, 's' => $search ], $base_url ) ); ?>">
+								&rsaquo;
+							</a>
+						<?php endif; ?>
+					</span>
+				</div>
+			</div>
+		<?php endif; ?>
 	<?php endif; ?>
 </div>
