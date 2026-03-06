@@ -211,7 +211,7 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: var(--space-xl);
-	align-items: start;
+	align-items: stretch;
 }
 .sf-pricing-card {
 	position: relative;
@@ -220,6 +220,8 @@
 	background: var(--sf-bg-card);
 	border: 1px solid var(--sf-border);
 	text-align: center;
+	display: flex;
+	flex-direction: column;
 }
 .sf-pricing-card--popular {
 	border-color: var(--sf-primary);
@@ -266,6 +268,7 @@
 	list-style: none;
 	text-align: left;
 	margin-bottom: var(--space-xl);
+	flex: 1;
 }
 .sf-pricing-card__features li {
 	padding: var(--space-sm) 0;
