@@ -74,7 +74,7 @@ $products = $wpdb->get_results( "SELECT * FROM {$prefix}stripe_product_map ORDER
     </h1>
 
     <p class="description">
-        <?php esc_html_e( 'Verknüpft Stripe-Produkte mit CacheWarmer-Lizenz-Tiers. Wird bei checkout.session.completed verwendet.', 'sflm' ); ?>
+        <?php esc_html_e( 'Verknüpft Stripe-Produkte mit SearchForge-Lizenz-Tiers. Wird bei checkout.session.completed verwendet.', 'sflm' ); ?>
     </p>
 
     <!-- Neues Mapping Formular -->

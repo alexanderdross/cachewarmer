@@ -31,8 +31,8 @@ class SFLM_Admin {
      */
     public function add_menu_pages(): void {
         add_menu_page(
-            __( 'CacheWarmer LM', 'sflm' ),
-            __( 'CacheWarmer LM', 'sflm' ),
+            __( 'SearchForge LM', 'sflm' ),
+            __( 'SearchForge LM', 'sflm' ),
             'manage_options',
             'sflm-dashboard',
             [ $this, 'render_dashboard' ],

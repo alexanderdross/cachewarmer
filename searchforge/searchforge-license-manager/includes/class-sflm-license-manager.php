@@ -32,14 +32,14 @@ class SFLM_License_Manager {
         $prefix = $tier_map[ $tier ] ?? 'FREE';
         $key    = strtoupper( bin2hex( random_bytes( 8 ) ) );
 
-        return "CW-{$prefix}-{$key}";
+        return "SF-{$prefix}-{$key}";
     }
 
     /**
      * Lizenzschlüssel validieren (Format).
      */
     public static function validate_key_format( string $key ): bool {
-        return (bool) preg_match( '/^CW-(FREE|PRO|ENT|DEV)-[A-F0-9]{16}$/', $key );
+        return (bool) preg_match( '/^SF-(FREE|PRO|ENT|DEV)-[A-F0-9]{16}$/', $key );
     }
 
     /**

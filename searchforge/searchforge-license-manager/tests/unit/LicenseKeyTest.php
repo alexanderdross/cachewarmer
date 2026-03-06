@@ -18,7 +18,7 @@ class LicenseKeyTest extends TestCase {
         $this->assertTrue( SFLM_License_Manager::validate_key_format( 'SF-FREE-A1B2C3D4E5F60708' ) );
         $this->assertTrue( SFLM_License_Manager::validate_key_format( 'SF-PRO-1234567890ABCDEF' ) );
         $this->assertTrue( SFLM_License_Manager::validate_key_format( 'SF-ENT-ABCDEF1234567890' ) );
-        $this->assertTrue( SFLM_License_Manager::validate_key_format( 'CW-DEV-0000000000000000' ) );
+        $this->assertTrue( SFLM_License_Manager::validate_key_format( 'SF-DEV-0000000000000000' ) );
         $this->assertTrue( SFLM_License_Manager::validate_key_format( 'SF-FREE-FFFFFFFFFFFFFFFF' ) );
     }
 
@@ -37,7 +37,7 @@ class LicenseKeyTest extends TestCase {
         // Lowercase nicht erlaubt
         $this->assertFalse( SFLM_License_Manager::validate_key_format( 'SF-PRO-a1b2c3d4e5f6g7h8' ) );
         // Unbekannter Tier
-        $this->assertFalse( SFLM_License_Manager::validate_key_format( 'CW-GOLD-A1B2C3D4E5F6G7H8' ) );
+        $this->assertFalse( SFLM_License_Manager::validate_key_format( 'SF-GOLD-A1B2C3D4E5F6G7H8' ) );
         // Leer
         $this->assertFalse( SFLM_License_Manager::validate_key_format( '' ) );
         // Kein Prefix

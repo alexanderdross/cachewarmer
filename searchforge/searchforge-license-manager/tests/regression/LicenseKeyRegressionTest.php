@@ -20,7 +20,7 @@ class LicenseKeyRegressionTest extends TestCase {
             'SF-FREE-A1B2C3D4E5F60708',
             'SF-PRO-1234567890ABCDEF',
             'SF-ENT-ABCDEF1234567890',
-            'CW-DEV-0000000000000000',
+            'SF-DEV-0000000000000000',
         ];
 
         foreach ( $valid_keys as $key ) {

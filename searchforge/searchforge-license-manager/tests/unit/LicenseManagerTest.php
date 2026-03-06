@@ -27,7 +27,7 @@ class LicenseManagerTest extends TestCase {
         foreach ( $tiers as $tier => $expected_prefix ) {
             $key = $manager->generate_license_key( $tier );
             $this->assertMatchesRegularExpression(
-                "/^CW-{$expected_prefix}-[A-F0-9]{16}$/",
+                "/^SF-{$expected_prefix}-[A-F0-9]{16}$/",
                 $key,
                 "Key für Tier '$tier' hat falsches Format: $key"
             );

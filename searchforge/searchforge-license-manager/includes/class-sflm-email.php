@@ -15,7 +15,7 @@ class SFLM_Email {
      * Lizenzschlüssel per E-Mail senden.
      */
     public function send_license_created( string $email, string $license_key, string $tier, string $plan ): bool {
-        $subject = 'Ihr CacheWarmer Lizenzschlüssel';
+        $subject = 'Ihr SearchForge Lizenzschlüssel';
 
         $template = SFLM_PLUGIN_DIR . 'email-templates/license-created.php';
         if ( ! file_exists( $template ) ) {
@@ -33,7 +33,7 @@ class SFLM_Email {
      * Ablauf-Warnung senden.
      */
     public function send_expiry_warning( string $email, string $license_key, string $expires_at ): bool {
-        $subject = 'CacheWarmer: Ihre Lizenz läuft bald ab';
+        $subject = 'SearchForge: Ihre Lizenz läuft bald ab';
 
         $template = SFLM_PLUGIN_DIR . 'email-templates/license-expiring.php';
         if ( ! file_exists( $template ) ) {

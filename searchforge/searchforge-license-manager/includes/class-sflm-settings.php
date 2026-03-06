@@ -316,7 +316,7 @@ class SFLM_Settings {
         return [
             'security' => [
                 'title'       => __( 'Sicherheit & Authentifizierung', 'sflm' ),
-                'description' => __( 'JWT-Tokens sichern die Kommunikation zwischen CacheWarmer-Installationen und diesem Dashboard. Jede Installation erhält bei der Aktivierung ein signiertes Token, das bei jedem Heartbeat validiert wird. CORS-Einstellungen kontrollieren, welche Domains API-Anfragen stellen dürfen.', 'sflm' ),
+                'description' => __( 'JWT-Tokens sichern die Kommunikation zwischen SearchForge-Installationen und diesem Dashboard. Jede Installation erhält bei der Aktivierung ein signiertes Token, das bei jedem Heartbeat validiert wird. CORS-Einstellungen kontrollieren, welche Domains API-Anfragen stellen dürfen.', 'sflm' ),
                 'icon'        => 'dashicons-shield',
             ],
             'stripe' => [
