@@ -52,9 +52,11 @@ $faqs = [
 		</div>
 
 		<div class="sf-faq" role="list">
-			<?php foreach ( $faqs as $i => $faq ) : ?>
-				<div class="sf-faq__item" role="listitem">
-					<button class="sf-faq__question" aria-expanded="false" aria-controls="faq-answer-<?php echo esc_attr( $i ); ?>">
+			<?php foreach ( $faqs as $i => $faq ) :
+				$slug = sanitize_title( $faq['q'] );
+			?>
+				<div class="sf-faq__item" id="<?php echo esc_attr( $slug ); ?>" role="listitem">
+					<button class="sf-faq__question" aria-expanded="false" aria-controls="faq-answer-<?php echo esc_attr( $i ); ?>" title="<?php echo esc_attr( $faq['q'] ); ?>">
 						<span><?php echo esc_html( $faq['q'] ); ?></span>
 						<span class="sf-faq__chevron" aria-hidden="true"></span>
 					</button>
@@ -66,3 +68,28 @@ $faqs = [
 		</div>
 	</div>
 </section>
+
+<script type="application/ld+json">
+<?php
+echo wp_json_encode(
+	[
+		'@context'   => 'https://schema.org',
+		'@type'      => 'FAQPage',
+		'mainEntity' => array_map(
+			function ( $faq ) {
+				return [
+					'@type' => 'Question',
+					'name'  => $faq['q'],
+					'acceptedAnswer' => [
+						'@type' => 'Answer',
+						'text'  => $faq['a'],
+					],
+				];
+			},
+			$faqs
+		),
+	],
+	JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+);
+?>
+</script>

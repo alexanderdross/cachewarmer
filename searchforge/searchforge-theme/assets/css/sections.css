@@ -423,6 +423,43 @@
 .sf-content ol { padding-left: var(--space-xl); margin-bottom: var(--space-md); }
 .sf-content li { margin-bottom: var(--space-sm); }
 
+/* ─── Doc sections ─── */
+
+.sf-doc-section {
+	scroll-margin-top: 80px;
+}
+.sf-doc-section h2 {
+	font-size: 1.5rem;
+	margin-bottom: var(--space-md);
+}
+.sf-doc-section h3 {
+	font-size: 1.125rem;
+	margin-top: var(--space-lg);
+	margin-bottom: var(--space-sm);
+	color: var(--sf-text);
+}
+.sf-doc-section p {
+	color: var(--sf-text-muted);
+	line-height: 1.7;
+	margin-bottom: var(--space-md);
+}
+.sf-doc-section ul,
+.sf-doc-section ol {
+	padding-left: var(--space-xl);
+	margin-bottom: var(--space-md);
+}
+.sf-doc-section li {
+	margin-bottom: var(--space-sm);
+	line-height: 1.7;
+	color: var(--sf-text-muted);
+}
+.sf-doc-section code {
+	background: var(--sf-bg-light);
+	padding: 0.15em 0.4em;
+	border-radius: var(--radius-sm);
+	font-size: 0.875em;
+}
+
 /* ─── Footer ─── */
 
 /* ─── Changelog ─── */
@@ -538,6 +575,13 @@
 	align-items: center;
 	font-size: 0.8125rem;
 	color: var(--sf-text-inverse-muted);
+}
+.sf-footer__bottom-inner a {
+	color: var(--sf-text-inverse-muted);
+	transition: color var(--transition-fast);
+}
+.sf-footer__bottom-inner a:hover {
+	color: var(--sf-text-inverse);
 }
 .sf-footer__legal {
 	display: flex;
