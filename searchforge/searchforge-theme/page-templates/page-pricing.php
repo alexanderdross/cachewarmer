@@ -113,7 +113,7 @@ get_header();
 <?php get_template_part( 'template-parts/cachewarmer-bundle' ); ?>
 
 <!-- FAQ -->
-<section class="sf-section">
+<section class="sf-section" id="faq">
 	<div class="sf-container sf-container--narrow">
 		<div class="sf-section__header">
 			<h2>Pricing FAQ</h2>
@@ -130,9 +130,11 @@ get_header();
 				[ 'q' => 'Is there a development/staging license?',       'a' => 'Yes. Development licenses are free and include Enterprise features, restricted to localhost, *.local, *.dev, and *.test domains.' ],
 				[ 'q' => 'Do you offer discounts for non-profits?',       'a' => 'Yes. Contact us at support@drossmedia.de with proof of non-profit status for a 50% discount on any tier.' ],
 			];
-			foreach ( $pricing_faqs as $i => $faq ) : ?>
-				<div class="sf-faq__item" role="listitem">
-					<button class="sf-faq__question" aria-expanded="false" aria-controls="pricing-faq-<?php echo esc_attr( $i ); ?>">
+			foreach ( $pricing_faqs as $i => $faq ) :
+				$slug = sanitize_title( $faq['q'] );
+			?>
+				<div class="sf-faq__item" id="<?php echo esc_attr( $slug ); ?>" role="listitem">
+					<button class="sf-faq__question" aria-expanded="false" aria-controls="pricing-faq-<?php echo esc_attr( $i ); ?>" title="<?php echo esc_attr( $faq['q'] ); ?>">
 						<span><?php echo esc_html( $faq['q'] ); ?></span>
 						<span class="sf-faq__chevron" aria-hidden="true"></span>
 					</button>
@@ -144,6 +146,31 @@ get_header();
 		</div>
 	</div>
 </section>
+
+<script type="application/ld+json">
+<?php
+echo wp_json_encode(
+	[
+		'@context'   => 'https://schema.org',
+		'@type'      => 'FAQPage',
+		'mainEntity' => array_map(
+			function ( $faq ) {
+				return [
+					'@type' => 'Question',
+					'name'  => $faq['q'],
+					'acceptedAnswer' => [
+						'@type' => 'Answer',
+						'text'  => $faq['a'],
+					],
+				];
+			},
+			$pricing_faqs
+		),
+	],
+	JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+);
+?>
+</script>
 
 <?php
 get_footer();
