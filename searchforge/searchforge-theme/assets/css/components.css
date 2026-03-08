@@ -231,7 +231,7 @@
 	gap: var(--space-xs);
 }
 .sf-breadcrumb__item + .sf-breadcrumb__item::before {
-	content: '\203A';
+	content: '/';
 	color: var(--sf-text-inverse-muted);
 	font-size: 1rem;
 	line-height: 1;
