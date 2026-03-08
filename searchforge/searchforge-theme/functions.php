@@ -117,11 +117,13 @@ function sf_get_breadcrumbs(): array {
 		[
 			'label'    => 'Dross:Media',
 			'url'      => 'https://dross.net/media/',
+			'title'    => 'Dross:Media — WordPress Plugins &amp; Web Development Agency',
 			'external' => true,
 		],
 		[
 			'label' => 'SearchForge',
 			'url'   => home_url( '/' ),
+			'title' => 'SearchForge — LLM-Ready SEO Data Plugin for WordPress',
 		],
 	];
 
@@ -154,9 +156,11 @@ function sf_get_breadcrumbs(): array {
 function sf_doc_sidebar( array $sections ): void {
 	echo '<aside class="sf-doc-sidebar"><p class="sf-doc-sidebar__title">On this page</p><ul class="sf-doc-nav">';
 	foreach ( $sections as $section ) {
+		$title = ! empty( $section['title'] ) ? $section['title'] : 'Jump to ' . $section['label'] . ' section';
 		printf(
-			'<li><a class="sf-doc-nav__link" href="#%s">%s</a></li>',
+			'<li><a class="sf-doc-nav__link" href="#%s" title="%s">%s</a></li>',
 			esc_attr( $section['id'] ),
+			esc_attr( $title ),
 			esc_html( $section['label'] )
 		);
 	}

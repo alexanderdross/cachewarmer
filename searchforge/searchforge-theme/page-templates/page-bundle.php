@@ -15,8 +15,8 @@ get_header();
 			SEO intelligence meets cache warming. Two plugins, one price, 15% off.
 		</p>
 		<div class="sf-hero__actions" style="justify-content: center; margin-top: var(--space-xl);">
-			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg">Get the Bundle &euro;169/yr</a>
-			<a href="#how-it-works" class="sf-btn sf-btn--outline sf-btn--lg">How It Works</a>
+			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg" title="Buy SearchForge + CacheWarmer Bundle — €169/yr, Save 15%">Get the Bundle &euro;169/yr</a>
+			<a href="#how-it-works" class="sf-btn sf-btn--outline sf-btn--lg" title="Learn How SearchForge and CacheWarmer Work Together">How It Works</a>
 		</div>
 	</div>
 </section>
@@ -109,7 +109,7 @@ get_header();
 				</table>
 			</div>
 
-			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg sf-btn--block">Get the Bundle &euro;169/yr</a>
+			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg sf-btn--block" title="Buy SearchForge + CacheWarmer Bundle — €169/yr, Save 15%">Get the Bundle &euro;169/yr</a>
 			<p class="sf-text--muted" style="margin-top: var(--space-md); font-size: 0.875rem;">
 				30-day money-back guarantee. Cancel anytime.
 			</p>
@@ -205,8 +205,8 @@ echo wp_json_encode(
 		<h2>Ready to Optimize Your Entire Workflow?</h2>
 		<p class="sf-text--inverse-muted">SEO intelligence + cache warming. Start with a 14-day free trial of both plugins.</p>
 		<div class="sf-hero__actions" style="justify-content: center; margin-top: var(--space-xl);">
-			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg">Start Free Trial</a>
-			<a href="https://dross.net/contact/?topic=searchforge-bundle" class="sf-btn sf-btn--outline sf-btn--lg" target="_blank" rel="noopener">Questions? Contact Us</a>
+			<a href="/checkout/?tier=bundle" class="sf-btn sf-btn--primary sf-btn--lg" title="Start 14-Day Free Trial of SearchForge + CacheWarmer Bundle">Start Free Trial</a>
+			<a href="https://dross.net/contact/?topic=searchforge-bundle" class="sf-btn sf-btn--outline sf-btn--lg" target="_blank" rel="noopener" title="Contact Dross:Media — Questions About the SearchForge Bundle">Questions? Contact Us</a>
 		</div>
 	</div>
 </section>

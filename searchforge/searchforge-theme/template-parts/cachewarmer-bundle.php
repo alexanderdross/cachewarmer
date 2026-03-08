@@ -25,6 +25,6 @@
 			</p>
 		</div>
 
-		<a href="/bundle/" class="sf-btn sf-btn--accent sf-btn--lg">Get the Bundle</a>
+		<a href="/bundle/" class="sf-btn sf-btn--accent sf-btn--lg" title="SearchForge Pro + CacheWarmer Premium Bundle — Save 15%">Get the Bundle</a>
 	</div>
 </section>

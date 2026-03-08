@@ -16,8 +16,8 @@
 				<p>Connects <strong>Google Search Console</strong>, <strong>Bing Webmaster Tools</strong>, <strong>Google Business Profile</strong>, <strong>Bing Places</strong>, <strong>Google Keyword Planner</strong>, <strong>GA4</strong> &amp; <strong>Google Trends</strong> &mdash; continuously collects your SEO data over time and turns it into structured markdown briefs that LLMs can use to (re)design, optimize, and evolve your website in any modern framework. Directly in WordPress.</p>
 			</div>
 			<div class="sf-hero__actions">
-				<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--lg">Get Started Free</a>
-				<a href="#pricing" class="sf-btn sf-btn--outline sf-btn--lg">View Pricing</a>
+				<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--lg" title="Start Using SearchForge for Free — No Credit Card Required">Get Started Free</a>
+				<a href="/pricing/" class="sf-btn sf-btn--outline sf-btn--lg" title="Compare SearchForge Plans — Free, Pro, Agency &amp; Enterprise">View Pricing</a>
 			</div>
 		</div>
 
@@ -27,21 +27,21 @@
 					<span class="sf-code-block__dot sf-code-block__dot--red"></span>
 					<span class="sf-code-block__dot sf-code-block__dot--yellow"></span>
 					<span class="sf-code-block__dot sf-code-block__dot--green"></span>
-					<span class="sf-code-block__filename">brief-germany.md</span>
+					<span class="sf-code-block__filename">brief-running-shoes.md</span>
 				</div>
-				<pre class="sf-code-block__content"><code># AI Content Brief: /germany/
-**SearchForge Score:** 72/100
-**Clicks (28d):** 1,247 ↑ +18%
-**Top Query:** "aip germany" (Pos 3.2)
+				<pre class="sf-code-block__content"><code># AI Content Brief: /running-shoes/
+**SearchForge Score:** 78/100
+**Clicks (28d):** 3,412 ↑ +22%
+**Top Query:** "best running shoes" (Pos 4.1)
 **AI Citation:** Google AI ✓  ChatGPT ✓
-**Action:** Expand FAQ section for AEO
+**Action:** Add comparison table for AEO
 
-## Keyword Cluster: "germany aviation"
-| Query           | Google | Bing | Volume |
-|-----------------|--------|------|--------|
-| aip germany     | 3.2    | 2.8  | 720    |
-| german aip pdf  | 5.1    | 4.3  | 390    |
-| icao germany    | 8.4    | 6.1  | 260    |</code></pre>
+## Keyword Cluster: "running shoes"
+| Query               | Google | Bing | Volume |
+|---------------------|--------|------|--------|
+| best running shoes  | 4.1    | 3.5  | 12,100 |
+| running shoes 2026  | 6.3    | 5.8  | 8,400  |
+| trail running shoes | 9.2    | 7.4  | 5,200  |</code></pre>
 			</div>
 		</div>
 	</div>

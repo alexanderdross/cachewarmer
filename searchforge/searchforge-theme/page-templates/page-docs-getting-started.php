@@ -8,11 +8,11 @@
 get_header();
 
 $sections = [
-	[ 'id' => 'installation',                    'label' => 'Installation' ],
-	[ 'id' => 'license-activation',              'label' => 'License Activation' ],
-	[ 'id' => 'connecting-google-search-console', 'label' => 'Connecting Google Search Console' ],
-	[ 'id' => 'your-first-data-sync',            'label' => 'Your First Data Sync' ],
-	[ 'id' => 'exporting-your-first-brief',      'label' => 'Exporting Your First Brief' ],
+	[ 'id' => 'installation',                    'label' => 'Installation',                      'title' => 'SearchForge Installation — WordPress Plugin Setup' ],
+	[ 'id' => 'license-activation',              'label' => 'License Activation',                'title' => 'Activate Your SearchForge License Key' ],
+	[ 'id' => 'connecting-google-search-console', 'label' => 'Connecting Google Search Console', 'title' => 'Connect Google Search Console to SearchForge via OAuth' ],
+	[ 'id' => 'your-first-data-sync',            'label' => 'Your First Data Sync',              'title' => 'Sync SEO Data from Google Search Console' ],
+	[ 'id' => 'exporting-your-first-brief',      'label' => 'Exporting Your First Brief',        'title' => 'Export Your First LLM-Ready Markdown Brief' ],
 ];
 ?>
 
@@ -108,7 +108,7 @@ $sections = [
 <section class="sf-section sf-section--light" style="text-align: center;">
 	<div class="sf-container sf-container--narrow">
 		<p class="sf-text--muted">
-			<a href="/docs/">&larr; Back to Documentation</a>
+			<a href="/docs/" title="SearchForge Documentation — All Guides &amp; References">&larr; Back to Documentation</a>
 		</p>
 	</div>
 </section>

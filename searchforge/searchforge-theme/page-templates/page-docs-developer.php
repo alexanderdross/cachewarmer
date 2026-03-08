@@ -8,11 +8,11 @@
 get_header();
 
 $sections = [
-	[ 'id' => 'rest-api-reference',     'label' => 'REST API Reference' ],
-	[ 'id' => 'wp-cli-commands',         'label' => 'WP-CLI Commands' ],
-	[ 'id' => 'actions-filters',         'label' => 'Actions & Filters' ],
-	[ 'id' => 'api-key-authentication', 'label' => 'API Key Authentication' ],
-	[ 'id' => 'webhook-events',          'label' => 'Webhook Events' ],
+	[ 'id' => 'rest-api-reference',     'label' => 'REST API Reference',     'title' => 'SearchForge REST API — Endpoints, Access Levels &amp; Examples' ],
+	[ 'id' => 'wp-cli-commands',         'label' => 'WP-CLI Commands',       'title' => 'WP-CLI Commands — Terminal Access to SearchForge Data' ],
+	[ 'id' => 'actions-filters',         'label' => 'Actions & Filters',     'title' => 'WordPress Hooks — Actions &amp; Filters for Extending SearchForge' ],
+	[ 'id' => 'api-key-authentication', 'label' => 'API Key Authentication', 'title' => 'API Key Auth — Static Key Authentication for REST API' ],
+	[ 'id' => 'webhook-events',          'label' => 'Webhook Events',        'title' => 'Webhook Events — HTTP Callbacks for CI/CD &amp; Automation' ],
 ];
 ?>
 
@@ -133,7 +133,7 @@ $sections = [
 <section class="sf-section sf-section--light" style="text-align: center;">
 	<div class="sf-container sf-container--narrow">
 		<p class="sf-text--muted">
-			<a href="/docs/">&larr; Back to Documentation</a>
+			<a href="/docs/" title="SearchForge Documentation — All Guides &amp; References">&larr; Back to Documentation</a>
 		</p>
 	</div>
 </section>

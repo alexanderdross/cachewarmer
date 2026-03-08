@@ -8,13 +8,13 @@
 get_header();
 
 $sections = [
-	[ 'id' => 'searchforge-score',        'label' => 'SearchForge Score' ],
-	[ 'id' => 'ai-visibility-monitor',    'label' => 'AI Visibility Monitor' ],
-	[ 'id' => 'competitor-intelligence',   'label' => 'Competitor Intelligence' ],
-	[ 'id' => 'ai-content-briefs',         'label' => 'AI Content Briefs' ],
-	[ 'id' => 'keyword-clustering',        'label' => 'Keyword Clustering' ],
-	[ 'id' => 'cannibalization-detection', 'label' => 'Cannibalization Detection' ],
-	[ 'id' => 'alerts-monitoring',         'label' => 'Alerts & Monitoring' ],
+	[ 'id' => 'searchforge-score',        'label' => 'SearchForge Score',        'title' => 'SearchForge Score — Proprietary 0–100 SEO Health Metric' ],
+	[ 'id' => 'ai-visibility-monitor',    'label' => 'AI Visibility Monitor',    'title' => 'AI Visibility Monitor — Track Citations in ChatGPT &amp; Google AI' ],
+	[ 'id' => 'competitor-intelligence',   'label' => 'Competitor Intelligence', 'title' => 'Competitor SERP Intelligence — Rankings &amp; Content Gaps' ],
+	[ 'id' => 'ai-content-briefs',         'label' => 'AI Content Briefs',       'title' => 'AI Content Briefs — LLM-Generated SEO Recommendations' ],
+	[ 'id' => 'keyword-clustering',        'label' => 'Keyword Clustering',      'title' => 'Keyword Clustering — Automatic Topic Grouping' ],
+	[ 'id' => 'cannibalization-detection', 'label' => 'Cannibalization Detection','title' => 'Keyword Cannibalization — Detect Competing Pages' ],
+	[ 'id' => 'alerts-monitoring',         'label' => 'Alerts & Monitoring',     'title' => 'SEO Alerts — Ranking Drops, Content Decay &amp; More' ],
 ];
 ?>
 
@@ -150,7 +150,7 @@ $sections = [
 <section class="sf-section sf-section--light" style="text-align: center;">
 	<div class="sf-container sf-container--narrow">
 		<p class="sf-text--muted">
-			<a href="/docs/">&larr; Back to Documentation</a>
+			<a href="/docs/" title="SearchForge Documentation — All Guides &amp; References">&larr; Back to Documentation</a>
 		</p>
 	</div>
 </section>

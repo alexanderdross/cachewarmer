@@ -97,13 +97,13 @@ get_header();
 				<h3>Lifetime Pro</h3>
 				<p style="font-size: 2.5rem; font-family: 'Outfit', sans-serif; font-weight: 700; margin: var(--space-md) 0;">&euro;249</p>
 				<p class="sf-text--muted">One-time payment. All Pro features forever for 1 site.</p>
-				<a href="/checkout/?tier=lifetime-pro" class="sf-btn sf-btn--primary" style="margin-top: var(--space-md);">Get Lifetime Pro</a>
+				<a href="/checkout/?tier=lifetime-pro" class="sf-btn sf-btn--primary" style="margin-top: var(--space-md);" title="SearchForge Lifetime Pro — One-Time Payment of €249">Get Lifetime Pro</a>
 			</div>
 			<div class="sf-card sf-card--bordered" style="text-align: center;">
 				<h3>Lifetime Agency</h3>
 				<p style="font-size: 2.5rem; font-family: 'Outfit', sans-serif; font-weight: 700; margin: var(--space-md) 0;">&euro;599</p>
 				<p class="sf-text--muted">One-time payment. All Agency features forever for 10 sites.</p>
-				<a href="/checkout/?tier=lifetime-agency" class="sf-btn sf-btn--primary" style="margin-top: var(--space-md);">Get Lifetime Agency</a>
+				<a href="/checkout/?tier=lifetime-agency" class="sf-btn sf-btn--primary" style="margin-top: var(--space-md);" title="SearchForge Lifetime Agency — One-Time Payment of €599 for 10 Sites">Get Lifetime Agency</a>
 			</div>
 		</div>
 	</div>

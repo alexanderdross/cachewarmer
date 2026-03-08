@@ -1,13 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Anvil body (forge) -->
-  <path d="M6 20h20v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4z" fill="#0f766e"/>
-  <path d="M4 18h24a2 2 0 0 1 0 4H4a2 2 0 0 1 0-4z" fill="#0d5f59"/>
-  <!-- Anvil horn -->
-  <path d="M8 14h12a2 2 0 0 1 2 2v2H6v-2a2 2 0 0 1 2-2z" fill="#0f766e"/>
-  <!-- Magnifying glass (search) -->
-  <circle cx="20" cy="10" r="5.5" stroke="#14b8a6" stroke-width="2.5" fill="none"/>
-  <line x1="24" y1="14" x2="28" y2="18" stroke="#14b8a6" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Spark (forge heat) -->
-  <circle cx="14" cy="8" r="1.5" fill="#f59e0b"/>
-  <circle cx="11" cy="11" r="1" fill="#f59e0b" opacity="0.7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Background -->
+  <rect width="120" height="120" rx="22" fill="url(#sf-bg)"/>
+  <defs>
+    <linearGradient id="sf-bg" x1="60" y1="0" x2="60" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1a8a7e"/>
+      <stop offset="0.5" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0a5c55"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Anvil base (wide) -->
+  <rect x="18" y="90" width="84" height="8" rx="3" fill="#f0e8dc" stroke="#2a3040" stroke-width="2.5"/>
+
+  <!-- Anvil body -->
+  <rect x="30" y="78" width="60" height="12" rx="2" fill="#f0e8dc" stroke="#2a3040" stroke-width="2.5"/>
+
+  <!-- Anvil horn (left) -->
+  <path d="M30 84 L16 80 L16 86 L30 88z" fill="#f0e8dc" stroke="#2a3040" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- Anvil working surface -->
+  <rect x="34" y="70" width="52" height="8" rx="2" fill="#f0e8dc" stroke="#2a3040" stroke-width="2.5"/>
+
+  <!-- Magnifying glass handle -->
+  <line x1="72" y1="52" x2="86" y2="66" stroke="#2a3040" stroke-width="9" stroke-linecap="round"/>
+  <line x1="72" y1="52" x2="86" y2="66" stroke="#f0e8dc" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Magnifying glass outer ring -->
+  <circle cx="56" cy="38" r="20" fill="#f0e8dc" stroke="#2a3040" stroke-width="2.5"/>
+  <!-- Glass interior -->
+  <circle cx="56" cy="38" r="15" fill="#0f766e"/>
+  <!-- Glass highlight -->
+  <path d="M46 28 a16 16 0 0 1 14,-5" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Data lines inside glass (search data) -->
+  <line x1="46" y1="32" x2="66" y2="32" stroke="#5eead4" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="46" y1="38" x2="62" y2="38" stroke="#5eead4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="46" y1="44" x2="58" y2="44" stroke="#5eead4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Sparks from forge -->
+  <circle cx="32" cy="62" r="3.5" fill="#f4a030"/>
+  <circle cx="24" cy="54" r="2.5" fill="#e8601c"/>
+  <circle cx="40" cy="56" r="2" fill="#f4a030" opacity="0.8"/>
+  <circle cx="20" cy="62" r="1.5" fill="#f4a030" opacity="0.6"/>
 </svg>

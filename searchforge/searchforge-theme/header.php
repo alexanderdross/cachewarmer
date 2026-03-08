@@ -3,7 +3,7 @@
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f766e'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='sans-serif' font-size='14' font-weight='bold'>SF</text></svg>">
+	<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( SF_THEME_URI ); ?>/assets/images/logo-mark.svg">
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
@@ -15,8 +15,8 @@
 
 <header class="sf-header" role="banner">
 	<div class="sf-container sf-header__inner">
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="sf-header__logo" aria-label="<?php esc_attr_e( 'SearchForge Home', 'searchforge-theme' ); ?>">
-			<span class="sf-header__logo-icon" aria-hidden="true">SF</span>
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="sf-header__logo" title="SearchForge — LLM-Ready SEO Data Plugin for WordPress" aria-label="<?php esc_attr_e( 'SearchForge Home', 'searchforge-theme' ); ?>">
+			<img class="sf-header__logo-icon" src="<?php echo esc_url( SF_THEME_URI ); ?>/assets/images/logo-mark.svg" alt="" width="40" height="40" aria-hidden="true">
 			<span class="sf-header__logo-text"><span class="sf-header__logo-search">Search</span>Forge</span>
 		</a>
 
@@ -33,7 +33,7 @@
 		</nav>
 
 		<div class="sf-header__actions">
-			<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--sm">Get Pro</a>
+			<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--sm" title="SearchForge Pro — Full SEO Intelligence from €99/yr">Get Pro</a>
 		</div>
 
 		<button class="sf-header__toggle" aria-expanded="false" aria-controls="sf-mobile-menu" aria-label="<?php esc_attr_e( 'Toggle navigation', 'searchforge-theme' ); ?>">
@@ -50,7 +50,7 @@
 			'depth'          => 1,
 		] );
 		?>
-		<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--block">Get Pro</a>
+		<a href="/pricing/" class="sf-btn sf-btn--primary sf-btn--block" title="SearchForge Pro — Full SEO Intelligence from €99/yr">Get Pro</a>
 	</div>
 </header>
 
@@ -64,10 +64,10 @@
  */
 function sf_default_nav(): void {
 	echo '<ul class="sf-nav-list">';
-	echo '<li><a href="#features">Features</a></li>';
-	echo '<li><a href="/pricing/">Pricing</a></li>';
-	echo '<li><a href="/docs/">Docs</a></li>';
-	echo '<li><a href="/changelog/">Changelog</a></li>';
-	echo '<li><a href="/enterprise/">Enterprise</a></li>';
+	echo '<li><a href="/features/" title="SearchForge Features — Score, AI Briefs, Clustering &amp; More">Features</a></li>';
+	echo '<li><a href="/pricing/" title="SearchForge Pricing — Free, Pro, Agency &amp; Enterprise Plans">Pricing</a></li>';
+	echo '<li><a href="/docs/" title="SearchForge Documentation — Guides, API Reference &amp; Integrations">Docs</a></li>';
+	echo '<li><a href="/changelog/" title="SearchForge Changelog — Latest Updates &amp; Release Notes">Changelog</a></li>';
+	echo '<li><a href="/enterprise/" title="SearchForge Enterprise — Unlimited Sites, Priority Support &amp; Audit Log">Enterprise</a></li>';
 	echo '</ul>';
 }

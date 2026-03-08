@@ -8,13 +8,13 @@
 get_header();
 
 $sections = [
-	[ 'id' => 'google-search-console',   'label' => 'Google Search Console' ],
-	[ 'id' => 'bing-webmaster-tools',     'label' => 'Bing Webmaster Tools' ],
-	[ 'id' => 'google-analytics-4',       'label' => 'Google Analytics 4' ],
-	[ 'id' => 'google-keyword-planner',   'label' => 'Google Keyword Planner' ],
-	[ 'id' => 'google-trends',            'label' => 'Google Trends' ],
-	[ 'id' => 'google-business-profile',  'label' => 'Google Business Profile' ],
-	[ 'id' => 'bing-places-for-business', 'label' => 'Bing Places for Business' ],
+	[ 'id' => 'google-search-console',   'label' => 'Google Search Console',    'title' => 'Google Search Console Integration — Clicks, Impressions &amp; Rankings' ],
+	[ 'id' => 'bing-webmaster-tools',     'label' => 'Bing Webmaster Tools',    'title' => 'Bing Webmaster Tools Integration — Bing-Specific Search Data' ],
+	[ 'id' => 'google-analytics-4',       'label' => 'Google Analytics 4',      'title' => 'GA4 Integration — Bounce Rate, Engagement &amp; Conversions' ],
+	[ 'id' => 'google-keyword-planner',   'label' => 'Google Keyword Planner',  'title' => 'Google Keyword Planner — Search Volume &amp; Competition Data' ],
+	[ 'id' => 'google-trends',            'label' => 'Google Trends',           'title' => 'Google Trends Integration — Seasonal Patterns &amp; Rising Queries' ],
+	[ 'id' => 'google-business-profile',  'label' => 'Google Business Profile', 'title' => 'Google Business Profile — Local SEO Discovery &amp; Actions' ],
+	[ 'id' => 'bing-places-for-business', 'label' => 'Bing Places for Business','title' => 'Bing Places Integration — Local Search Data on Bing' ],
 ];
 ?>
 
@@ -54,7 +54,7 @@ $sections = [
 			<h2>Bing Webmaster Tools</h2>
 			<p>Bing-specific search data often reveals keywords that Google doesn&rsquo;t surface. Side-by-side comparison with GSC data in your briefs.</p>
 			<h3>Setup</h3>
-			<p>Go to <strong>Data Sources &rarr; Bing Webmaster Tools</strong>. Authenticate via OAuth or paste your Bing API key from <a href="https://www.bing.com/webmasters/" rel="noopener">Bing Webmaster Tools</a>.</p>
+			<p>Go to <strong>Data Sources &rarr; Bing Webmaster Tools</strong>. Authenticate via OAuth or paste your Bing API key from <a href="https://www.bing.com/webmasters/" rel="noopener" title="Bing Webmaster Tools — Official Microsoft Search Dashboard">Bing Webmaster Tools</a>.</p>
 			<h3>Data pulled</h3>
 			<ul class="sf-content">
 				<li>Clicks, impressions, CTR, average position</li>
@@ -149,7 +149,7 @@ $sections = [
 <section class="sf-section sf-section--light" style="text-align: center;">
 	<div class="sf-container sf-container--narrow">
 		<p class="sf-text--muted">
-			<a href="/docs/">&larr; Back to Documentation</a>
+			<a href="/docs/" title="SearchForge Documentation — All Guides &amp; References">&larr; Back to Documentation</a>
 		</p>
 	</div>
 </section>

@@ -8,11 +8,11 @@
 get_header();
 
 $sections = [
-	[ 'id' => 'markdown-briefs',       'label' => 'Markdown Briefs' ],
-	[ 'id' => 'combined-master-brief', 'label' => 'Combined Master Brief' ],
-	[ 'id' => 'llms-txt-generation',   'label' => 'llms.txt Generation' ],
-	[ 'id' => 'zip-bulk-export',       'label' => 'ZIP Bulk Export' ],
-	[ 'id' => 'scheduled-exports',     'label' => 'Scheduled Exports' ],
+	[ 'id' => 'markdown-briefs',       'label' => 'Markdown Briefs',       'title' => 'Markdown Brief Export — Per-Page LLM-Ready Documents' ],
+	[ 'id' => 'combined-master-brief', 'label' => 'Combined Master Brief', 'title' => 'Combined Master Brief — All Sources in One Document' ],
+	[ 'id' => 'llms-txt-generation',   'label' => 'llms.txt Generation',   'title' => 'llms.txt Auto-Generation — AI Crawler Discoverability' ],
+	[ 'id' => 'zip-bulk-export',       'label' => 'ZIP Bulk Export',       'title' => 'ZIP Bulk Export — Download All Briefs as Archive' ],
+	[ 'id' => 'scheduled-exports',     'label' => 'Scheduled Exports',     'title' => 'Scheduled Exports — Automated Email, Cloud &amp; Git Delivery' ],
 ];
 ?>
 
@@ -114,7 +114,7 @@ $sections = [
 <section class="sf-section sf-section--light" style="text-align: center;">
 	<div class="sf-container sf-container--narrow">
 		<p class="sf-text--muted">
-			<a href="/docs/">&larr; Back to Documentation</a>
+			<a href="/docs/" title="SearchForge Documentation — All Guides &amp; References">&larr; Back to Documentation</a>
 		</p>
 	</div>
 </section>

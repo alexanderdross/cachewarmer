@@ -14,6 +14,7 @@ $tiers = [
 		'cta_text'   => 'Start Free',
 		'cta_class'  => 'sf-btn--outline',
 		'cta_url'    => 'https://wordpress.org/plugins/searchforge/',
+		'cta_title'  => 'Download SearchForge Free from WordPress.org',
 		'features'   => [
 			'Google Search Console (10 pages)',
 			'SearchForge Score (overall)',
@@ -31,6 +32,7 @@ $tiers = [
 		'cta_text'   => 'Get Pro',
 		'cta_class'  => 'sf-btn--primary',
 		'cta_url'    => '/checkout/?tier=pro',
+		'cta_title'  => 'Get SearchForge Pro — All 8 Data Sources for €99/yr',
 		'features'   => [
 			'All 8 data sources (unlimited)',
 			'Full SearchForge Score breakdown',
@@ -52,6 +54,7 @@ $tiers = [
 		'cta_text'   => 'Contact Sales',
 		'cta_class'  => 'sf-btn--outline',
 		'cta_url'    => '/enterprise/',
+		'cta_title'  => 'SearchForge Agency — 10 Sites, White-Label Reports for €249/yr',
 		'features'   => [
 			'Everything in Pro',
 			'10 sites, unlimited team members',
@@ -95,7 +98,7 @@ $tiers = [
 						<?php endforeach; ?>
 					</ul>
 
-					<a href="<?php echo esc_url( $tier['cta_url'] ); ?>" class="sf-btn <?php echo esc_attr( $tier['cta_class'] ); ?> sf-btn--block">
+					<a href="<?php echo esc_url( $tier['cta_url'] ); ?>" class="sf-btn <?php echo esc_attr( $tier['cta_class'] ); ?> sf-btn--block" title="<?php echo esc_attr( $tier['cta_title'] ?? $tier['cta_text'] ); ?>">
 						<?php echo esc_html( $tier['cta_text'] ); ?>
 					</a>
 				</div>

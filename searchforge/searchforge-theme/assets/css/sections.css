@@ -26,17 +26,10 @@
 	text-decoration: none;
 }
 .sf-header__logo-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: block;
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 0.5rem;
-	background: var(--sf-primary);
-	color: #fff;
-	font-family: var(--font-heading, 'Outfit', sans-serif);
-	font-size: 0.875rem;
-	font-weight: 700;
 	flex-shrink: 0;
 }
 .sf-header__logo-text {
