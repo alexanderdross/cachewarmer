@@ -550,7 +550,7 @@
 	margin-bottom: var(--space-sm);
 	color: var(--sf-text);
 }
-.sf-doc-section a {
+.sf-doc-content a {
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }
