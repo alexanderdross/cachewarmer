@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="url(#bg)"/>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6d8faa"/>
+      <stop offset="0.5" stop-color="#5a7d99"/>
+      <stop offset="1" stop-color="#4a6d88"/>
+    </linearGradient>
+  </defs>
+  <!-- Server rack bottom -->
+  <rect x="6" y="19.5" width="20" height="3.5" rx="1" fill="#f0e8dc" stroke="#2a3040" stroke-width="0.8"/>
+  <circle cx="9" cy="21.2" r="0.6" fill="#2a3040"/>
+  <circle cx="11" cy="21.2" r="0.6" fill="#2a3040"/>
+  <circle cx="13" cy="21.2" r="0.6" fill="#2a3040"/>
+  <circle cx="19" cy="21.2" r="0.6" fill="#2a3040"/>
+  <circle cx="21" cy="21.2" r="0.6" fill="#2a3040"/>
+  <circle cx="23" cy="21.2" r="0.6" fill="#2a3040"/>
+  <!-- Server rack top -->
+  <rect x="6" y="15" width="20" height="3.5" rx="1" fill="#f0e8dc" stroke="#2a3040" stroke-width="0.8"/>
+  <circle cx="9" cy="16.7" r="0.6" fill="#2a3040"/>
+  <circle cx="11" cy="16.7" r="0.6" fill="#2a3040"/>
+  <circle cx="13" cy="16.7" r="0.6" fill="#2a3040"/>
+  <circle cx="19" cy="16.7" r="0.6" fill="#2a3040"/>
+  <circle cx="21" cy="16.7" r="0.6" fill="#2a3040"/>
+  <circle cx="23" cy="16.7" r="0.6" fill="#2a3040"/>
+  <!-- Flame -->
+  <path d="M16 19 C16 19, 14.2 22.5, 14.2 24 C14.2 25.2, 15 26, 16 26 C17 26, 17.8 25.2, 17.8 24 C17.8 22.5, 16 19, 16 19z" fill="#e8601c" stroke="#2a3040" stroke-width="0.5"/>
+  <path d="M16 20.5 C16 20.5, 15.2 22.5, 15.2 23.3 C15.2 24, 15.5 24.5, 16 24.5 C16.5 24.5, 16.8 24, 16.8 23.3 C16.8 22.5, 16 20.5, 16 20.5z" fill="#f4a030"/>
+  <!-- Rocket body -->
+  <path d="M14 17 L14 10 C14 10, 14 6, 16 3 C18 6, 18 10, 18 10 L18 17z" fill="#f0e8dc" stroke="#2a3040" stroke-width="0.8" stroke-linejoin="round"/>
+  <!-- Rocket window -->
+  <circle cx="16" cy="10.5" r="1.5" fill="#5a7d99" stroke="#2a3040" stroke-width="0.7"/>
+  <!-- Rocket fins -->
+  <path d="M14 15 L12 17.5 L12 18.5 L14 17z" fill="#f0e8dc" stroke="#2a3040" stroke-width="0.7" stroke-linejoin="round"/>
+  <path d="M18 15 L20 17.5 L20 18.5 L18 17z" fill="#f0e8dc" stroke="#2a3040" stroke-width="0.7" stroke-linejoin="round"/>
+  <!-- Rocket center line -->
+  <line x1="16" y1="12.5" x2="16" y2="17" stroke="#2a3040" stroke-width="0.6"/>
+</svg>
