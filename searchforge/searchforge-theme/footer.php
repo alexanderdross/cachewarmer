@@ -18,7 +18,7 @@
 					<li><a href="/pricing/">Pricing</a></li>
 					<li><a href="/changelog/">Changelog</a></li>
 					<li><a href="/enterprise/">Enterprise</a></li>
-					<li><a href="https://dross.net/contact/?topic=searchforge">Contact</a></li>
+					<li><a href="https://dross.net/contact/?topic=searchforge" target="_blank" rel="noopener">Contact</a></li>
 				</ul>
 			</div>
 			<div class="sf-footer__column">
@@ -58,11 +58,11 @@
 		<div class="sf-container sf-footer__bottom-inner">
 			<p>&copy; <?php echo esc_html( date( 'Y' ) ); ?> SearchForge. All rights reserved.</p>
 			<ul class="sf-footer__legal">
-				<li><a href="https://dross.net/imprint/?ref=searchforge">Imprint</a></li>
-				<li><a href="https://dross.net/privacy-policy/?ref=searchforge">Privacy Policy</a></li>
-				<li><a href="https://dross.net/contact/?topic=searchforge">Contact</a></li>
+				<li><a href="https://dross.net/imprint/?ref=searchforge" target="_blank" rel="noopener">Imprint</a></li>
+				<li><a href="https://dross.net/privacy-policy/?ref=searchforge" target="_blank" rel="noopener">Privacy Policy</a></li>
+				<li><a href="https://dross.net/contact/?topic=searchforge" target="_blank" rel="noopener">Contact</a></li>
 			</ul>
-			<p>Made with &hearts; by <a href="https://dross.net/?ref=searchforge">Dross:Media</a></p>
+			<p>Made with &hearts; by <a href="https://dross.net/?ref=searchforge" target="_blank" rel="noopener">Dross:Media</a></p>
 		</div>
 	</div>
 </footer>
