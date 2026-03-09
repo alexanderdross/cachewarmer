@@ -80,10 +80,22 @@ function cachewarmer_icon($name, $class = '', $size = 24) {
 
     $class_attr = $class ? ' class="icon ' . esc_attr($class) . '"' : ' class="icon"';
 
+    // SVG paths are hardcoded above — safe to output with targeted wp_kses
+    $svg_kses = [
+        'path'     => ['d' => [], 'fill' => [], 'stroke' => [], 'stroke-linejoin' => [], 'stroke-none' => []],
+        'polygon'  => ['points' => []],
+        'polyline' => ['points' => []],
+        'circle'   => ['cx' => [], 'cy' => [], 'r' => [], 'fill' => []],
+        'rect'     => ['x' => [], 'y' => [], 'width' => [], 'height' => [], 'rx' => [], 'ry' => []],
+        'ellipse'  => ['cx' => [], 'cy' => [], 'rx' => [], 'ry' => []],
+        'line'     => ['x1' => [], 'y1' => [], 'x2' => [], 'y2' => []],
+    ];
+
+    $s = (int) $size;
     if ($is_fill) {
-        echo '<svg' . $class_attr . ' width="' . (int)$size . '" height="' . (int)$size . '" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" focusable="false">' . $icons[$name] . '</svg>';
+        echo '<svg' . $class_attr . ' width="' . $s . '" height="' . $s . '" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" focusable="false">' . wp_kses($icons[$name], $svg_kses) . '</svg>';
     } else {
-        echo '<svg' . $class_attr . ' width="' . (int)$size . '" height="' . (int)$size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $icons[$name] . '</svg>';
+        echo '<svg' . $class_attr . ' width="' . $s . '" height="' . $s . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . wp_kses($icons[$name], $svg_kses) . '</svg>';
     }
 }
 

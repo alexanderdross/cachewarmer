@@ -57,7 +57,14 @@ function cachewarmer_get_required_pages() {
 function cachewarmer_ensure_pages() {
     $pages = cachewarmer_get_required_pages();
     foreach ($pages as $slug => $title) {
-        if (!get_page_by_path($slug)) {
+        $existing = get_posts([
+            'post_type'      => 'page',
+            'name'           => $slug,
+            'posts_per_page' => 1,
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+        ]);
+        if (empty($existing)) {
             wp_insert_post([
                 'post_title'  => $title,
                 'post_name'   => $slug,
@@ -73,8 +80,13 @@ add_action('after_switch_theme', function () {
     cachewarmer_ensure_pages();
 
     // Set homepage to static front page
-    $front = get_page_by_path('home');
-    if (!$front) {
+    $existing = get_posts([
+        'post_type'      => 'page',
+        'name'           => 'home',
+        'posts_per_page' => 1,
+        'post_status'    => 'any',
+    ]);
+    if (empty($existing)) {
         $front_id = wp_insert_post([
             'post_title'  => 'Home',
             'post_name'   => 'home',
@@ -82,7 +94,7 @@ add_action('after_switch_theme', function () {
             'post_type'   => 'page',
         ]);
     } else {
-        $front_id = $front->ID;
+        $front_id = $existing[0]->ID;
     }
 
     update_option('show_on_front', 'page');
@@ -116,12 +128,14 @@ add_filter('wp_sitemaps_enabled', '__return_false');
 
 // Serve theme's sitemap.xml at /sitemap.xml
 add_action('template_redirect', function () {
-    if ($_SERVER['REQUEST_URI'] === '/sitemap.xml') {
+    $uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+    if ($uri === '/sitemap.xml') {
         $sitemap_file = get_template_directory() . '/sitemap.xml';
-        if (file_exists($sitemap_file)) {
+        $real_path    = realpath($sitemap_file);
+        if ($real_path && str_starts_with($real_path, realpath(get_template_directory()))) {
             header('Content-Type: application/xml; charset=UTF-8');
             header('X-Robots-Tag: noindex');
-            readfile($sitemap_file);
+            readfile($real_path);
             exit;
         }
     }
@@ -296,6 +310,14 @@ add_action('wp_head', function () {
         'isPartOf'  => ['@id' => $website_id],
         'publisher' => ['@id' => $org_id],
         'about'     => ['@id' => $product_id],
+        'aggregateRating' => [
+            '@type'       => 'AggregateRating',
+            'itemReviewed' => ['@id' => $product_id],
+            'ratingValue' => $rating['value'],
+            'bestRating'  => '5',
+            'worstRating' => '1',
+            'ratingCount' => $rating['count'],
+        ],
     ];
     $graph[] = $webpage;
 

@@ -5,8 +5,9 @@
             <div class="footer-grid footer-grid-4">
                 <!-- Column 1: Logo & Description -->
                 <div class="footer-col footer-col-brand">
+                    <?php $asset_ver = '1.9.2'; ?>
                     <a href="<?php echo esc_url(home_url('/')); ?>" class="footer-logo" title="CacheWarmer - Cache Warming for WordPress, Drupal &amp; Node.js">
-                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.svg?v=1.9.0'); ?>" alt="CacheWarmer" class="footer-logo-icon" width="32" height="32">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.svg?v=' . $asset_ver); ?>" alt="CacheWarmer" class="footer-logo-icon" width="32" height="32">
                         <span class="header-logo-text">
                             <span class="header-logo-title">CacheWarmer</span>
                             <span class="header-logo-subtitle">for WordPress, Drupal &amp; NodeJS</span>
