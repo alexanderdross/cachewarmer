@@ -17,7 +17,7 @@ add_action('after_setup_theme', function () {
 
 // Enqueue Styles & Scripts
 add_action('wp_enqueue_scripts', function () {
-    $version = '2.3.0';
+    $version = '2.4.0';
 
     // Main stylesheet (fonts are self-hosted via @font-face in main.css)
     wp_enqueue_style(
@@ -57,7 +57,14 @@ function cachewarmer_get_required_pages() {
 function cachewarmer_ensure_pages() {
     $pages = cachewarmer_get_required_pages();
     foreach ($pages as $slug => $title) {
-        if (!get_page_by_path($slug)) {
+        $existing = get_posts([
+            'post_type'      => 'page',
+            'name'           => $slug,
+            'posts_per_page' => 1,
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+        ]);
+        if (empty($existing)) {
             wp_insert_post([
                 'post_title'  => $title,
                 'post_name'   => $slug,
@@ -73,8 +80,13 @@ add_action('after_switch_theme', function () {
     cachewarmer_ensure_pages();
 
     // Set homepage to static front page
-    $front = get_page_by_path('home');
-    if (!$front) {
+    $existing = get_posts([
+        'post_type'      => 'page',
+        'name'           => 'home',
+        'posts_per_page' => 1,
+        'post_status'    => 'any',
+    ]);
+    if (empty($existing)) {
         $front_id = wp_insert_post([
             'post_title'  => 'Home',
             'post_name'   => 'home',
@@ -82,7 +94,7 @@ add_action('after_switch_theme', function () {
             'post_type'   => 'page',
         ]);
     } else {
-        $front_id = $front->ID;
+        $front_id = $existing[0]->ID;
     }
 
     update_option('show_on_front', 'page');
@@ -91,7 +103,7 @@ add_action('after_switch_theme', function () {
 
 // Auto-create missing pages on init (runs once, then sets a version flag)
 add_action('init', function () {
-    $version = '2.3.0';
+    $version = '2.4.0';
     if (get_option('cachewarmer_pages_version') !== $version) {
         cachewarmer_ensure_pages();
         update_option('cachewarmer_pages_version', $version);
@@ -116,12 +128,14 @@ add_filter('wp_sitemaps_enabled', '__return_false');
 
 // Serve theme's sitemap.xml at /sitemap.xml
 add_action('template_redirect', function () {
-    if ($_SERVER['REQUEST_URI'] === '/sitemap.xml') {
+    $uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+    if ($uri === '/sitemap.xml') {
         $sitemap_file = get_template_directory() . '/sitemap.xml';
-        if (file_exists($sitemap_file)) {
+        $real_path    = realpath($sitemap_file);
+        if ($real_path && str_starts_with($real_path, realpath(get_template_directory()))) {
             header('Content-Type: application/xml; charset=UTF-8');
             header('X-Robots-Tag: noindex');
-            readfile($sitemap_file);
+            readfile($real_path);
             exit;
         }
     }
@@ -144,7 +158,7 @@ add_filter('use_block_editor_for_post', '__return_false');
 // Remove admin bar on frontend
 add_filter('show_admin_bar', '__return_false');
 
-// Add Schema.org JSON-LD to head (SEO + GEO optimized)
+// Add Schema.org JSON-LD to head — single @graph block, no redundant schemas
 add_action('wp_head', function () {
     $site_url  = home_url('/');
     $site_name = 'CacheWarmer';
@@ -178,40 +192,51 @@ add_action('wp_head', function () {
 
     $rating = $ratings[$slug] ?? ['value' => '4.8', 'count' => '378'];
 
+    // Reusable @id references
+    $org_id     = 'https://dross.net/#organization';
+    $website_id = $site_url . '#website';
+    $product_id = $site_url . '#software';
+
+    // Build @graph array
+    $graph = [];
+
     // --- 1. Organization ---
-    $org = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'Organization',
-        'name'     => 'Dross:Media',
-        'url'      => 'https://dross.net',
-        'logo'     => $logo_url,
-        'image'    => $og_images,
-        'sameAs'   => [
+    $graph[] = [
+        '@type' => 'Organization',
+        '@id'   => $org_id,
+        'name'  => 'Dross:Media',
+        'url'   => 'https://dross.net',
+        'logo'  => [
+            '@type'      => 'ImageObject',
+            '@id'        => 'https://dross.net/#logo',
+            'url'        => $logo_url,
+            'contentUrl' => $logo_url,
+        ],
+        'image'  => $og_images,
+        'sameAs' => [
             'https://dross.net',
         ],
     ];
-    echo '<script type="application/ld+json">' . wp_json_encode($org, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
 
     // --- 2. WebSite ---
-    $website = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'WebSite',
-        'name'     => $site_name,
-        'url'      => $site_url,
-        'publisher' => [
-            '@type' => 'Organization',
-            'name'  => 'Dross:Media',
-        ],
+    $graph[] = [
+        '@type'     => 'WebSite',
+        '@id'       => $website_id,
+        'name'      => $site_name,
+        'url'       => $site_url,
+        'publisher' => ['@id' => $org_id],
     ];
-    echo '<script type="application/ld+json">' . wp_json_encode($website, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
 
-    // --- 3. Product with aggregateRating (all pages) ---
-    $product = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'Product',
-        'name'     => 'CacheWarmer',
-        'description' => 'Self-hosted cache warming microservice for WordPress, Drupal, and Node.js. Warm CDN caches, update social media previews, and submit pages to search engines.',
-        'brand'    => [
+    // --- 3. SoftwareApplication (merges former Product — carries brand, offers, aggregateRating, category) ---
+    $graph[] = [
+        '@type'               => 'SoftwareApplication',
+        '@id'                 => $product_id,
+        'name'                => 'CacheWarmer',
+        'description'         => 'Self-hosted cache warming microservice for WordPress, Drupal, and Node.js. Warm CDN caches, update social media previews, and submit pages to search engines.',
+        'applicationCategory' => 'DeveloperApplication',
+        'operatingSystem'     => 'Linux, macOS, Windows (via Docker)',
+        'softwareVersion'     => '1.1.0',
+        'brand'               => [
             '@type' => 'Brand',
             'name'  => 'Dross:Media',
         ],
@@ -249,50 +274,8 @@ add_action('wp_head', function () {
             ],
         ],
     ];
-    echo '<script type="application/ld+json">' . wp_json_encode($product, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
 
-    // --- 4. SoftwareApplication (all pages) ---
-    $software = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'SoftwareApplication',
-        'name'     => 'CacheWarmer',
-        'description' => 'Cache warming for WordPress, Drupal, and Node.js. Warm CDN caches, update social media previews, and submit pages to search engines.',
-        'applicationCategory' => 'DeveloperApplication',
-        'operatingSystem' => 'Linux, macOS, Windows (via Docker)',
-        'softwareVersion' => '1.1.0',
-        'image'    => $og_images,
-        'url'      => $site_url,
-        'aggregateRating' => [
-            '@type'       => 'AggregateRating',
-            'ratingValue' => $rating['value'],
-            'bestRating'  => '5',
-            'worstRating' => '1',
-            'ratingCount' => $rating['count'],
-        ],
-        'offers' => [
-            [
-                '@type'         => 'Offer',
-                'name'          => 'Free',
-                'price'         => '0',
-                'priceCurrency' => 'EUR',
-            ],
-            [
-                '@type'         => 'Offer',
-                'name'          => 'Premium',
-                'price'         => '99',
-                'priceCurrency' => 'EUR',
-            ],
-            [
-                '@type'         => 'Offer',
-                'name'          => 'Enterprise',
-                'price'         => '599',
-                'priceCurrency' => 'EUR',
-            ],
-        ],
-    ];
-    echo '<script type="application/ld+json">' . wp_json_encode($software, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
-
-    // --- 5. Page-specific WebPage schema ---
+    // --- 4. WebPage / CollectionPage (homepage gets CollectionPage) ---
     $page_descriptions = [
         'home'        => 'CacheWarmer is a self-hosted microservice that warms CDN caches, updates social media previews, and submits pages to search engines for WordPress, Drupal, and Node.js.',
         'features'    => 'Explore CacheWarmer features: 11 warming targets including CDN, Facebook, LinkedIn, Twitter/X, Pinterest, IndexNow, Google, Bing, Cloudflare, Imperva, and Akamai. Smart warming, analytics, and monitoring.',
@@ -309,10 +292,11 @@ add_action('wp_head', function () {
     $page_title = is_front_page() ? 'CacheWarmer - Cache Warming Microservice' : wp_title('–', false, 'right') . 'CacheWarmer';
     $page_desc  = $page_descriptions[$slug] ?? 'CacheWarmer: self-hosted cache warming for WordPress, Drupal, and Node.js.';
     $page_url   = is_front_page() ? $site_url : get_permalink();
+    $page_id    = $page_url . '#webpage';
 
     $webpage = [
-        '@context'    => 'https://schema.org',
-        '@type'       => 'WebPage',
+        '@type'       => ($slug === 'home') ? 'CollectionPage' : 'WebPage',
+        '@id'         => $page_id,
         'name'        => $page_title,
         'description' => $page_desc,
         'url'         => $page_url,
@@ -322,63 +306,46 @@ add_action('wp_head', function () {
             'width'  => 1200,
             'height' => 630,
         ],
-        'image' => $og_images,
-        'isPartOf'    => [
-            '@type' => 'WebSite',
-            'name'  => $site_name,
-            'url'   => $site_url,
-        ],
-        'publisher' => [
-            '@type' => 'Organization',
-            'name'  => 'Dross:Media',
-            'url'   => 'https://dross.net',
-        ],
-        'about' => [
-            '@type' => 'SoftwareApplication',
-            'name'  => 'CacheWarmer',
+        'image'     => $og_images,
+        'isPartOf'  => ['@id' => $website_id],
+        'publisher' => ['@id' => $org_id],
+        'about'     => ['@id' => $product_id],
+        'aggregateRating' => [
+            '@type'       => 'AggregateRating',
+            'itemReviewed' => ['@id' => $product_id],
+            'ratingValue' => $rating['value'],
+            'bestRating'  => '5',
+            'worstRating' => '1',
+            'ratingCount' => $rating['count'],
         ],
     ];
-    echo '<script type="application/ld+json">' . wp_json_encode($webpage, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+    $graph[] = $webpage;
 
-    // --- 6a. Article schema (homepage – "What Is Cache Warming?" guide) ---
-    $home_url = home_url('/');
+    // --- 5. Article (homepage — "What Is Cache Warming?" highlight section) ---
     if ($slug === 'home') {
-        $article = [
-            '@context'      => 'https://schema.org',
+        $graph[] = [
             '@type'         => 'Article',
+            '@id'           => $site_url . '#article',
             'headline'      => 'What Is Cache Warming? A Plain-Language Guide for Website Owners',
             'description'   => 'Learn what cache warming is, why it matters for your website speed, social media previews, and search engine visibility, and how CacheWarmer automates it.',
-            'url'           => $home_url . '#what-is-cache-warming',
+            'url'           => $site_url . '#what-is-cache-warming',
             'image'         => $og_images,
             'datePublished' => '2026-03-03',
             'dateModified'  => '2026-03-03',
-            'author'        => [
-                '@type' => 'Organization',
-                'name'  => 'Dross:Media',
-                'url'   => 'https://dross.net',
-            ],
-            'publisher'     => [
-                '@type' => 'Organization',
-                'name'  => 'Dross:Media',
-                'url'   => 'https://dross.net',
-                'logo'  => [
-                    '@type' => 'ImageObject',
-                    'url'   => $logo_url,
-                ],
-            ],
-            'mainEntityOfPage' => [
-                '@type' => 'WebPage',
-                '@id'   => $home_url,
-            ],
+            'author'            => ['@id' => $org_id],
+            'publisher'         => ['@id' => $org_id],
+            'mainEntityOfPage'  => ['@id' => $page_id],
         ];
-        echo '<script type="application/ld+json">' . wp_json_encode($article, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
     }
 
-    // --- 6b. FAQPage schema (homepage + pricing) with SEO hash anchors ---
+    // --- 6. FAQPage (homepage + pricing) ---
+    $home_url    = home_url('/');
+    $pricing_url = home_url('/pricing/');
+
     if ($slug === 'home') {
-        $faq = [
-            '@context'   => 'https://schema.org',
+        $graph[] = [
             '@type'      => 'FAQPage',
+            '@id'        => $site_url . '#faq',
             'mainEntity' => [
                 [
                     '@type' => 'Question',
@@ -445,14 +412,12 @@ add_action('wp_head', function () {
                 ],
             ],
         ];
-        echo '<script type="application/ld+json">' . wp_json_encode($faq, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
     }
 
-    $pricing_url = home_url('/pricing/');
     if ($slug === 'pricing') {
-        $faq = [
-            '@context'   => 'https://schema.org',
+        $graph[] = [
             '@type'      => 'FAQPage',
+            '@id'        => $pricing_url . '#faq',
             'mainEntity' => [
                 [
                     '@type' => 'Question',
@@ -519,14 +484,13 @@ add_action('wp_head', function () {
                 ],
             ],
         ];
-        echo '<script type="application/ld+json">' . wp_json_encode($faq, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
     }
 
     // --- 7. HowTo schema (API Keys page) ---
     if ($slug === 'api-keys') {
-        $howto = [
-            '@context'    => 'https://schema.org',
+        $graph[] = [
             '@type'       => 'HowTo',
+            '@id'         => home_url('/api-keys/') . '#howto',
             'name'        => 'How to Set Up API Keys for CacheWarmer',
             'description' => 'Step-by-step guide to configure API keys for Facebook, LinkedIn, IndexNow, Google Search Console, Bing Webmaster Tools, Cloudflare, Imperva, and Akamai with CacheWarmer.',
             'step' => [
@@ -572,72 +536,33 @@ add_action('wp_head', function () {
                 ],
             ],
         ];
-        echo '<script type="application/ld+json">' . wp_json_encode($howto, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
     }
 
     // --- 8. SiteNavigationElement ---
-    $nav = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'ItemList',
+    $graph[] = [
+        '@type'    => 'SiteNavigationElement',
+        '@id'      => $site_url . '#navigation',
         'name'     => 'Main Navigation',
-        'itemListElement' => [
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 1,
-                'name'     => 'Features',
-                'url'      => $site_url . 'features/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 2,
-                'name'     => 'Docs',
-                'url'      => $site_url . 'docs/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 3,
-                'name'     => 'Changelog',
-                'url'      => $site_url . 'changelog/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 4,
-                'name'     => 'Enterprise',
-                'url'      => $site_url . 'enterprise/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 5,
-                'name'     => 'WordPress Plugin',
-                'url'      => $site_url . 'wordpress/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 6,
-                'name'     => 'Drupal Module',
-                'url'      => $site_url . 'drupal/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 7,
-                'name'     => 'Self-Hosted',
-                'url'      => $site_url . 'self-hosted/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 8,
-                'name'     => 'API Keys Setup',
-                'url'      => $site_url . 'api-keys/',
-            ],
-            [
-                '@type'    => 'SiteNavigationElement',
-                'position' => 9,
-                'name'     => 'Pricing',
-                'url'      => $site_url . 'pricing/',
-            ],
+        'url'      => $site_url,
+        'hasPart'  => [
+            ['@type' => 'SiteNavigationElement', 'name' => 'Features',         'url' => $site_url . 'features/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Docs',             'url' => $site_url . 'docs/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Changelog',        'url' => $site_url . 'changelog/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Enterprise',       'url' => $site_url . 'enterprise/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'WordPress Plugin', 'url' => $site_url . 'wordpress/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Drupal Module',    'url' => $site_url . 'drupal/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Self-Hosted',      'url' => $site_url . 'self-hosted/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'API Keys Setup',   'url' => $site_url . 'api-keys/'],
+            ['@type' => 'SiteNavigationElement', 'name' => 'Pricing',          'url' => $site_url . 'pricing/'],
         ],
     ];
-    echo '<script type="application/ld+json">' . wp_json_encode($nav, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+
+    // Output single @graph JSON-LD block
+    $jsonld = [
+        '@context' => 'https://schema.org',
+        '@graph'   => $graph,
+    ];
+    echo '<script type="application/ld+json">' . wp_json_encode($jsonld, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
 });
 
 // Include template tags helper

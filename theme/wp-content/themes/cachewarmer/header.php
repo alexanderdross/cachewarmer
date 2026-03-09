@@ -5,21 +5,19 @@
 
 // Determine current page for active nav highlighting
 $current_page = '';
-if (is_page('features'))    $current_page = 'features';
-if (is_page('docs'))        $current_page = 'docs';
-if (is_page('api-keys'))    $current_page = 'api-keys';
-if (is_page('pricing'))     $current_page = 'pricing';
-if (is_page('changelog'))   $current_page = 'changelog';
-if (is_page('wordpress'))   $current_page = 'wordpress';
-if (is_page('drupal'))      $current_page = 'drupal';
-if (is_page('self-hosted')) $current_page = 'self-hosted';
-if (is_page('enterprise'))  $current_page = 'enterprise';
+$nav_pages = ['features', 'docs', 'api-keys', 'pricing', 'changelog', 'wordpress', 'drupal', 'self-hosted', 'enterprise'];
+foreach ($nav_pages as $_p) {
+    if (is_page($_p)) {
+        $current_page = $_p;
+        break;
+    }
+}
 
 $is_platform_page = in_array($current_page, ['wordpress', 'drupal', 'self-hosted']);
 
 // Allow page templates to set custom meta
-$page_description = isset($page_description) ? $page_description : 'CacheWarmer - Cache warming for WordPress, Drupal, and Node.js. Warm CDN caches, update social media previews, and notify search engines.';
-$page_og_title = isset($page_og_title) ? $page_og_title : 'CacheWarmer';
+$page_description = $page_description ?? 'CacheWarmer - Cache warming for WordPress, Drupal, and Node.js. Warm CDN caches, update social media previews, and notify search engines.';
+$page_og_title = $page_og_title ?? 'CacheWarmer';
 
 // Social sharing images (landscape 1200x630, square 1200x1200)
 $theme_img_url = get_template_directory_uri() . '/assets/images';

@@ -17,7 +17,7 @@ This monorepo contains **5 components**:
 
 | # | Component | Location | Tech Stack | Status |
 |---|-----------|----------|------------|--------|
-| 1 | **WordPress Theme** (marketing website) | `theme/wp-content/themes/cachewarmer/` | PHP, WordPress, Stripe | v2.3.0 |
+| 1 | **WordPress Theme** (marketing website) | `theme/wp-content/themes/cachewarmer/` | PHP, WordPress, Stripe | v2.4.0 |
 | 2 | **CacheWarmer WordPress Plugin** | `wordpress-plugin/cachewarmer/` | PHP 8.0+, WordPress 6.0+ | v1.1.0 |
 | 3 | **CacheWarmer Drupal Module** | `drupal-module/cachewarmer/` | PHP 8.1+, Drupal 10/11 | v1.1.0 |
 | 4 | **CacheWarmer Node.js / Docker Module** | `src/`, `Dockerfile`, `docker-compose.yml` | Next.js 16, TypeScript, React 19, Tailwind CSS 4 | v1.1.0 |
@@ -37,7 +37,7 @@ Marketing/sales website for cachewarmer.drossmedia.de with integrated Stripe pay
 
 ### Theme Details
 - **Theme Name:** CacheWarmer
-- **Version:** 2.3.0
+- **Version:** 2.4.0
 - **License:** MIT
 - **Text Domain:** cachewarmer
 - **Fonts:** Inter (400, 500), Outfit (600, 700) — self-hosted WOFF2
