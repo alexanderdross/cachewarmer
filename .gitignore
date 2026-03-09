@@ -42,5 +42,5 @@ next-env.d.ts
 config.local.yaml
 /dist/
 
-# root-level legacy folders (real sources live under cachewarmer/)
-/cachewarmer-license-manager/
+# vendor dependencies (installed via composer)
+/cachewarmer-license-manager/vendor/
