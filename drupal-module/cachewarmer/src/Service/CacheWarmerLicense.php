@@ -323,4 +323,113 @@ class CacheWarmerLicense {
     ];
   }
 
+  // ──────────────────────────────────────────────
+  // License heartbeat (24-hour check-in)
+  // ──────────────────────────────────────────────
+
+  /**
+   * Gets the license dashboard URL.
+   *
+   * @return string
+   *   The dashboard base URL.
+   */
+  public function getDashboardUrl(): string {
+    $config = $this->configFactory->get('cachewarmer.settings');
+    $url = $config->get('license_dashboard_url');
+    return $url ?: 'https://cachewarmer.drossmedia.de';
+  }
+
+  /**
+   * Generates a fingerprint for this Drupal installation.
+   *
+   * @return string
+   *   SHA-256 hash identifying this site.
+   */
+  public function getFingerprint(): string {
+    $data = implode('|', [
+      \Drupal::request()->getSchemeAndHttpHost(),
+      \Drupal::VERSION,
+      php_uname('n'),
+      \Drupal\Core\Database\Database::getConnectionInfo('default')['default']['database'] ?? '',
+    ]);
+    return hash('sha256', $data);
+  }
+
+  /**
+   * Sends a heartbeat check to the license dashboard.
+   *
+   * This should be called from hook_cron() every 24 hours.
+   * Posts the license key, fingerprint, site URL, platform info,
+   * and CacheWarmer version to the /cwlm/v1/check endpoint.
+   * Updates local license status based on the response.
+   */
+  public function sendHeartbeat(): void {
+    $config = $this->configFactory->get('cachewarmer.settings');
+    $licenseKey = $config->get('license_key') ?? '';
+
+    if (empty($licenseKey) || $this->getTier() === self::TIER_FREE) {
+      return;
+    }
+
+    $dashboardUrl = $this->getDashboardUrl();
+    $endpoint = $dashboardUrl . '/wp-json/cwlm/v1/check';
+
+    $body = [
+      'license_key' => $licenseKey,
+      'fingerprint' => $this->getFingerprint(),
+      'site_url' => \Drupal::request()->getSchemeAndHttpHost(),
+      'platform' => 'drupal',
+      'platform_version' => \Drupal::VERSION,
+      'product_version' => '1.1.0',
+    ];
+
+    try {
+      /** @var \GuzzleHttp\ClientInterface $httpClient */
+      $httpClient = \Drupal::httpClient();
+      $response = $httpClient->request('POST', $endpoint, [
+        'json' => $body,
+        'timeout' => 15,
+        'http_errors' => FALSE,
+      ]);
+
+      $statusCode = $response->getStatusCode();
+      $data = json_decode((string) $response->getBody(), TRUE);
+
+      $editable = $this->configFactory->getEditable('cachewarmer.settings');
+      $editable->set('heartbeat_last_check', time());
+      $editable->clear('heartbeat_last_error');
+
+      if ($statusCode === 200 && is_array($data)) {
+        if (isset($data['valid']) && $data['valid'] === FALSE) {
+          if (isset($data['status']) && $data['status'] === 'expired') {
+            $editable->set('license_tier', self::TIER_FREE);
+          }
+          elseif (isset($data['status']) && $data['status'] === 'revoked') {
+            $editable->set('license_tier', self::TIER_FREE);
+            $editable->set('license_revoked', TRUE);
+          }
+        }
+
+        if (isset($data['features']) && is_array($data['features'])) {
+          $editable->set('license_features', $data['features']);
+        }
+
+        if (!empty($data['expires_at'])) {
+          $serverExpiry = strtotime($data['expires_at']);
+          if ($serverExpiry) {
+            $editable->set('license_expires_at', $serverExpiry);
+          }
+        }
+      }
+
+      $editable->save();
+    }
+    catch (\Exception $e) {
+      $editable = $this->configFactory->getEditable('cachewarmer.settings');
+      $editable->set('heartbeat_last_error', $e->getMessage());
+      $editable->set('heartbeat_last_attempt', time());
+      $editable->save();
+    }
+  }
+
 }

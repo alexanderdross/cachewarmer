@@ -365,4 +365,123 @@ class CacheWarmer_License {
     public static function is_enterprise(): bool {
         return self::get_tier() === self::TIER_ENTERPRISE;
     }
+
+    // ──────────────────────────────────────────────
+    // License heartbeat (24-hour check-in)
+    // ──────────────────────────────────────────────
+
+    /**
+     * Initialize the heartbeat WP-Cron schedule.
+     * Should be called during plugin init.
+     */
+    public static function init_heartbeat(): void {
+        add_action( 'cachewarmer_license_heartbeat', array( __CLASS__, 'send_heartbeat' ) );
+
+        if ( ! wp_next_scheduled( 'cachewarmer_license_heartbeat' ) ) {
+            wp_schedule_event( time(), 'daily', 'cachewarmer_license_heartbeat' );
+        }
+    }
+
+    /**
+     * Clear the heartbeat schedule (on plugin deactivation).
+     */
+    public static function clear_heartbeat(): void {
+        wp_clear_scheduled_hook( 'cachewarmer_license_heartbeat' );
+    }
+
+    /**
+     * Generate a fingerprint for this WordPress installation.
+     *
+     * @return string SHA-256 hash identifying this site.
+     */
+    public static function get_fingerprint(): string {
+        $data = implode( '|', array(
+            get_site_url(),
+            get_bloginfo( 'version' ),
+            php_uname( 'n' ),
+            DB_NAME,
+        ) );
+        return hash( 'sha256', $data );
+    }
+
+    /**
+     * Get the license dashboard URL.
+     *
+     * @return string Dashboard base URL for API calls.
+     */
+    public static function get_dashboard_url(): string {
+        return defined( 'CACHEWARMER_LICENSE_URL' )
+            ? rtrim( CACHEWARMER_LICENSE_URL, '/' )
+            : 'https://cachewarmer.drossmedia.de';
+    }
+
+    /**
+     * Send a heartbeat check to the license dashboard.
+     *
+     * Posts the license key, fingerprint, site URL, platform info,
+     * and CacheWarmer version to the /cwlm/v1/check endpoint.
+     * Updates local license status based on the response.
+     */
+    public static function send_heartbeat(): void {
+        $license_key = get_option( 'cachewarmer_license_key', '' );
+
+        if ( empty( $license_key ) || self::TIER_FREE === self::get_tier() ) {
+            return; // No heartbeat needed for free tier.
+        }
+
+        $dashboard_url = self::get_dashboard_url();
+        $endpoint      = $dashboard_url . '/wp-json/cwlm/v1/check';
+
+        $body = array(
+            'license_key'       => $license_key,
+            'fingerprint'       => self::get_fingerprint(),
+            'site_url'          => get_site_url(),
+            'platform'          => 'wordpress',
+            'platform_version'  => get_bloginfo( 'version' ),
+            'product_version'   => defined( 'CACHEWARMER_VERSION' ) ? CACHEWARMER_VERSION : '1.0.0',
+        );
+
+        $response = wp_remote_post( $endpoint, array(
+            'headers' => array( 'Content-Type' => 'application/json' ),
+            'body'    => wp_json_encode( $body ),
+            'timeout' => 15,
+        ) );
+
+        if ( is_wp_error( $response ) ) {
+            update_option( 'cachewarmer_heartbeat_last_error', $response->get_error_message() );
+            update_option( 'cachewarmer_heartbeat_last_attempt', time() );
+            return;
+        }
+
+        $status_code = wp_remote_retrieve_response_code( $response );
+        $data        = json_decode( wp_remote_retrieve_body( $response ), true );
+
+        update_option( 'cachewarmer_heartbeat_last_check', time() );
+        delete_option( 'cachewarmer_heartbeat_last_error' );
+
+        if ( 200 === $status_code && is_array( $data ) ) {
+            // Update local license status from server response.
+            if ( isset( $data['valid'] ) && false === $data['valid'] ) {
+                if ( isset( $data['status'] ) && 'expired' === $data['status'] ) {
+                    update_option( 'cachewarmer_license_tier', self::TIER_FREE );
+                } elseif ( isset( $data['status'] ) && 'revoked' === $data['status'] ) {
+                    update_option( 'cachewarmer_license_tier', self::TIER_FREE );
+                    update_option( 'cachewarmer_license_revoked', true );
+                }
+            }
+
+            // Store features from server if provided.
+            if ( isset( $data['features'] ) && is_array( $data['features'] ) ) {
+                update_option( 'cachewarmer_license_features', $data['features'] );
+            }
+
+            // Store the server-reported expiry if provided.
+            if ( isset( $data['expires_at'] ) && ! empty( $data['expires_at'] ) ) {
+                $server_expiry = strtotime( $data['expires_at'] );
+                if ( $server_expiry ) {
+                    update_option( 'cachewarmer_license_expires_at', $server_expiry );
+                }
+            }
+        }
+    }
 }

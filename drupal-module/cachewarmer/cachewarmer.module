@@ -20,7 +20,18 @@ function cachewarmer_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_cron().
  */
 function cachewarmer_cron() {
+  // License heartbeat: send check-in every 24 hours.
+  /** @var \Drupal\cachewarmer\Service\CacheWarmerLicense $license */
+  $license = \Drupal::service('cachewarmer.license');
   $config = \Drupal::config('cachewarmer.settings');
+  $lastCheck = (int) ($config->get('heartbeat_last_check') ?? 0);
+
+  // Only send heartbeat if more than 23 hours have passed.
+  if ((time() - $lastCheck) >= 82800) {
+    $license->sendHeartbeat();
+  }
+
+  // Scheduled warming.
   if (!$config->get('scheduler.enabled')) {
     return;
   }

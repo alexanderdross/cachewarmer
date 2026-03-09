@@ -61,6 +61,9 @@ class CacheWarmer {
 
         add_action( 'cachewarmer_process_job', array( $this->job_manager, 'process_job' ), 10, 1 );
         add_action( 'cachewarmer_scheduled_warm', array( $this->scheduler, 'run_scheduled_warm' ), 10, 1 );
+
+        // Initialize license heartbeat (sends check-in every 24 hours).
+        CacheWarmer_License::init_heartbeat();
     }
 
     public function activate(): void {
@@ -84,6 +87,7 @@ class CacheWarmer {
         wp_clear_scheduled_hook( 'cachewarmer_cron_hook' );
         wp_clear_scheduled_hook( 'cachewarmer_process_job' );
         wp_clear_scheduled_hook( 'cachewarmer_scheduled_warm' );
+        CacheWarmer_License::clear_heartbeat();
     }
 
     public static function get_default_options(): array {
