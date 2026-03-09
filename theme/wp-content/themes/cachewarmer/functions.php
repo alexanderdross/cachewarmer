@@ -17,7 +17,7 @@ add_action('after_setup_theme', function () {
 
 // Enqueue Styles & Scripts
 add_action('wp_enqueue_scripts', function () {
-    $version = '2.3.0';
+    $version = '2.4.0';
 
     // Main stylesheet (fonts are self-hosted via @font-face in main.css)
     wp_enqueue_style(
@@ -103,7 +103,7 @@ add_action('after_switch_theme', function () {
 
 // Auto-create missing pages on init (runs once, then sets a version flag)
 add_action('init', function () {
-    $version = '2.3.0';
+    $version = '2.4.0';
     if (get_option('cachewarmer_pages_version') !== $version) {
         cachewarmer_ensure_pages();
         update_option('cachewarmer_pages_version', $version);
